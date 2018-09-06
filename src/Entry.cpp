@@ -6,7 +6,7 @@
 #include <fstream>
 #include "evc/Factory.hpp"
 
-int main(void){
+int main_(void){
 
     AudioDevice &device = Factory::get().create();
     if (device.init()){
@@ -54,4 +54,31 @@ int main(void){
         micThread.join();
     }
     return 0;
+}
+
+
+
+int loopback(){
+    AudioDevice &device = Factory::get().create();
+    if (device.init()){
+        for (;;){
+            std::vector<char> micBuffer(1<<12);
+            const auto blockSize = 1<<7;
+            // TODO: use RingBuffer?
+            auto ret = device.read((char *)micBuffer.data(), blockSize);
+            if (ret>0){
+                device.write((char *)(micBuffer.data()), blockSize);
+            }
+
+            if (ret!=blockSize){
+                throw;
+            }
+        }
+    }
+    return 0;
+}
+
+
+int main(void){
+    loopback();
 }
