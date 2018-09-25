@@ -20,7 +20,6 @@ public:
             return Pa_GetErrorText( err );
         }
 
-        std::cout << __FUNCTION__ << ":" <<  __LINE__ << std::endl;
         #define SAMPLE_RATE (48000)
 
         /* Open an audio I/O stream. */
@@ -45,7 +44,7 @@ public:
     virtual int read(char *pBuffer, int nBytes) override {
         auto err = Pa_ReadStream(stream_, (void*)pBuffer, nBytes);
         if (err != paNoError){
-            std::cout << Pa_GetErrorText( err ) << std::endl;
+            std::cout << __FILE__ << ":" <<  __LINE__ << " :" << Pa_GetErrorText( err ) << std::endl;
             return err;
         }
         return nBytes;
@@ -53,7 +52,7 @@ public:
     virtual int write(const char *pBuffer, int nBytes) override {
         auto err = Pa_WriteStream(stream_, (void*)pBuffer, nBytes);
         if (err != paNoError){
-            std::cout << Pa_GetErrorText( err ) << std::endl;
+            std::cout << __FILE__ << ":" <<  __LINE__ << " :" << Pa_GetErrorText( err ) << std::endl;
             return err;
         }
         return nBytes;

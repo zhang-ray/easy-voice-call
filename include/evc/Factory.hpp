@@ -2,10 +2,13 @@
 
 #include "Singleton.hpp"
 #include "AudioDevice.hpp"
+#include "AudioEncoder.hpp"
 
+// TODO: naming misleading
 class Factory : public Singleton<Factory> {
 public:
     AudioDevice &create();
+    AudioEncoder &createAudioEncoder();
 
     Factory(){}
     Factory(const Factory&) = delete;

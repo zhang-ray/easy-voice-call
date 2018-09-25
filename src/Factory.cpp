@@ -14,3 +14,8 @@ AudioDevice &Factory::create() {
 AudioDevice &Factory::create() {
     return (AudioDevice &)(PortAudio::get());
 }
+
+#include "evc/FdkAacEncoder.hpp"
+AudioEncoder &Factory::createAudioEncoder() {
+    return (FdkAacEncoder &)(FdkAacEncoder::get());
+}

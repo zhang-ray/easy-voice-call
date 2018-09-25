@@ -80,5 +80,23 @@ int loopback(){
 
 
 int main(void){
-    loopback();
+    AudioEncoder &encoder = Factory::get().createAudioEncoder();
+    AudioDevice &device = Factory::get().create();
+    for(;;);
+    if (encoder.reInit()){
+        if (device.init()){
+            for (;;){
+                std::vector<char> micBuffer(1<<12);
+                const auto blockSize = 1<<7;
+                // TODO: use RingBuffer?
+                // auto ret = device.read((char *)micBuffer.data(), blockSize);
+
+                std::vector<char> encodedData;
+                // encoder.encode(micBuffer, encodedData);
+
+
+            }
+        }
+    }
+    return 0;
 }
