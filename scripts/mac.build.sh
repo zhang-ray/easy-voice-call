@@ -9,6 +9,8 @@ cd opus-1.1.2
 ./configure
 make -j32
 make install
+cd ..
+
 
 # portaudio
 brew install portaudio
