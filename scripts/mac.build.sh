@@ -5,6 +5,7 @@ which curl
 curl --version
 curl -O https://github.com/xiph/opus/releases/download/v1.1.2/opus-1.1.2.tar.gz
 tar -zxf opus-1.1.2.tar.gz
+cd opus-1.1.2
 ./configure
 make -j32
 make install
