@@ -3,6 +3,7 @@
 
 #include <numeric>
 #include <cmath>
+#include<algorithm>
 
 ReturnType compre(const std::vector<char> orig, const std::vector<char> rec){
     if (orig.size()!=rec.size()){
