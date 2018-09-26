@@ -1,6 +1,8 @@
 
 # opus-1.2.1, same as Ubuntu 16.04
-curl -O https://archive.mozilla.org/pub/opus/opus-1.2.1.tar.gz
+which curl
+curl --version
+curl -O http://archive.mozilla.org/pub/opus/opus-1.2.1.tar.gz
 tar -zxf opus-1.1.2.tar.gz
 ./configure
 make -j32
