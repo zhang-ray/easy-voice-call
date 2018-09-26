@@ -1,4 +1,4 @@
 os: osx
 language: cpp
 sudo: required
-script: ./scripts/mac.build.sh
+script: ./scripts/mac.build.sh && ../easy-voice-call-build/./tests/unit_tests/Opus
