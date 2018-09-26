@@ -6,9 +6,9 @@ set(CMAKE_BUILD_TYPE "Debug")
 
 
 # treat all warnings as errors
-if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-endif(CMAKE_COMPILER_IS_GNUCXX)
+#if(CMAKE_COMPILER_IS_GNUCXX)
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+#endif(CMAKE_COMPILER_IS_GNUCXX)
 
 add_subdirectory(src)
 add_subdirectory(tests/unit_tests)
