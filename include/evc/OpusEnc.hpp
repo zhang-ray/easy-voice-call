@@ -2,6 +2,7 @@
 
 #include "AudioEncoder.hpp"
 #include "Singleton.hpp"
+#include <cstring>
 
 #include <opus/opus.h>
 

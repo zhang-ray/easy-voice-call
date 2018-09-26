@@ -3,6 +3,7 @@
 #include "AudioDecoder.hpp"
 #include "Singleton.hpp"
 #include <vector>
+#include <cstring>
 
 #include <opus/opus.h>
 
