@@ -1,0 +1,4 @@
+os: osx
+language: cpp
+sudo: required
+script: ./scripts/mac.build.sh
