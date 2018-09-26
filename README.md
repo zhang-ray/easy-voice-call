@@ -1,6 +1,7 @@
 # easy-voice-call
 (under construction...) 
 
-A self-hosting voice chating software. 
+EVC(easy-voice-call) is a self-hosting voice chating App. 
 
-- [x] make source code concise - less than 5k lines (including clients/server/unit_tests/smoking_tests codes)
+**Highlights:**
+- [x] concise source code - less than 5k lines (including clients/server/unit_tests/smoking_tests code)
