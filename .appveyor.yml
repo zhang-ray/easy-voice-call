@@ -7,8 +7,7 @@ before_build:
 - cmd: copy /y .\VS2010\Win32\Debug\opus.lib C:\Windows\system32\opus.lib
 - ps: Start-FileDownload 'https://github.com/zhang-ray/portaudio/releases/download/1.0.4/pa19-win32-x86-release-build.7z'
 - 7z x pa19-win32-x86-release-build.7z
-- cmd: copy /y .\build\Release\portaudio_x86.dll C:\Windows\system32\portaudio_x86.dll
-- cmd: copy /y .\build\Release\portaudio_x86.lib C:\Windows\system32\portaudio_x86.lib
+- cmd: copy /y .\build\Release\portaudio_static_x86.lib C:\Windows\system32\portaudio_static_x86.lib
 - cmd: dir C:\Windows\system32\
 - mkdir ..\build\ && cd ..\build\
 - cmake ..\easy-voice-call

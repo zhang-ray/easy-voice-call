@@ -11,7 +11,7 @@
 #include <iostream>
 
 #ifdef WIN32
-#pragma comment (lib, "portaudio_x86.lib")
+#pragma comment (lib, "portaudio_static_x86.lib")
 #endif
 
 
