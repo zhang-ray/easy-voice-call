@@ -6,7 +6,6 @@
 
 #ifdef WIN32
 #include <opus.h>
-#pragma comment (lib, "opus.lib")
 #else
 #include <opus/opus.h>
 #endif
