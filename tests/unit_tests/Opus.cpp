@@ -5,20 +5,17 @@
 #include <cmath>
 #include<algorithm>
 
-ReturnType compre(const std::vector<char> orig, const std::vector<char> rec){
+ReturnType compare(const std::vector<short> orig, const std::vector<short> rec){
     if (orig.size()!=rec.size()){
         printf("orig.size=%d != rec.size=%d\n", orig.size(), rec.size());
         return -1;
     }
 
-    auto nbShort = orig.size()/2;
-    auto pOrig = (const short *)(orig.data());
-    auto pRec = (const short *)(rec.data());
-
-
+    auto nbShort = orig.size();
+    
     std::vector<double> diffList;
     for (int i = 0; i < nbShort; i++){
-        diffList.push_back(((double)(pOrig[i]- pRec[i]))/(1<<15));
+        diffList.push_back(((double)(orig[i]- rec[i]))/(1<<15));
     }
 
     const auto &resultSet = diffList;
@@ -42,7 +39,7 @@ int main(void){
     AudioDecoder &decoder = OpusDec::get();
     if (decoder.reInit()){
         if (encoder.reInit()){
-            std::vector<char> origPcm(960*2, 0);
+            std::vector<short> origPcm(960, 0);
             
             srand(time(NULL));
             for (auto &v : origPcm){
@@ -59,12 +56,12 @@ int main(void){
                 }
                 if (ret){
                     printf("hehe\n");
-                    std::vector<char> decodedData;
+                    std::vector<short> decodedData;
                     auto ret2 = decoder.decode(opusData, decodedData);
                     if (ret2){
                         // break;
                         printf("decode OK\n");
-                        compre(origPcm, decodedData);
+                        compare(origPcm, decodedData);
                     }
                 }
             // }

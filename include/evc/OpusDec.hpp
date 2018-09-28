@@ -28,7 +28,7 @@ public:
 
 #define MAX_FRAME_SIZE 6*960
 #define MAX_PACKET_SIZE (3*1276)
-    virtual ReturnType decode(const std::vector<char> &encodedData, std::vector<char> &pcmData) override {
+    virtual ReturnType decode(const std::vector<char> &encodedData, std::vector<short> &pcmData) override {
         short out[MAX_FRAME_SIZE];
         auto nbBytes = encodedData.size();
         printf("nbBytes=%d\n", nbBytes);
@@ -39,8 +39,8 @@ public:
         }
         printf("frame_size=%d\n", frame_size);
 
-        pcmData.resize(frame_size*2);
-        memcpy(pcmData.data(), out, pcmData.size());
+        pcmData.resize(frame_size);
+        memcpy(pcmData.data(), out, pcmData.size()*2);
         return 0;
     }
     

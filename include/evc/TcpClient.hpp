@@ -69,10 +69,11 @@ public:
 
     ReturnType recv(std::vector<char> &data){
         data.resize(2000);
-        if(::recv(sock_ , data.data() , data.size() , 0) < 0) {
+        auto nbBytes = ::recv(sock_ , data.data() , data.size() , 0);
+        if(nbBytes < 0) {
             return "recv failed";
         }
-        
+        data.resize(nbBytes);
         return 0;
     }
 };

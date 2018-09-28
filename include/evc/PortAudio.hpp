@@ -42,21 +42,24 @@ public:
         }
         return 0;
     }
-    virtual int read(char *pBuffer, int nBytes) override {
-        auto err = Pa_ReadStream(stream_, (void*)pBuffer, nBytes);
+
+    virtual ReturnType read(std::vector<short> &buffer) override {
+        auto err = Pa_ReadStream(stream_, (void*)(buffer.data()), buffer.size());
         if (err != paNoError){
             std::cout << __FILE__ << ":" <<  __LINE__ << " :" << Pa_GetErrorText( err ) << std::endl;
             return err;
         }
-        return nBytes;
+        return 0;
     }
-    virtual int write(const char *pBuffer, int nBytes) override {
-        auto err = Pa_WriteStream(stream_, (void*)pBuffer, nBytes);
+
+
+    virtual ReturnType write(const std::vector<short> &buffer) override {
+        auto err = Pa_WriteStream(stream_, (void*)(buffer.data()), buffer.size());
         if (err != paNoError){
             std::cout << __FILE__ << ":" <<  __LINE__ << " :" << Pa_GetErrorText( err ) << std::endl;
             return err;
         }
-        return nBytes;
+        return 0;
     }
 
     ~PortAudio(){

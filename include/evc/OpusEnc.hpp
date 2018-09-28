@@ -3,6 +3,8 @@
 #include "AudioEncoder.hpp"
 #include "Singleton.hpp"
 #include <cstring>
+#include <set>
+
 
 #ifdef WIN32
 #include <opus.h>
@@ -33,18 +35,19 @@ public:
         return 0;
     }
 
-    virtual ReturnType encode(const std::vector<char> &pcmData, std::vector<char> &encodedData) override {
+    virtual ReturnType encode(const std::vector<short> &pcmData, std::vector<char> &encodedData) override {
         printf("OpusEnc::encode\n");
         unsigned char cbits[MAX_PACKET_SIZE];
         /* Encode the frame. */
         /* For example, at 48 kHz the permitted values are 120, 240, 480, 960, 1920, and 2880 */
-
-        auto frame_size = pcmData.size()/2;
-        if ((frame_size != 480)&&(frame_size != 960)) {
+        std::set<int> validSampleRates = {120, 240, 480, 960, 1920, 2880};
+        auto frame_size = pcmData.size();
+        // if (validSampleRate[frame_size]){}
+        if (validSampleRates.find(frame_size) == validSampleRates.end()){
             printf("invalid frame_size=%d\n", frame_size);
             return "invalid frame_size";
         }
-        auto nbBytes = opus_encode(encoder, (const short *)pcmData.data(), frame_size, cbits, MAX_PACKET_SIZE);
+        auto nbBytes = opus_encode(encoder, pcmData.data(), frame_size, cbits, MAX_PACKET_SIZE);
         if (nbBytes<0) {
             fprintf(stderr, "%s:%d encode failed: %s\n", __FILE__, __LINE__, opus_strerror(nbBytes));
             return EXIT_FAILURE;
