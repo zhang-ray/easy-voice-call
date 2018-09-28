@@ -8,7 +8,7 @@ file(GLOB_RECURSE FILES_INCLUDE *.hpp *.h ../include/*.hpp ../include/*.h)
 
 if(WIN32)
     link_directories(../VS2010/Win32/Debug)
-    link_directories(../build/Release/) # portaudio
+    link_directories(../build/Release) # portaudio
 endif(WIN32)
 
 add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
