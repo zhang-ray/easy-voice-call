@@ -9,4 +9,3 @@ add_executable(Opus Opus.cpp)
 target_link_libraries(Opus opus)
 
 add_executable(Tcp Tcp.cpp)
-target_link_libraries(Tcp uv)

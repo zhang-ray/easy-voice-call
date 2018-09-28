@@ -11,5 +11,4 @@ add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
 #target_link_libraries(${PROJECT_NAME} asound pthread)
 target_link_libraries(${PROJECT_NAME} 
 pthread
-uv
 )
