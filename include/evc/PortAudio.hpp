@@ -10,6 +10,11 @@
 #include <portaudio.h>
 #include <iostream>
 
+#ifdef WIN32
+#pragma comment (lib, "../../build/Release/portaudio_x86.lib")
+#endif
+
+
 class PortAudio : public AudioDevice, public Singleton<PortAudio> {
 private:
     PaStream *stream_ = nullptr;

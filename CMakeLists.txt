@@ -15,6 +15,5 @@ add_subdirectory(src)
 if(WIN32)
 else(WIN32)
 add_subdirectory(src_server)
-endif (WIN32)
-
 add_subdirectory(tests/unit_tests)
+endif (WIN32)

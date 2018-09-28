@@ -7,6 +7,7 @@
 
 #ifdef WIN32
 #include <opus.h>
+#pragma comment (lib, "../../VS2010/Win32/Debug/opus.lib")
 #else
 #include <opus/opus.h>
 #endif
