@@ -4,7 +4,11 @@
 #include "Singleton.hpp"
 #include <cstring>
 
+#ifdef WIN32
+#include <opus.h>
+#else
 #include <opus/opus.h>
+#endif
 
 #define MAX_PACKET_SIZE (3*1276)
 

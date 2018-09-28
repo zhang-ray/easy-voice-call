@@ -5,8 +5,11 @@
 #include <vector>
 #include <cstring>
 
+#ifdef WIN32
+#include <opus.h>
+#else
 #include <opus/opus.h>
-
+#endif
 
 // libopus 1.2.1
 class OpusDec final : public AudioDecoder,public Singleton<OpusDec>{
