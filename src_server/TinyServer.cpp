@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <string.h>   
+#ifdef WIN32
+#include <winsock2.h>
+#pragma comment (lib, "ws2_32.lib")
+#else
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#endif
 #include <unistd.h>   
 #include <stdlib.h>
 #include <string>
@@ -19,6 +24,10 @@ private:
     
 public:
     ReturnType init(char *ip, int port){
+#ifdef WIN32
+        WSADATA wsaData;
+        WSAStartup( MAKEWORD(2, 2), &wsaData);
+#endif
         //Create socket
         socket_desc_ = socket(AF_INET , SOCK_STREAM , 0);
         if (socket_desc_ == -1) {

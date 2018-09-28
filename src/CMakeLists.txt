@@ -13,9 +13,12 @@ endif(WIN32)
 
 add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
 #target_link_libraries(${PROJECT_NAME} asound pthread)
-target_link_libraries(${PROJECT_NAME} 
-pthread
-portaudio
-#fdk-aac
-opus
-)
+
+
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} portaudio opus)
+else(WIN32)
+    target_link_libraries(${PROJECT_NAME} portaudio opus pthread
+    #fdk-aac
+    )
+endif(WIN32)
