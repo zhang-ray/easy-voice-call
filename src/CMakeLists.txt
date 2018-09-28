@@ -15,8 +15,7 @@ add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
 
 
 if(WIN32)
-    link_directories("C:/projects/easy-voice-call/")
-    target_link_libraries(${PROJECT_NAME} opus)
+    target_link_libraries(${PROJECT_NAME} opus portaudio_static_x86)
 else(WIN32)
     target_link_libraries(${PROJECT_NAME} portaudio opus pthread
     #fdk-aac
