@@ -10,10 +10,6 @@
 #include <portaudio.h>
 #include <iostream>
 
-#ifdef WIN32
-#pragma comment (lib, "portaudio_static_x86.lib")
-#endif
-
 
 class PortAudio : public AudioDevice, public Singleton<PortAudio> {
 private:
