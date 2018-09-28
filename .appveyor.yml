@@ -5,6 +5,10 @@ before_build:
 - ps: Start-FileDownload 'https://github.com/zhang-ray/opus/releases/download/1.0.3/opus-112-win32-build.7z'
 - 7z x opus-112-win32-build.7z
 - cmd: copy /y .\VS2010\Win32\Debug\opus.lib .\opus.lib
+- cmd: copy /y .\VS2010\Win32\Debug\celt.lib .\
+- cmd: copy /y .\VS2010\Win32\Debug\silk_common.lib .\
+- cmd: copy /y .\VS2010\Win32\Debug\silk_fixed.lib .\
+- cmd: copy /y .\VS2010\Win32\Debug\silk_float.lib .\
 - ps: Start-FileDownload 'https://github.com/zhang-ray/portaudio/releases/download/1.0.4/pa19-win32-x86-release-build.7z'
 - 7z x pa19-win32-x86-release-build.7z
 - cmd: copy /y .\build\Release\portaudio_static_x86.lib .\portaudio_static_x86.lib
