@@ -6,8 +6,7 @@
 #else
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#endif
-#include <unistd.h>   
+#endif   
 #include <stdlib.h>
 #include <string>
 #include <thread>
