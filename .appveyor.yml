@@ -2,7 +2,7 @@ image: Visual Studio 2015
 
 before_build:
 - mkdir ..\build\ && cd ..\build\
-- cmake ..\audio-processing-module
+- cmake ..\easy-voice-call
 
 build:
   project: ..\build\EVC.sln
