@@ -19,3 +19,8 @@ AudioDevice &Factory::create() {
 AudioEncoder &Factory::createAudioEncoder() {
     return (AudioEncoder &)(OpusEnc::get());
 }
+
+#include "evc/OpusDec.hpp"
+AudioDecoder &Factory::createAudioDecoder() {
+    return (AudioDecoder &)(OpusDec::get());
+}

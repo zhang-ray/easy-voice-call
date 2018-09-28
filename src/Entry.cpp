@@ -11,20 +11,30 @@
 int main(int argc, char **argv){
     if (argc!=3){
         printf("%s\n", "usage: EVC IP port");
+        printf("%s\n", "example:");
+        printf("%s\n", "./EVC 127.0.0.1 8000");
         return -1;
     }
 
 
-    AudioEncoder &encoder = Factory::get().createAudioEncoder();
-    AudioDevice &device = Factory::get().create();
+    auto &decoder = Factory::get().createAudioDecoder();
+    auto &encoder = Factory::get().createAudioEncoder();
+    auto &device = Factory::get().create();
+
     TcpClient client;
     client.connect(argv[1], atoi(argv[2]));
+
     if (encoder.reInit()){
         if (device.init()){
             std::thread recvThread([&](){
-            //     std::vector<char> buff;
-            //     client.recv(buff);
-            //     decoder.
+                std::vector<char> netBuff;
+                client.recv(netBuff);
+                std::vector<short> decodedPcm;
+                decoder.decode(netBuff, decodedPcm);
+                auto ret = device.write(decodedPcm);
+                if (!ret){
+                    std::cout << ret.message() << std::endl;
+                }
             });
 
 
