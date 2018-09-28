@@ -20,7 +20,6 @@ build:
 
 after_build:
 - cd ..\easy-voice-call
-- copy /y 
 - 7z a build.VS2015.7z ..\build\
 
 artifacts:
