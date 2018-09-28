@@ -54,6 +54,7 @@ int main(int argc, char **argv){
                     std::cout << retEncode.message() << std::endl;
                     break;
                 }
+                client.send(outData);
             }
 
 
