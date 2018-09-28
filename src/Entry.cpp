@@ -81,7 +81,6 @@ int loopback(){
 
 int main(void){
     AudioEncoder &encoder = Factory::get().createAudioEncoder();
-#if 0
     AudioDevice &device = Factory::get().create();
     if (encoder.reInit()){
         if (device.init()){
@@ -96,6 +95,5 @@ int main(void){
             }
         }
     }
-#endif
     return 0;
 }

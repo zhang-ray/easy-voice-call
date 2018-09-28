@@ -21,8 +21,8 @@ build:
   #verbosity: quiet
 
 after_build:
-- cd ..\audio-processing-module
-- 7z a Debug.VS2015.7z ..\build\src\Debug
+- cd ..\easy-voice-call
+- 7z a Debug.VS2015.7z ..\build\
 
 artifacts:
 - path: .\Debug.VS2015.7z
