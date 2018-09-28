@@ -4,8 +4,15 @@
 
 #include <stdio.h>
 #include <cstring>
+
+#ifdef WIN32
+#include <winsock2.h>
+#pragma comment (lib, "ws2_32.lib")
+#else
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#endif
+
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -22,6 +29,10 @@ public:
     TcpClient(const std::string &id="") : id_(id){ }
     std::string id(){return id_;}
     ReturnType connect(char *ip, int port){
+#ifdef WIN32
+        WSADATA wsaData;
+        WSAStartup( MAKEWORD(2, 2), &wsaData);
+#endif
         //Create socket
         sock_ = socket(AF_INET , SOCK_STREAM , 0);
         if (sock_ == -1) {
