@@ -78,7 +78,7 @@ public:
 
             while( (read_size_1to2 = recv(client_sock_1 , buff , len, 0)) > 0 ) {
                 //Send the message back to client
-                write(client_sock_2 , buff , strlen(buff));
+                ::send(client_sock_2 , buff, len, 0);
             }
             
             if(read_size_1to2 == 0) {
@@ -98,7 +98,7 @@ public:
             //Receive a message from client
             while( (read_size_2to1 = recv(client_sock_2 , client_message , block_size_ , 0)) > 0 ) {
                 //Send the message back to client
-                write(client_sock_1 , client_message , strlen(client_message));
+                ::send(client_sock_1 , client_message , strlen(client_message), 0);
             }
             
             if(read_size_2to1 == 0) {
