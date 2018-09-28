@@ -1,11 +1,26 @@
-image: ubuntu
+image: Visual Studio 2015
 
-build_script:
-- ./scripts/ubuntu.build.sh
+before_build:
+- mkdir ..\build\ && cd ..\build\
+- cmake ..\audio-processing-module
 
-test_script:
-- pwd
-- ../easy-voice-call-build/tests/unit_tests/Opus
+build:
+  project: ..\build\EVC.sln
+  parallel: true
+  #verbosity: quiet
 
-#artifacts:
-#- path:
+after_build:
+- cd ..\audio-processing-module
+- 7z a Debug.VS2015.7z ..\build\src\Debug
+
+artifacts:
+- path: .\Debug.VS2015.7z
+
+
+#image: ubuntu
+#build_script:
+#- ./scripts/ubuntu.build.sh
+
+#test_script:
+#- pwd
+#- ../easy-voice-call-build/tests/unit_tests/Opus
