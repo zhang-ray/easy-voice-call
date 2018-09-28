@@ -17,7 +17,7 @@ add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
 
 if(WIN32)
     link_directories("C:/Windows/system32/")
-    target_link_libraries(${PROJECT_NAME} portaudio_static_x86)
+    #target_link_libraries(${PROJECT_NAME} portaudio_static_x86)
 else(WIN32)
     target_link_libraries(${PROJECT_NAME} portaudio opus pthread
     #fdk-aac
