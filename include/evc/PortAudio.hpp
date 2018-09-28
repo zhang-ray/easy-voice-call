@@ -11,7 +11,7 @@
 #include <iostream>
 
 #ifdef WIN32
-#pragma comment (lib, "../../build/Release/portaudio_x86.lib")
+#pragma comment (lib, "C:\\Windows\\system32\\portaudio_x86.lib")
 #endif
 
 
