@@ -14,8 +14,7 @@
 #include <iostream>
 
 #include "evc/ReturnType.hpp"
-
-#define log(format , ...) do{ printf("%s:%d @%s\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); }while(0);
+#include "evc/Log.hpp"
 
 // 1v1 server
 class TinyServer {
@@ -26,6 +25,9 @@ private:
 		block_size_ = 1 << 10
 	};
 public:
+
+
+
     ReturnType init(char *ip, int port){
 #ifdef WIN32
         WSADATA wsaData;
@@ -77,7 +79,7 @@ public:
 
 		log();
         // 1to2
-        std::thread _1to2([&](){
+        std::thread _1to2([=](){
             int read_size_1to2;
             char buff[block_size_];
 			//Receive a message from client

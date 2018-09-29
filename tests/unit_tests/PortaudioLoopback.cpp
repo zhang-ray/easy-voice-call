@@ -3,8 +3,7 @@
 #include <thread>
 #include <chrono>
 #include "evc/PortAudio.hpp"
-
-#define log(format , ...) do{ printf("%s:%d @%s\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); }while(0);
+#include "evc/Log.hpp"
 
 int main(int argc, char **argv){
     log();
