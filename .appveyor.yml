@@ -7,20 +7,20 @@ before_build:
 - 7z x opus-112-win32-build.7z
 - ps: Start-FileDownload 'https://github.com/zhang-ray/portaudio/releases/download/1.0.4/pa19-win32-x86-release-build.7z'
 - 7z x pa19-win32-x86-release-build.7z
-- mkdir build\ && cd build\
+- mkdir easy-voice-call-build\ && cd easy-voice-call-build\
 - cmake ..\easy-voice-call
 
 configuration:
   - Release
 
 build:
-  project: ..\build\EVC.sln
+  project: ..\easy-voice-call-build\EVC.sln
   parallel: true
   #verbosity: quiet
 
 after_build:
 - cd ..\easy-voice-call
-- 7z a build.VS2015.7z ..\build\
+- 7z a build.VS2015.7z ..\easy-voice-call-build\
 
 artifacts:
 - path: .\build.VS2015.7z
