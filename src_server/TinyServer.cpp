@@ -18,10 +18,11 @@
 // 1v1 server
 class TinyServer {
 private:
-    int socket_desc_;
-    sockaddr_in server_;
-    const int block_size_ = 1<<10;
-    
+	int socket_desc_;
+	sockaddr_in server_;
+	enum ___{
+		block_size_ = 1 << 10
+	};
 public:
     ReturnType init(char *ip, int port){
 #ifdef WIN32
@@ -73,11 +74,10 @@ public:
         // 1to2
         std::thread _1to2([&](){
             int read_size_1to2;
-            int len = 1<<10;
-            char buff[1<<10];
+            char buff[block_size_];
             //Receive a message from client
 
-            while( (read_size_1to2 = recv(client_sock_1 , buff , len, 0)) > 0 ) {
+            while( (read_size_1to2 = recv(client_sock_1 , buff , block_size_, 0)) > 0 ) {
                 //Send the message back to client
                 ::send(client_sock_2 , buff, read_size_1to2, 0);
             }
@@ -95,7 +95,7 @@ public:
         // 2to1
         {
             int read_size_2to1;
-            char client_message[2000];
+            char client_message[block_size_];
             //Receive a message from client
             while( (read_size_2to1 = recv(client_sock_2 , client_message , block_size_ , 0)) > 0 ) {
                 //Send the message back to client
