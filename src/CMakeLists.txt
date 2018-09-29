@@ -1,10 +1,10 @@
 
 set (CMAKE_CXX_STANDARD 11)
 
+include_directories(../include/)
+
 if(WIN32)
-	include_directories(../../include/ ../include/)
-else(WIN32)
-	include_directories(../include/)
+	include_directories(../../include/)
 endif(WIN32)
 
 file(GLOB_RECURSE FILES_SOURCES *.cpp *.c)

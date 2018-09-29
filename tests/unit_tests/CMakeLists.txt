@@ -1,16 +1,32 @@
 set (CMAKE_CXX_STANDARD 11)
 
 include_directories(../../include/)
+if(WIN32)
+	include_directories(../../../include/)
+endif(WIN32)
 
-#add_executable(FdkAac FdkAac.cpp)
-#target_link_libraries(FdkAac fdk-aac)
 
-#if(WIN32)
-#    link_directories(../VS2010/Win32/Debug)
-#endif(WIN32)
-
+if(WIN32)
+    link_directories("C:/projects/VS2010/Win32/Release/"  "C:/projects/build/Release/")
+endif(WIN32)
 
 add_executable(Opus Opus.cpp)
-target_link_libraries(Opus opus)
+
+if(WIN32)
+    target_link_libraries(Opus opus celt silk_common silk_fixed silk_float)
+else(WIN32)
+	target_link_libraries(Opus opus)
+endif(WIN32)
 
 add_executable(Tcp Tcp.cpp)
+
+
+
+
+add_executable(PortaudioLoopback PortaudioLoopback.cpp)
+if(WIN32)
+    target_link_libraries(PortaudioLoopback portaudio_static_x86)
+else(WIN32)
+	target_link_libraries(PortaudioLoopback portaudio)
+endif(WIN32)
+

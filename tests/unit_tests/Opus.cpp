@@ -4,6 +4,7 @@
 #include <numeric>
 #include <cmath>
 #include<algorithm>
+#include <ctime>
 
 ReturnType compare(const std::vector<short> orig, const std::vector<short> rec){
     if (orig.size()!=rec.size()){

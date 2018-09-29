@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project(EVC)
 
 #debug mode
-set(CMAKE_BUILD_TYPE "Debug")
+#set(CMAKE_BUILD_TYPE "Debug")
 
 
 # treat all warnings as errors
@@ -12,8 +12,4 @@ set(CMAKE_BUILD_TYPE "Debug")
 
 add_subdirectory(src)
 add_subdirectory(src_server)
-
-if(WIN32)
-else(WIN32)
 add_subdirectory(tests/unit_tests)
-endif (WIN32)
