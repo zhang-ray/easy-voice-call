@@ -30,11 +30,13 @@ int main(int argc, char **argv){
                 std::vector<char> netBuff;
                 client.recv(netBuff);
                 std::vector<short> decodedPcm;
-                decoder.decode(netBuff, decodedPcm);
-                auto ret = device.write(decodedPcm);
-                if (!ret){
-                    std::cout << ret.message() << std::endl;
-                }
+				if (decoder.reInit()) {
+					decoder.decode(netBuff, decodedPcm);
+					auto ret = device.write(decodedPcm);
+					if (!ret) {
+						std::cout << ret.message() << std::endl;
+					}
+				}
             });
 
 

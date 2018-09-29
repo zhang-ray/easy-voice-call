@@ -15,6 +15,8 @@
 
 #include "evc/ReturnType.hpp"
 
+#define log(format , ...) do{ printf("%s:%d @%s\n", __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__); }while(0);
+
 // 1v1 server
 class TinyServer {
 private:
@@ -60,6 +62,8 @@ public:
         //accept connection from an incoming client
         auto c = sizeof(struct sockaddr_in);
 
+		log();
+
         auto client_sock_1 = accept(socket_desc_, (struct sockaddr *)&client1, (socklen_t*)&c);
         if (client_sock_1 < 0){
             return "accept failed";
@@ -71,11 +75,13 @@ public:
         }
         
 
+		log();
         // 1to2
         std::thread _1to2([&](){
             int read_size_1to2;
             char buff[block_size_];
-            //Receive a message from client
+			//Receive a message from client
+			log();
 
             while( (read_size_1to2 = recv(client_sock_1 , buff , block_size_, 0)) > 0 ) {
                 //Send the message back to client
@@ -88,10 +94,12 @@ public:
             }
             else if(read_size_1to2 == -1) {
                 //return "recv failed";
-            }
+			}
+			log();
         });
 
 
+		log();
         // 2to1
         {
             int read_size_2to1;
@@ -112,6 +120,7 @@ public:
         }        
 
 
+		log();
         // _1to2.join();
         return 0;
     }
