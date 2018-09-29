@@ -2,12 +2,12 @@ image: Visual Studio 2015
 
 before_build:
 - cmd: set
+- cd ..
 - ps: Start-FileDownload 'https://github.com/zhang-ray/opus/releases/download/1.0.5/opus-112-win32-build.7z'
 - 7z x opus-112-win32-build.7z
 - ps: Start-FileDownload 'https://github.com/zhang-ray/portaudio/releases/download/1.0.4/pa19-win32-x86-release-build.7z'
 - 7z x pa19-win32-x86-release-build.7z
-- cmd: copy /y .\build\Release\portaudio_static_x86.lib .\portaudio_static_x86.lib
-- mkdir ..\build\ && cd ..\build\
+- mkdir build\ && cd build\
 - cmake ..\easy-voice-call
 
 configuration:
