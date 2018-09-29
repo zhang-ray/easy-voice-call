@@ -11,9 +11,9 @@ set(CMAKE_BUILD_TYPE "Debug")
 #endif(CMAKE_COMPILER_IS_GNUCXX)
 
 add_subdirectory(src)
+add_subdirectory(src_server)
 
 if(WIN32)
 else(WIN32)
-add_subdirectory(src_server)
 add_subdirectory(tests/unit_tests)
 endif (WIN32)
