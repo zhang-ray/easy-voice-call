@@ -5,7 +5,6 @@
 #include <cstring>
 #include <set>
 
-
 #ifdef WIN32
 #include <opus.h>
 #else
@@ -36,7 +35,6 @@ public:
     }
 
     virtual ReturnType encode(const std::vector<short> &pcmData, std::vector<char> &encodedData) override {
-        printf("OpusEnc::encode\n");
         unsigned char cbits[MAX_PACKET_SIZE];
         /* Encode the frame. */
         /* For example, at 48 kHz the permitted values are 120, 240, 480, 960, 1920, and 2880 */
@@ -54,7 +52,6 @@ public:
         }
 
 
-        printf("nbBytes=%d\n", nbBytes);
         encodedData.resize(nbBytes);
         memcpy(encodedData.data(), cbits, nbBytes);
 
