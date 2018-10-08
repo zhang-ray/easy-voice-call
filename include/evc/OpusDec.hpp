@@ -31,14 +31,12 @@ public:
     virtual ReturnType decode(const std::vector<char> &encodedData, std::vector<short> &pcmData) override {
         short out[MAX_FRAME_SIZE];
         auto nbBytes = encodedData.size();
-        printf("nbBytes=%d\n", nbBytes);
         auto frame_size = opus_decode(decoder, (unsigned char*)encodedData.data(), nbBytes, out, MAX_FRAME_SIZE, 0);
         if (frame_size<0) {
             fprintf(stderr, "decoder failed: %s\n", opus_strerror(frame_size));
             return EXIT_FAILURE;
         }
-        printf("frame_size=%d\n", frame_size);
-
+        
         pcmData.resize(frame_size);
         memcpy(pcmData.data(), out, pcmData.size()*2);
         return 0;
