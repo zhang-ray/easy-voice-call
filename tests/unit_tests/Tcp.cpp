@@ -4,59 +4,68 @@
 #include <chrono>
 #include "evc/Log.hpp"
 
+enum {body_length = 4};
+
 int main(int argc, char **argv){
-    
-    TcpClient client1;
-    {
-        auto ret = client1.connect(argv[1], atoi(argv[2]));
-        if (!ret){
-            std::cout << ret.message() << std::endl;
+
+    bool successed = true;
+    try{
+        std::vector<TcpClient *> clients;
+        std::vector<std::thread *> threads;
+        std::vector<std::string> goldens;
+
+        for (int i = 0; i < 2; i++){
+            std::string msg = "msg";
+            msg.append(std::to_string(i));
+            goldens.push_back(msg);
+        }
+
+        for (int i =0 ; i < 2; i++){
+            clients.push_back(new TcpClient(argv[1], argv[2], [=](const char *pData, std::size_t size){
+                if (size!=body_length){
+                    throw;
+                }
+
+                auto goldenIndex = 1-i;
+                auto _1 = goldens[goldenIndex].data();
+                auto _2 = pData;
+                if(memcmp(_1, _2, size)){
+                    log("failed");
+                    throw;
+                }
+
+            }, std::to_string(i)));
+        }
+
+        for (auto i = 0; i < 2; i++){
+            auto client = clients[i];
+            threads.push_back(new std::thread([=, &successed](){
+                try {
+                    for (int j = 0; j< 10000; j++){
+                        client->send(goldens[i].data(), goldens[i].size());
+                        std::this_thread::sleep_for(std::chrono::microseconds(10));
+                    }
+                }
+                catch (std::exception& e) {
+                    successed =false;
+                    std::cerr << "Exception: " << e.what() << "\n";
+                }
+            }));
+        }
+
+        for (auto &pThread: threads){
+            pThread->join();
         }
     }
-
-
-    TcpClient client2;
-    {
-        auto ret = client2.connect(argv[1], atoi(argv[2]));
-        if (!ret){
-            
-            std::cout << ret.message() << std::endl;
-        }
+    catch (std::exception& e) {
+        successed =false;
+        std::cerr << "Exception: " << e.what() << "\n";
     }
 
-    std::vector<char> msg1;
-    msg1.push_back('m');
-    msg1.push_back('s');
-    msg1.push_back('g');
-    msg1.push_back('1');
-    msg1.push_back('\0');
+    if(successed){
+        log("Everything is OK\n");
+    }
 
-
-	auto sender = &client1;
-	auto receiver = &client2;
-	for (int runIndex = 0; runIndex < 2; runIndex++) {
-		log("runIndex=%d", runIndex);
-		{
-			if (auto retSend = sender->send(msg1)) {
-				std::vector<char> receivedData;
-				if (receiver->recv(receivedData)) {
-					for (int i = 0; i < msg1.size(); i++) {
-						if (msg1[i] != receivedData[i]) {
-							log("msg1[%d](%c) != receivedData[%d](%c)", i, msg1[i], i, receivedData[i]);
-							exit(-1);
-						}
-					}
-				}
-			}
-			else {
-				std::cout << retSend.message() << std::endl;
-			}
-			// std::this_thread::sleep_for(std::chrono::seconds(1));
-		}
-
-		sender = &client2;
-		receiver = &client1;
-	}
 
     return 0;
 }

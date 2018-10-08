@@ -19,7 +19,11 @@ else(WIN32)
 endif(WIN32)
 
 add_executable(Tcp Tcp.cpp)
-
+target_link_libraries(
+    Tcp
+    boost_system
+    pthread
+)
 
 
 
@@ -27,6 +31,9 @@ add_executable(PortaudioLoopback PortaudioLoopback.cpp)
 if(WIN32)
     target_link_libraries(PortaudioLoopback portaudio_static_x86)
 else(WIN32)
-	target_link_libraries(PortaudioLoopback portaudio)
+        target_link_libraries(PortaudioLoopback portaudio
+    boost_system
+    pthread
+)
 endif(WIN32)
 

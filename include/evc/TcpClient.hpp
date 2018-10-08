@@ -5,75 +5,198 @@
 #include <stdio.h>
 #include <cstring>
 
-#ifdef WIN32
-#include <winsock2.h>
-#pragma comment (lib, "ws2_32.lib")
-#else
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#endif
-
 #include <cstdlib>
 #include <string>
 #include <vector>
 
-class TcpClient : public NetClient {
-private:
-    int sock_;
-    struct sockaddr_in server;
-    char message[1000] , server_reply[2000];
-    char *ip_;
-    int port_;
-    std::string id_;
-public:
-    TcpClient(const std::string &id="") : id_(id){ }
-    std::string id(){return id_;}
-    ReturnType connect(char *ip, int port){
-#ifdef WIN32
-        WSADATA wsaData;
-        WSAStartup( MAKEWORD(2, 2), &wsaData);
-#endif
-        //Create socket
-        sock_ = socket(AF_INET , SOCK_STREAM , 0);
-        if (sock_ == -1) {
-            return "Could not create socket";
-        }
-        
-        server.sin_addr.s_addr = inet_addr(ip);
-        server.sin_family = AF_INET;
-        server.sin_port = htons(port);
-    
-        //Connect to remote server
-        if (::connect(sock_ , (struct sockaddr *)&server , sizeof(server)) < 0) {
-            return "connect failed. Error";
-        }
 
-        ip_ = ip;
-        port_ = port;
-        return 0;
+
+
+
+
+
+
+
+
+
+#include <cstdlib>
+#include <deque>
+#include <iostream>
+#include <thread>
+#include <boost/asio.hpp>
+#include "NetPacket.hpp"
+
+
+using NetPacketQueue = std::deque<NetPacket>;
+
+
+
+
+class BoostAsioTcpClient{
+private:
+    std::function<void(const char* pData, std::size_t length)> onDataReceived_;
+public:
+    BoostAsioTcpClient(
+            boost::asio::io_service& io_service,
+            boost::asio::ip::tcp::resolver::iterator endpoint_iterator,
+            decltype(onDataReceived_) onDataReceived
+            )
+        : io_service_(io_service)
+        , socket_(io_service)
+        , onDataReceived_(onDataReceived) {
+        // connect(endpoint_iterator);
+
+        boost::asio::async_connect(socket_,
+                                   endpoint_iterator,
+                                   [this](boost::system::error_code ec, boost::asio::ip::tcp::resolver::iterator){
+            if (ec) {
+                socket_.close();
+            }
+            else {
+                readHeader();
+            }
+        });
     }
 
-    ReturnType send(const char *buf, const size_t len){
-        if(::send(sock_ , buf, len, 0) < 0) {
-            return "Send failed";
+
+
+    void write(const NetPacket& msg) {
+        io_service_.post([this, msg]() {
+            bool write_in_progress = !write_msgs_.empty();
+            write_msgs_.push_back(msg);
+            if (!write_in_progress){
+                write();
+            }
+        });
+    }
+
+    void close(){
+        io_service_.post([this]() { socket_.close(); });
+    }
+
+private:
+
+    void readHeader(){
+        boost::asio::async_read(socket_,
+                                boost::asio::buffer(read_msg_.data(), NetPacket::header_length),
+                                [this](boost::system::error_code ec, std::size_t /*length*/){
+            if (!ec && read_msg_.decode_header()){
+                readBody();
+            }
+            else{
+                socket_.close();
+            }
+        });
+    }
+
+
+
+
+    void readBody(){
+        boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+                                [this](boost::system::error_code ec, std::size_t /*length*/) {
+            if (!ec) {
+                ////////////////////////////////
+                ////////////////////////////////
+                ////////////////////////////////
+                ////////////////////////////////
+                /* GOT DATA! */
+                ////////////////////////////////
+                ////////////////////////////////
+                ////////////////////////////////
+                ////////////////////////////////
+                ////////////////////////////////
+                ////////////////////////////////
+                onDataReceived_(read_msg_.body(), read_msg_.body_length());
+                readHeader();
+            }
+            else{
+                socket_.close();
+            }
+        });
+    }
+
+    void write(){
+        boost::asio::async_write(socket_,
+                                 boost::asio::buffer(write_msgs_.front().data(),
+                                                     write_msgs_.front().length()),
+                                 [this](boost::system::error_code ec, std::size_t /*length*/){
+            if (!ec){
+                write_msgs_.pop_front();
+                if (!write_msgs_.empty())
+                {
+                    write();
+                }
+            }
+            else{
+                socket_.close();
+            }
+        });
+    }
+
+private:
+    boost::asio::io_service& io_service_;
+    boost::asio::ip::tcp::socket socket_;
+    NetPacket read_msg_;
+    NetPacketQueue write_msgs_;
+};
+
+
+class TcpClient : public NetClient {
+private:
+    std::string id_;
+    boost::asio::io_service io_service;
+    std::shared_ptr<BoostAsioTcpClient> pClient = nullptr;
+    std::shared_ptr<std::thread> pThread = nullptr;
+public:
+    TcpClient(const char *host, const char *ip,
+              std::function<void(const char* pData, std::size_t length)> onDataReceived_,
+              const std::string &id="") : id_(id){
+        boost::asio::ip::tcp::resolver resolver(io_service);
+        pClient = std::make_shared<BoostAsioTcpClient>(io_service, resolver.resolve({ host, ip }), onDataReceived_);
+        pThread = std::make_shared<std::thread>([this](){ io_service.run(); });
+
+        /*
+        char line[NetPacket::max_body_length + 1];
+        while (std::cin.getline(line, NetPacket::max_body_length + 1))
+        {
+            NetPacket msg;
+            msg.body_length(std::strlen(line));
+            std::memcpy(msg.body(), line, msg.body_length());
+            msg.encode_header();
+            pClient->write(msg);
         }
+        */
+    }
+
+
+    ~TcpClient(){
+        pClient->close();
+        pThread->join();
+    }
+
+    std::string id(){return id_;}
+
+    ReturnType send(const char *pData, std::size_t size){
+        NetPacket msg;
+        msg.body_length(size);
+        std::memcpy(msg.body(), pData, msg.body_length());
+        msg.encode_header();
+        pClient->write(msg);
         return 0;
     }
 
     ReturnType send(const std::vector<char> &data){
-        if(::send(sock_ , data.data() , data.size() , 0) < 0) {
-            return "Send failed";
-        }
+        NetPacket msg;
+        msg.body_length(data.size());
+        std::memcpy(msg.body(), data.data(), msg.body_length());
+        msg.encode_header();
+        pClient->write(msg);
         return 0;
     }
 
-    ReturnType recv(std::vector<char> &data){
-        data.resize(2000);
-        auto nbBytes = ::recv(sock_ , data.data() , data.size() , 0);
-        if(nbBytes < 0) {
-            return "recv failed";
-        }
-        data.resize(nbBytes);
-        return 0;
-    }
 };
+
+
+
+

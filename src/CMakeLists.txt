@@ -20,9 +20,11 @@ add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
 
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} opus celt silk_common silk_fixed silk_float portaudio_static_x86)
+    target_link_libraries(${PROJECT_NAME} opus celt silk_common silk_fixed silk_float portaudio_static_x86 boost_system pthread)
 else(WIN32)
     target_link_libraries(${PROJECT_NAME} portaudio opus pthread
+    boost_system
+    pthread
     #fdk-aac
     )
 endif(WIN32)

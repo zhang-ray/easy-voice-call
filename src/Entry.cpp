@@ -8,7 +8,7 @@
 #include "evc/TcpClient.hpp"
 
 
-int main(int argc, char **argv){
+int _main(int argc, char **argv){
     if (argc!=3){
         printf("%s\n", "usage: EVC IP port");
         printf("%s\n", "example:");
@@ -21,6 +21,7 @@ int main(int argc, char **argv){
     auto &encoder = Factory::get().createAudioEncoder();
     auto &device = Factory::get().create();
 
+#if 0
     TcpClient client;
     client.connect(argv[1], atoi(argv[2]));
 
@@ -63,5 +64,31 @@ int main(int argc, char **argv){
             //recvThread.join();
         }
     }
+
+#endif
+    return 0;
+}
+
+
+
+int main(int argc, char* argv[]){
+    try{
+        if (argc != 3)
+        {
+            std::cerr << "Usage: chat_client <host> <port>\n";
+            return 1;
+        }
+
+        TcpClient client(argv[1], argv[2], [](const char* pData, std::size_t length){
+            std::cout.write(pData, length);
+            std::cout << "\n";
+        } );
+
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "Exception: " << e.what() << "\n";
+    }
+
     return 0;
 }
