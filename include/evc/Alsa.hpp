@@ -103,7 +103,9 @@ public:
 
 
 
-    int read(char *pBuffer, int nBytes) override {
+    ReturnType read(std::vector<short> &buffer) override {
+        auto pBuffer = (char *)(buffer.data());
+        int nBytes = buffer.size() *2;
         int nFrames = nBytes / bytesPerFrame_;
 
         while (nFrames > 0) {
@@ -134,11 +136,14 @@ public:
 
         }
 
-        return nBytes;
+        return 0;
     }
 
 
-    int write(const char *pBuffer, int nBytes) override {
+    ReturnType write(const std::vector<short> &buffer) override {
+        auto pBuffer = (const char *)(buffer.data());
+        int nBytes = buffer.size()*2;
+
         if(!handlerPlay_)
             return -1;
 
@@ -174,7 +179,7 @@ public:
             }
         }
 
-        return nTotal;
+        return 0;
     }
 };
 

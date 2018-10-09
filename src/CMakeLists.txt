@@ -22,9 +22,12 @@ add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} opus celt silk_common silk_fixed silk_float portaudio_static_x86 boost_system pthread)
 else(WIN32)
-    target_link_libraries(${PROJECT_NAME} portaudio opus pthread
-    boost_system
-    pthread
-    #fdk-aac
-    )
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    target_link_libraries(${PROJECT_NAME} opus pthread boost_system pthread asound)
+else(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+# macOS
+    target_link_libraries(${PROJECT_NAME} portaudio opus pthread boost_system pthread)
+endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+
 endif(WIN32)
