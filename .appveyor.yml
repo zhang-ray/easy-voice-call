@@ -1,7 +1,7 @@
 image: Visual Studio 2015
 
 before_build:
-- cmd: set
+- cmd: tree C:\Libraries\boost_1_67_0 
 - cd ..
 - ps: Start-FileDownload 'https://github.com/zhang-ray/opus/releases/download/1.0.5/opus-112-win32-build.7z'
 - 7z x opus-112-win32-build.7z
