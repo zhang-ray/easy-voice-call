@@ -24,7 +24,6 @@ if(WIN32)
         boost_system-vc140-mt-x32-1_67
         boost_log_setup-vc140-mt-x32-1_67
         boost_log-vc140-mt-x32-1_67
-        pthread
     )
 else(WIN32)
     if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
