@@ -7,6 +7,8 @@ before_build:
 - 7z x opus-112-win32-build.7z
 - ps: Start-FileDownload 'https://github.com/zhang-ray/portaudio/releases/download/1.0.4/pa19-win32-x86-release-build.7z'
 - 7z x pa19-win32-x86-release-build.7z
+- xcopy C:\Libraries\boost_1_67_0 include /E
+- xcopy C:\Libraries\boost_1_67_0\lib32-msvc-14.0 C:/projects/build/Release /E
 - mkdir easy-voice-call-build\ && cd easy-voice-call-build\
 - cmake ..\easy-voice-call
 
