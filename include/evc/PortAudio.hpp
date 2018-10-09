@@ -47,7 +47,9 @@ public:
         auto err = Pa_ReadStream(stream_, (void*)(buffer.data()), buffer.size());
         if (err != paNoError){
             std::cout << __FILE__ << ":" <<  __LINE__ << " :" << Pa_GetErrorText( err ) << std::endl;
-            return err;
+            if ((err != paInputOverflowed && (err!=paOutputUnderflowed) )){
+                 return err;
+            }
         }
         return 0;
     }
@@ -57,7 +59,9 @@ public:
         auto err = Pa_WriteStream(stream_, (void*)(buffer.data()), buffer.size());
         if (err != paNoError){
             std::cout << __FILE__ << ":" <<  __LINE__ << " :" << Pa_GetErrorText( err ) << std::endl;
-            return err;
+            if ((err != paInputOverflowed && (err!=paOutputUnderflowed) )){
+                 return err;
+            }
         }
         return 0;
     }
