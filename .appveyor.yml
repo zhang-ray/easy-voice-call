@@ -23,10 +23,12 @@ build:
 
 after_build:
 - cd ..\easy-voice-call
-- 7z a build.VS2015.7z ..\easy-voice-call-build\
+- xcopy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_log-vc140-mt-x32-1_67.dll    ..\easy-voice-call-build\src\Release\
+- xcopy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_system-vc140-mt-x32-1_67.dll ..\easy-voice-call-build\src\Release\
+- 7z a vc140-mt-x32.7z ..\easy-voice-call-build\src\Release
 
 artifacts:
-- path: .\build.VS2015.7z
+- path: .\vc140-mt-x32.7z
 
 
 #image: ubuntu
