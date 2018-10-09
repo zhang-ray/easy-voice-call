@@ -22,6 +22,7 @@ add_executable(Tcp Tcp.cpp)
 target_link_libraries(
     Tcp
     boost_system
+    boost_log 
     pthread
 )
 
@@ -31,14 +32,14 @@ add_executable(PortaudioLoopback PortaudioLoopback.cpp)
 if(WIN32)
     target_link_libraries(PortaudioLoopback portaudio_static_x86)
 else(WIN32)
-    target_link_libraries(PortaudioLoopback portaudio boost_system pthread)
+    target_link_libraries(PortaudioLoopback portaudio boost_system boost_log pthread)
 endif(WIN32)
 
 
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     add_executable(AlsaLoopback AlsaLoopback.cpp)
-    target_link_libraries(AlsaLoopback asound)
+    target_link_libraries(AlsaLoopback asound boost_log pthread)
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 
