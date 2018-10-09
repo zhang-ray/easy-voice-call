@@ -18,16 +18,10 @@ else(WIN32)
 	target_link_libraries(Opus opus)
 endif(WIN32)
 
-add_executable(Tcp Tcp.cpp)
-
 if(WIN32)
-    target_link_libraries(
-            Tcp
-            boost_system-vc140-mt-x32-1_67
-            boost_log_setup-vc140-mt-x32-1_67
-            boost_log-vc140-mt-x32-1_67
-        )
+# TODO...
 else(WIN32)
+    add_executable(Tcp Tcp.cpp)
     if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         target_link_libraries(
             Tcp
