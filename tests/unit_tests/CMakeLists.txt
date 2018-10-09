@@ -23,7 +23,8 @@ add_executable(Tcp Tcp.cpp)
 if(WIN32)
     target_link_libraries(
             Tcp
-            boost_system-vc140-mt-x32-1_67 
+            boost_system-vc140-mt-x32-1_67
+            boost_log_setup-vc140-mt-x32-1_67
             boost_log-vc140-mt-x32-1_67
         )
 else(WIN32)
@@ -52,7 +53,8 @@ add_executable(PortaudioLoopback PortaudioLoopback.cpp)
 if(WIN32)
     target_link_libraries(PortaudioLoopback
         portaudio_static_x86
-        boost_system-vc140-mt-x32-1_67 
+        boost_system-vc140-mt-x32-1_67
+        boost_log_setup-vc140-mt-x32-1_67
         boost_log-vc140-mt-x32-1_67
     )
 else(WIN32)
