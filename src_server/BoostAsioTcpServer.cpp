@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "evc/NetPacket.hpp"
-
+#include "evc/ReturnType.hpp"
 
 
 class Participant{
@@ -35,8 +35,14 @@ using ClientPacketQueue = std::deque<NetPacket>;
 
 class Room {
 public:
-    void join(ParticipantPointer participant){
+    ReturnType join(ParticipantPointer participant){
+        auto size__ = participants_.size();
+        if (participants_.size()>=2){
+            return "participants_.count()>2";
+        }
         participants_.insert(participant);
+
+        return 0;
     }
 
 
@@ -77,9 +83,15 @@ public:
         , room_(room) { }
 
 
-    void start(){
-        room_.join(shared_from_this());
+    ReturnType start(){
+        auto ret = room_.join(shared_from_this());
+        if (!ret){
+            return ret;
+        }
+
         readHeader();
+
+        return 0;
     }
 
 
