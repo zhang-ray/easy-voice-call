@@ -22,8 +22,7 @@ add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} opus celt silk_common silk_fixed silk_float portaudio_static_x86 
         boost_system-vc140-mt-x32-1_67 
-        boost_log-vc140-mt-x32-1_67 
-        boost_log-mt-vc140-mt-x32-1_67
+        boost_log-vc140-mt-x32-1_67
         pthread
     )
 else(WIN32)

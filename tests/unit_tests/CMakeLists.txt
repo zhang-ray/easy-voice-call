@@ -24,8 +24,7 @@ if(WIN32)
     target_link_libraries(
             Tcp
             boost_system-vc140-mt-x32-1_67 
-            boost_log-vc140-mt-x32-1_67 
-            boost_log-mt-vc140-mt-x32-1_67
+            boost_log-vc140-mt-x32-1_67
         )
 else(WIN32)
     if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -54,8 +53,7 @@ if(WIN32)
     target_link_libraries(PortaudioLoopback
         portaudio_static_x86
         boost_system-vc140-mt-x32-1_67 
-        boost_log-vc140-mt-x32-1_67 
-        boost_log-mt-vc140-mt-x32-1_67
+        boost_log-vc140-mt-x32-1_67
     )
 else(WIN32)
     if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
