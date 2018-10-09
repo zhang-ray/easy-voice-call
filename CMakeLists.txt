@@ -11,5 +11,9 @@ project(EVC)
 #endif(CMAKE_COMPILER_IS_GNUCXX)
 
 add_subdirectory(src)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 add_subdirectory(src_server)
+endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+
 add_subdirectory(tests/unit_tests)
