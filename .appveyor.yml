@@ -18,7 +18,7 @@ configuration:
   - Release
 
 build:
-  project: ..\easy-voice-call-build\EVC.sln
+  project: ..\easy-voice-call-build\easy-voice-call.sln
   parallel: true
   #verbosity: quiet
 
