@@ -18,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setFixedSize(width(), height());
+
     {
         //        init UI
         onDisconnected();
