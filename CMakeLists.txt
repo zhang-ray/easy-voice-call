@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
-project(EVC)
+
+project(evc)
 
 #debug mode
 #set(CMAKE_BUILD_TYPE "Debug")
@@ -10,11 +11,12 @@ project(EVC)
 #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 #endif(CMAKE_COMPILER_IS_GNUCXX)
 
-add_subdirectory(src)
-add_subdirectory(src_qt5)
+add_subdirectory(client_essential)
+add_subdirectory(client_cli)
+add_subdirectory(client_qt5)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-add_subdirectory(src_server)
+add_subdirectory(server)
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 add_subdirectory(tests/unit_tests)

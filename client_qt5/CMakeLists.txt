@@ -1,6 +1,8 @@
 #cmake_minimum_required(VERSION 3.1.0)
 
-project(evc_qt5)
+project(client_qt5)
+
+set (CMAKE_CXX_STANDARD 11)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -9,16 +11,25 @@ set(CMAKE_AUTOMOC ON)
 # Create code from a list of Qt designer ui files
 set(CMAKE_AUTOUIC ON)
 
+
+include_directories(../include)
+
+
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
 
 # Populate a CMake variable with the sources
-set(evc_qt5_SRCS
+set(SRCS
     mainwindow.ui
     mainwindow.cpp
     main.cpp
 )
-# Tell CMake to create the evc_qt5 executable
-add_executable(evc_qt5 WIN32 ${evc_qt5_SRCS})
-# Use the Widgets module from Qt 5
-target_link_libraries(evc_qt5 Qt5::Widgets)
+
+
+
+add_executable(${PROJECT_NAME}  WIN32 ${SRCS})
+target_link_libraries(
+    ${PROJECT_NAME}
+    Qt5::Widgets
+    client_essential
+)

@@ -12,6 +12,7 @@
 #include <cstring>
 #include "evc/NetPacket.hpp"
 #include "evc/ReturnType.hpp"
+#include "evc/Log.hpp"
 
 
 class Participant{
@@ -86,8 +87,11 @@ public:
     ReturnType start(){
         auto ret = room_.join(shared_from_this());
         if (!ret){
+            LOGV << ret.message();
             return ret;
         }
+
+        LOGV << "one client connected!";
 
         readHeader();
 
