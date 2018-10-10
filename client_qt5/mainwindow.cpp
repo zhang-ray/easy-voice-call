@@ -7,6 +7,9 @@
 #include <thread>
 #include <fstream>
 #include <functional>
+
+#include <QDir>
+
 #include "evc/Factory.hpp"
 #include "evc/TcpClient.hpp"
 #include "evc/Log.hpp"
@@ -18,12 +21,54 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setFixedSize(width(), height());
 
+    // load setting
     {
-        //        init UI
+        QFile file("setting.txt");
+        if (!file.open(QIODevice::ReadWrite)){
+            throw;
+        }
+
+        char buf[1024];
+        qint64 lineLength = -1;
+        lineLength = file.readLine(buf, sizeof(buf));
+        if (lineLength != -1) {
+            // the line is available in buf
+            if (buf[lineLength-1]=='\n'){
+                buf[lineLength-1]=0;
+            }
+            ui->lineEdit_serverHost->setText(buf);
+        }
+
+        lineLength = file.readLine(buf, sizeof(buf));
+        if (lineLength != -1) {
+            // the line is available in buf
+            if (buf[lineLength-1]=='\n'){
+                buf[lineLength-1]=0;
+            }
+            ui->lineEdit_serverPort->setText(buf);
+        }
+
+        lineLength = file.readLine(buf, sizeof(buf));
+        if (lineLength != -1) {
+            // the line is available in buf
+            if (buf[lineLength-1]=='\n'){
+                buf[lineLength-1]=0;
+            }
+            ui->lineEdit_userName->setText(buf);
+        }
+    }
+
+
+
+    //        init UI
+    {
+        setFixedSize(width(), height());
         onDisconnected();
     }
+
+
+    //    auto homePath = QDir::homePath();
 
     decoder = &(Factory::get().createAudioDecoder());
     encoder = &(Factory::get().createAudioEncoder());
@@ -42,6 +87,21 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     fromUi_gotoDisconnect();
+
+
+    // save setting
+    {
+        QFile file("setting.txt");
+        if (file.open(QIODevice::ReadWrite)){
+            file.write(ui->lineEdit_serverHost->text().toStdString().c_str());
+            file.write("\n");
+            file.write(ui->lineEdit_serverPort->text().toStdString().c_str());
+            file.write("\n");
+            file.write(ui->lineEdit_userName->text().toStdString().c_str());
+            file.write("\n");
+            file.close();
+        }
+    }
 
     delete ui;
 }
