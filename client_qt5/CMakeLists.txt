@@ -28,6 +28,11 @@ if(WIN32)
 endif(WIN32)
 
 
+if(WIN32)
+    link_directories("C:/projects/VS2010/Win32/Release/"  "C:/projects/build/Release/")
+endif(WIN32)
+
+
 
 # Find the QtWidgets library
 find_package(Qt5Widgets CONFIG REQUIRED)
