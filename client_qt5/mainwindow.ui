@@ -55,7 +55,7 @@
      <string>&lt;host&gt;:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="server_host">
+   <widget class="QLineEdit" name="lineEdit_serverHost">
     <property name="geometry">
      <rect>
       <x>180</x>
@@ -73,7 +73,7 @@
      <string>127.0.0.1</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="pushButton_connecting">
     <property name="geometry">
      <rect>
       <x>400</x>
@@ -189,7 +189,7 @@
      <string>&lt;port&gt;:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="server_port">
+   <widget class="QLineEdit" name="lineEdit_serverPort">
     <property name="geometry">
      <rect>
       <x>430</x>

@@ -25,21 +25,33 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pushButton_clicked(bool checked);
-
-
+    void on_pushButton_connecting_clicked();
 private:
-    Ui::MainWindow *ui;
+    void fromUi_gotoConnect();
+    void fromUi_gotoDisconnect();
+private:
+    Ui::MainWindow *ui = nullptr;
     std::thread *bgThread_ = nullptr;
 
     AudioDecoder* decoder = nullptr;
     AudioEncoder* encoder = nullptr;
     AudioDevice*  device = nullptr;
 
+    bool gotoStop_ = false;
+
 
 private:
-    void initEndpointAndCodec(){
+    bool ui_connected_ = false;
+private:
+    bool initEndpointAndCodec();
+
+    void onConnecting(){
 
     }
+
+    void onConnected();
+    void onDisconnected();
+
+    void onWorking();
 };
 
