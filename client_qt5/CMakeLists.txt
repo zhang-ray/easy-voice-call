@@ -46,7 +46,7 @@ set(SRCS
 
 
 
-add_executable(${PROJECT_NAME}  WIN32 ${SRCS})
+add_executable(${PROJECT_NAME} ${SRCS})
 target_link_libraries(
     ${PROJECT_NAME}
     Qt5::Widgets
