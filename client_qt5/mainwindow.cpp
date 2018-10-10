@@ -16,6 +16,22 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+
+    auto path  = QApplication::applicationDirPath() + "/settings.ini";
+//    auto path  = "~/settings.ini";
+//    QString sText =  // settings->value("userName").toString();
+//    ui->lineEdit_userName->setText(sText);
+
+
+    decoder = &(Factory::get().createAudioDecoder());
+    encoder = &(Factory::get().createAudioEncoder());
+    device = &(Factory::get().create());
+
+
+    if (ui->lineEdit_userName->text().isEmpty()){
+        ui->lineEdit_userName->setText(QSysInfo::prettyProductName());
+    }
 }
 
 MainWindow::~MainWindow()
@@ -25,19 +41,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked(bool checked)
 {
-    static std::shared_ptr<std::thread> s_bgThread = nullptr;
-
-    s_bgThread = std::make_shared<std::thread>([this](){
+    bgThread_ = new std::thread([this](){
         try{
-            auto &decoder = Factory::get().createAudioDecoder();
-            auto &encoder = Factory::get().createAudioEncoder();
-            auto &device = Factory::get().create();
-
-
-
-            if (encoder.reInit()){
-                if (device.init()){
-                    if (decoder.reInit()) {
+            if (encoder->reInit()){
+                if (device->init()){
+                    if (decoder->reInit()) {
                         auto host = (QLineEdit*)(ui->server_host);
                         auto port = (QLineEdit*)(ui->server_port);
                         TcpClient client(
@@ -49,8 +57,8 @@ void MainWindow::on_pushButton_clicked(bool checked)
                             netBuff.resize(length);
                             memcpy(netBuff.data(), pData, length);
                             std::vector<short> decodedPcm;
-                            decoder.decode(netBuff, decodedPcm);
-                            auto ret = device.write(decodedPcm);
+                            decoder->decode(netBuff, decodedPcm);
+                            auto ret = device->write(decodedPcm);
                             if (!ret) {
                                 std::cout << ret.message() << std::endl;
                             }
@@ -61,12 +69,12 @@ void MainWindow::on_pushButton_clicked(bool checked)
                             const auto blockSize = 1920;
                             std::vector<short> micBuffer(blockSize);
                             // TODO: use RingBuffer?
-                            auto ret = device.read(micBuffer);
+                            auto ret = device->read(micBuffer);
                             if (!ret){
                                 break;
                             }
                             std::vector<char> outData;
-                            auto retEncode = encoder.encode(micBuffer, outData);
+                            auto retEncode = encoder->encode(micBuffer, outData);
                             if (!retEncode){
                                 std::cout << retEncode.message() << std::endl;
                                 break;

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(evc)
+project(easy-voice-call)
 
 #debug mode
 #set(CMAKE_BUILD_TYPE "Debug")

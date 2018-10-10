@@ -6,12 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>580</width>
-    <height>332</height>
+    <width>587</width>
+    <height>384</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>12</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Easy Voice Call</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QLabel" name="label">
@@ -74,8 +79,13 @@
       <x>400</x>
       <y>110</y>
       <width>89</width>
-      <height>25</height>
+      <height>61</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>13</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Connect!</string>
@@ -127,7 +137,7 @@
      <string>to identify yourself</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_2">
+   <widget class="QLineEdit" name="lineEdit_userName">
     <property name="geometry">
      <rect>
       <x>180</x>
@@ -138,7 +148,8 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>18</pointsize>
+      <pointsize>12</pointsize>
+      <italic>false</italic>
      </font>
     </property>
    </widget>
@@ -196,14 +207,35 @@
      <string>1222</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>306</y>
+      <width>431</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;a href=&quot;https://github.com/zhang-ray/easy-voice-call&quot;&gt;https://github.com/zhang-ray/easy-voice-call&lt;/a&gt;</string>
+    </property>
+    <property name="openExternalLinks">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>580</width>
-     <height>22</height>
+     <width>587</width>
+     <height>23</height>
     </rect>
    </property>
   </widget>
