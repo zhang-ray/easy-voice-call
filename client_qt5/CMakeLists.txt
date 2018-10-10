@@ -23,6 +23,10 @@ set(CMAKE_AUTOUIC ON)
 
 
 include_directories(../include)
+if(WIN32)
+	include_directories(../../include/)
+endif(WIN32)
+
 
 
 # Find the QtWidgets library
