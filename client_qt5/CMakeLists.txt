@@ -4,6 +4,11 @@ project(client_qt5)
 
 set (CMAKE_CXX_STANDARD 11)
 
+if(WIN32)
+    set(Qt5Widgets_DIR "C:\Qt\5.11.1\msvc2015") 
+endif(WIN32)
+
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed
