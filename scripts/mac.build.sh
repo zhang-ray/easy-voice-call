@@ -14,7 +14,7 @@ cd ..
 
 # portaudio
 brew install portaudio
-
+brew install qt
 
 mkdir ../easy-voice-call-build
 cd ../easy-voice-call-build
