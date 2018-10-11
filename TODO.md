@@ -1,1 +1,0 @@
-- make a cross platform and easy-to-use GUI client.
