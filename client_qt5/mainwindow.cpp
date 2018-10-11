@@ -7,6 +7,7 @@
 #include <thread>
 #include <fstream>
 #include <functional>
+#include <QDesktopWidget>
 
 #include <QDir>
 
@@ -63,6 +64,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //        init UI
     {
+        // -> center of screen
+        setGeometry(QStyle::alignedRect(
+                        Qt::LeftToRight,
+                        Qt::AlignCenter,
+                        size(),
+                        qApp->desktop()->availableGeometry()
+                        )
+                    );
         setFixedSize(width(), height());
         onDisconnected();
     }
