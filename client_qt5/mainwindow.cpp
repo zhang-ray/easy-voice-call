@@ -8,7 +8,7 @@
 #include <fstream>
 #include <functional>
 #include <QDesktopWidget>
-
+#include <QStyle>
 #include <QDir>
 
 #include "evc/Factory.hpp"
