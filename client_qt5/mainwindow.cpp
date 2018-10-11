@@ -189,8 +189,8 @@ void MainWindow::onWorking() {
                     [&](const NetPacket& netPacket){
             // on Received Data
             std::vector<char> netBuff;
-            netBuff.resize(netPacket.body_length());
-            memcpy(netBuff.data(), netPacket.body(), netPacket.body_length());
+            netBuff.resize(netPacket.payloadLength());
+            memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
             std::vector<short> decodedPcm;
             decoder->decode(netBuff, decodedPcm);
             auto ret = device->write(decodedPcm);

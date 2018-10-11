@@ -50,7 +50,8 @@ public:
 
         boost::asio::async_connect(socket_,
                                    endpoint_iterator,
-                                   [this](boost::system::error_code ec, boost::asio::ip::tcp::resolver::iterator){
+                                   [this](boost::system::error_code ec,
+                                   boost::asio::ip::tcp::resolver::iterator){
             if (ec) {
                 socket_.close();
                 return;
@@ -80,10 +81,10 @@ private:
 
     void readHeader(){
         boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.data(), NetPacket::header_length),
+                                boost::asio::buffer(read_msg_.header(), NetPacket::fixHeaderLength),
                                 [this](boost::system::error_code ec, std::size_t /*length*/){
-            if (!ec && read_msg_.decodeHeader()){
-                readBody();
+            if (!ec && read_msg_.checkHeader()){
+                readPayload();
             }
             else{
                 socket_.close();
@@ -94,34 +95,35 @@ private:
 
 
 
-    void readBody(){
-        boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+    void readPayload(){
+        boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.payload(), read_msg_.payloadLength()),
                                 [this](boost::system::error_code ec, std::size_t /*length*/) {
-            if (!ec) {
-                ////////////////////////////////
-                ////////////////////////////////
-                ////////////////////////////////
-                ////////////////////////////////
-                /* GOT DATA! */
-                ////////////////////////////////
-                ////////////////////////////////
-                ////////////////////////////////
-                ////////////////////////////////
-                ////////////////////////////////
-                ////////////////////////////////
-                onDataReceived_(read_msg_);
-                readHeader();
-            }
-            else{
+            if (ec) {
                 socket_.close();
+                return;
             }
+
+
+            ////////////////////////////////
+            ////////////////////////////////
+            ////////////////////////////////
+            ////////////////////////////////
+            /* GOT DATA! */
+            ////////////////////////////////
+            ////////////////////////////////
+            ////////////////////////////////
+            ////////////////////////////////
+            ////////////////////////////////
+            ////////////////////////////////
+            onDataReceived_(read_msg_);
+            readHeader();
         });
     }
 
     void write(){
         boost::asio::async_write(socket_,
-                                 boost::asio::buffer(write_msgs_.front().data(),
-                                                     write_msgs_.front().length()),
+                                 boost::asio::buffer(write_msgs_.front().header(),
+                                                     write_msgs_.front().wholePackLength()),
                                  [this](boost::system::error_code ec, std::size_t /*length*/){
             if (!ec){
                 write_msgs_.pop_front();

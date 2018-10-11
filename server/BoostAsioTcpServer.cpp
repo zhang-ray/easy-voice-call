@@ -54,7 +54,7 @@ public:
 
 
 
-    void processClientMessageBody(const NetPacket& msg,ParticipantPointer sender){
+    void processClientMessagePayload(const NetPacket& msg,ParticipantPointer sender){
         for (auto participant: participants_){
             if (participant == sender){
                 continue;
@@ -117,10 +117,10 @@ public:
 private:
     void readHeader() {
         auto self(shared_from_this());
-        boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.data(), NetPacket::header_length),
+        boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.header(), NetPacket::fixHeaderLength),
                                 [this, self](boost::system::error_code ec, std::size_t /*length*/) {
-            if (!ec && read_msg_.decodeHeader()){
-                readBody();
+            if (!ec && read_msg_.checkHeader()){
+                readPayload();
             }
             else{
                 room_.leave(shared_from_this());
@@ -129,12 +129,12 @@ private:
     }
 
 
-    void readBody() {
+    void readPayload() {
         auto self(shared_from_this());
-        boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+        boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.payload(), read_msg_.payloadLength()),
                                 [this, self](boost::system::error_code ec, std::size_t /*length*/) {
             if (!ec){
-                room_.processClientMessageBody(read_msg_, shared_from_this());
+                room_.processClientMessagePayload(read_msg_, shared_from_this());
                 readHeader();
             }
             else{
@@ -148,7 +148,7 @@ private:
 
     void write() {
         auto self(shared_from_this());
-        boost::asio::async_write(socket_, boost::asio::buffer(write_msgs_.front().data(), write_msgs_.front().length()),
+        boost::asio::async_write(socket_, boost::asio::buffer(write_msgs_.front().header(), write_msgs_.front().wholePackLength()),
                                  [this, self](boost::system::error_code ec, std::size_t /*length*/){
             if (!ec){
                 write_msgs_.pop_front();
@@ -187,7 +187,7 @@ private:
                 std::make_shared<Session>(std::move(socket_), room_)->start();
             }
 
-//            LOGV << "async_accept new connection. socket_ = " << socket_;
+            //            LOGV << "async_accept new connection. socket_ = " << socket_;
             doAccept();
         });
     }
