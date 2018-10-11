@@ -31,10 +31,12 @@ using NetPacketQueue = std::deque<NetPacket>;
 
 
 
+class TcpClient;
 
 class BoostAsioTcpClient{
+    friend class TcpClient;
 private:
-    std::function<void(const char* pData, std::size_t length)> onDataReceived_;
+    std::function<void(const NetPacket&)> onDataReceived_;
 public:
     BoostAsioTcpClient(
             boost::asio::io_service& io_service,
@@ -107,7 +109,7 @@ private:
                 ////////////////////////////////
                 ////////////////////////////////
                 ////////////////////////////////
-                onDataReceived_(read_msg_.body(), read_msg_.body_length());
+                onDataReceived_(read_msg_);
                 readHeader();
             }
             else{
@@ -150,7 +152,7 @@ private:
     std::shared_ptr<std::thread> pThread = nullptr;
 public:
     TcpClient(const char *host, const char *ip,
-              std::function<void(const char* pData, std::size_t length)> onDataReceived_,
+              decltype(BoostAsioTcpClient::onDataReceived_) onDataReceived_,
               const std::string &id="") : id_(id){
         boost::asio::ip::tcp::resolver resolver(io_service);
         pClient = std::make_shared<BoostAsioTcpClient>(io_service, resolver.resolve({ host, ip }), onDataReceived_);

@@ -186,11 +186,11 @@ void MainWindow::onWorking() {
         TcpClient client(
                     host->text().toStdString().c_str(),
                     port->text().toStdString().c_str(),
-                    [&](const char* pData, std::size_t length){
+                    [&](const NetPacket& netPacket){
             // on Received Data
             std::vector<char> netBuff;
-            netBuff.resize(length);
-            memcpy(netBuff.data(), pData, length);
+            netBuff.resize(netPacket.body_length());
+            memcpy(netBuff.data(), netPacket.body(), netPacket.body_length());
             std::vector<short> decodedPcm;
             decoder->decode(netBuff, decodedPcm);
             auto ret = device->write(decodedPcm);
