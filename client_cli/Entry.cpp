@@ -9,6 +9,8 @@
 
 
 int main(int argc, char* argv[]){
+
+#if 0
     try{
         if (argc!=3){
             printf("%s\n", "Usage: <host> <port>");
@@ -66,6 +68,6 @@ int main(int argc, char* argv[]){
     catch (std::exception& e){
         std::cerr << "Exception: " << e.what() << "\n";
     }
-
+#endif
     return 0;
 }

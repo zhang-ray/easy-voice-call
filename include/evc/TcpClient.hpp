@@ -51,10 +51,10 @@ public:
                                    [this](boost::system::error_code ec, boost::asio::ip::tcp::resolver::iterator){
             if (ec) {
                 socket_.close();
+                return;
             }
-            else {
-                readHeader();
-            }
+
+            readHeader();
         });
     }
 
@@ -80,7 +80,7 @@ private:
         boost::asio::async_read(socket_,
                                 boost::asio::buffer(read_msg_.data(), NetPacket::header_length),
                                 [this](boost::system::error_code ec, std::size_t /*length*/){
-            if (!ec && read_msg_.decode_header()){
+            if (!ec && read_msg_.decodeHeader()){
                 readBody();
             }
             else{
@@ -177,23 +177,11 @@ public:
 
     std::string id(){return id_;}
 
-    ReturnType send(const char *pData, std::size_t size){
-        NetPacket msg;
-        msg.body_length(size);
-        std::memcpy(msg.body(), pData, msg.body_length());
-        msg.encode_header();
+    ReturnType send(const NetPacket &msg){
         pClient->write(msg);
         return 0;
     }
 
-    ReturnType send(const std::vector<char> &data){
-        NetPacket msg;
-        msg.body_length(data.size());
-        std::memcpy(msg.body(), data.data(), msg.body_length());
-        msg.encode_header();
-        pClient->write(msg);
-        return 0;
-    }
 
 };
 

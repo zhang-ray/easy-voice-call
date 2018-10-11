@@ -54,7 +54,7 @@ public:
 
 
 
-    void deliver(const NetPacket& msg,ParticipantPointer sender){
+    void processClientMessageBody(const NetPacket& msg,ParticipantPointer sender){
         for (auto participant: participants_){
             if (participant == sender){
                 continue;
@@ -81,7 +81,13 @@ class Session : public Participant, public std::enable_shared_from_this<Session>
 public:
     Session(boost::asio::ip::tcp::socket socket, Room& room)
         : socket_(std::move(socket))
-        , room_(room) { }
+        , room_(room) {
+        LOGV << __FUNCTION__;
+    }
+
+    ~Session(){
+        LOGV << __FUNCTION__;
+    }
 
 
     ReturnType start(){
@@ -113,7 +119,7 @@ private:
         auto self(shared_from_this());
         boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.data(), NetPacket::header_length),
                                 [this, self](boost::system::error_code ec, std::size_t /*length*/) {
-            if (!ec && read_msg_.decode_header()){
+            if (!ec && read_msg_.decodeHeader()){
                 readBody();
             }
             else{
@@ -128,7 +134,7 @@ private:
         boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
                                 [this, self](boost::system::error_code ec, std::size_t /*length*/) {
             if (!ec){
-                room_.deliver(read_msg_, shared_from_this());
+                room_.processClientMessageBody(read_msg_, shared_from_this());
                 readHeader();
             }
             else{
@@ -171,17 +177,18 @@ public:
     Server(boost::asio::io_service& io_service, const boost::asio::ip::tcp::endpoint& endpoint)
         : acceptor_(io_service, endpoint)
         , socket_(io_service) {
-        do_accept();
+        doAccept();
     }
 
 private:
-    void do_accept(){
+    void doAccept(){
         acceptor_.async_accept(socket_,[this](boost::system::error_code errorCode){
             if (!errorCode) {
                 std::make_shared<Session>(std::move(socket_), room_)->start();
             }
 
-            do_accept();
+//            LOGV << "async_accept new connection. socket_ = " << socket_;
+            doAccept();
         });
     }
 

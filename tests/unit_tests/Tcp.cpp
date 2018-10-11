@@ -7,7 +7,7 @@
 enum {body_length = 4};
 
 int main(int argc, char **argv){
-
+#if 0
     bool successed = true;
     try{
         std::vector<TcpClient *> clients;
@@ -66,6 +66,6 @@ int main(int argc, char **argv){
         LOGD << "Everything is OK";
     }
 
-
+#endif
     return 0;
 }

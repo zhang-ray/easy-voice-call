@@ -219,7 +219,8 @@ void MainWindow::onWorking() {
                 std::cout << retEncode.message() << std::endl;
                 break;
             }
-            client.send(outData);
+            NetPacket netPacket(1, outData);
+            client.send(netPacket);
         }
     }
     catch (std::exception& e){
