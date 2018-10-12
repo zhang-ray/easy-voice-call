@@ -23,3 +23,4 @@ make -j3
 
 
 which macdeployqt
+macdeployqt client_qt5
