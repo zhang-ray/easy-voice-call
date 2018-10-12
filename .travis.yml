@@ -1,4 +1,12 @@
 os: osx
 language: cpp
 sudo: required
-script: ./scripts/mac.build.sh && ../easy-voice-call-build/./tests/unit_tests/Opus
+# script: ./scripts/mac.build.sh && ../easy-voice-call-build/./tests/unit_tests/Opus
+script: brew install qt && mdfind -name macdeployqt
+# deploy:
+#   provider: releases
+#   api_key: "GITHUB OAUTH TOKEN"
+#   file: "FILE TO UPLOAD"
+#   skip_cleanup: true
+#   on:
+#     tags: true
