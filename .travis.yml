@@ -6,8 +6,7 @@ script: "./scripts/mac.build.sh && ../easy-voice-call-build/./tests/unit_tests/O
 
 deploy:
   provider: releases
-  api_key:
-    secure: WGdI++ZMRkLqkqiW6rEMP8D/bQFsrY8Uew/6iSLSWGelPeSAIoz+bGDDCyIpXEQbAhB191ykFEQL4gCsZHdt8N5cJzn893AXKjyjak9pyNvDn5FwC0UipNdQAQ0ohouPdPZui0xgIWYZJyNNP94exzR1dkDFyl1BxVEgbvY5DAiD5O2m1Wpx0IZTu7RiVTCasGj5TDSTnOASO5j4OVMCyXasgNQFxbeRL95hFi8BXxPP7nuvptlElbXy/xsTRud4d8WvvaDn54ciEiXNd4EevwKbPOtRINbQuJ/UNxOxuTn2gHtdyL8t5ijJezg9thAgBq5xVBDQ6rNw0Gc8Unb1FptgU/Ptn3BlEMTCyU1iZs4kOOxECKMnJsXCkyH3biQUklhzOdG1+R8sY5O7cFsPON5QdaAnC3dMAITQS/MO1RNoii3gJI8ro4HPmUlM5z4DmFKXVe6Avwl6753RjCD8UBSAZZFPvrmWatTg/huU6wm+AF5RYmlRZ9vYuzvn+Nu1z+mDfxMzue7kwSfuwUcA+Je1Hl3XsA4Lp3TN/7JplcIbOJF/NH3riZXwLxqzRA4vo3Z+Xlk9YbN0XwVsBMkF+lBr22SctXrl+X6klstDNYx9dKUdBLKdPlSdw5+HsdgByIRkTkRRJIeNHmPTtM2XV4GEFqRngGLYy6a4gvST3AI=
+  api_key: $GITHUB_OAUTH_TOKEN
   file: "../easy-voice-call-build/client_qt5.app.zip"
   on:
     repo: zhang-ray/easy-voice-call
