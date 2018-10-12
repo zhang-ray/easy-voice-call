@@ -1,8 +1,7 @@
 os: osx
 language: cpp
 sudo: required
-# script: ./scripts/mac.build.sh && ../easy-voice-call-build/./tests/unit_tests/Opus
-script: brew install qt && /usr/local/Cellar/qt/5.11.2/bin/macdeployqt
+script: ./scripts/mac.build.sh && ../easy-voice-call-build/./tests/unit_tests/Opus
 
 # deploy:
 #   provider: releases
