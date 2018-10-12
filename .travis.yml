@@ -9,4 +9,4 @@ deploy:
   api_key: $GITHUB_OAUTH_TOKEN
   file: "../easy-voice-call-build/client_qt5.app.zip"
   on:
-    repo: zhang-ray/easy-voice-call
+    tags: true
