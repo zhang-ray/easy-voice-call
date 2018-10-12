@@ -1,12 +1,13 @@
 os: osx
 language: cpp
 sudo: required
-script: ./scripts/mac.build.sh && ../easy-voice-call-build/./tests/unit_tests/Opus
+script: "./scripts/mac.build.sh && ../easy-voice-call-build/./tests/unit_tests/Opus"
 
-# deploy:
-#   provider: releases
-#   api_key: "GITHUB OAUTH TOKEN"
-#   file: "FILE TO UPLOAD"
-#   skip_cleanup: true
-#   on:
-#     tags: true
+
+deploy:
+  provider: releases
+  user: zhang-ray
+  password:
+    secure: zHYFZM7P8U0YN1zE6IqDfWDjFkqx+8a3+K1TUxjhfX0TRVJQVZI6rsaK9afd92uOyDnw7AbkPpqKirFhP4DouKF0e5n+pExygtih7PFqdWskzAfLAFdAIaFVuNMk5DzKbMijrvj+plIWqJWLGiwLo94ONOWrSf84ZQgarhO3wIjDurhYJksA0REz/J12EoSf0T+G3UxkovI6CLBQtzXckRpc8I1T0e6ThRd2N9Q20tU18kpZ44NeX0Y5JHR3jBplIFxETIVCjTCb1b2IadlZYpoodufgbGbgRtriM6X+sUZPmPv21pqDv+e9oLdbTCyc8TEP+R+xUR6q/iVZeJcSzsaidbIfTdSnynP6uJ51JpT+NordmUCxXoxx2vgXLMjzoHR4z3mQQGvGbBk5EQxuFmvo4GH46G0JUNeaA3vBKKe6FYTGQ6YZSlhgl45iWSkkAZmxEzzv7pOZ3uFrexQhq2qyc4UC3Lm7Za1R8RBpPD93LXJO3e21HnCP0eAv8/byUnFfgSltnLywGp7flU0erxrBuT33ELhCQ2yjrQYCsJnZCCaZWiA1bUdpMwTv/N/DBgpimVoVh1o5r1q6KUiDu4kr6H8ID9fd3s7JY/OmBnaax0hp/yf8T88JWfqu0ArdAiHOPVX2KZ5DrGYRoRRummVGe5UJyhSVKzJaGMHNOJM=
+  file: "../easy-voice-call-build/client_qt5.app.zip"
+  skip_cleanup: true
