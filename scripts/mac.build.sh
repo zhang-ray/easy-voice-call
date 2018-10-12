@@ -22,5 +22,6 @@ cmake ../easy-voice-call
 make -j3
 
 
-which macdeployqt
+#which macdeployqt
+mdfind -name macdeployqt
 macdeployqt client_qt5
