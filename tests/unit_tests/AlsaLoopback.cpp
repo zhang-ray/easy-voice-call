@@ -4,8 +4,6 @@
 
 
 int main(int argc, char **argv){
-    LOGV;
-
     auto &device = Alsa::get();
 
     if (device.init()) {
@@ -24,6 +22,5 @@ int main(int argc, char **argv){
         }
     }
 
-    LOGV;
     return 0;
 }
