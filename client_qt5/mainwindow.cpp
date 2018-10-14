@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // load setting
-    {
+    try {
         QFile file("setting.txt");
         if (!file.open(QIODevice::ReadWrite)){
             throw;
@@ -58,6 +58,9 @@ MainWindow::MainWindow(QWidget *parent) :
             }
             ui->lineEdit_userName->setText(buf);
         }
+    }
+    catch (std::exception &e){
+        e.waht();
     }
 
 
@@ -99,7 +102,7 @@ MainWindow::~MainWindow()
 
 
     // save setting
-    {
+    try {
         QFile file("setting.txt");
         if (file.open(QIODevice::ReadWrite)){
             file.write(ui->lineEdit_serverHost->text().toStdString().c_str());
@@ -110,6 +113,9 @@ MainWindow::~MainWindow()
             file.write("\n");
             file.close();
         }
+    }
+    catch (std::exception &e){
+        e.waht();
     }
 
     delete ui;
