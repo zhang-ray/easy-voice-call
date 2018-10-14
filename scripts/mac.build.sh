@@ -37,4 +37,5 @@ rm -f  Makefile
 rm -f  cmake_install.cmake
 cd ..
 mv client_qt5 EVC.app
+npm install -g appdmg
 appdmg appdmg/spec.json EVC.app
