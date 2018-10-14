@@ -35,7 +35,7 @@ rm -rf CMakeFiles
 rm -rf client_qt5_autogen
 rm -f  Makefile
 rm -f  cmake_install.cmake
-cd ..
-mv client_qt5 EVC.app
+cd ../../easy-voice-call/scripts/appdmg/
+mv ../easy-voice-call-build/client_qt5 EVC.app
 npm install -g appdmg
-appdmg ../easy-voice-call/scripts/appdmg/spec.json EVC.dmg
+appdmg spec.json EVC.dmg

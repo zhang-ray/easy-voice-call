@@ -7,6 +7,6 @@ script: "./scripts/mac.build.sh && ../easy-voice-call-build/./tests/unit_tests/O
 deploy:
   provider: releases
   api_key: $GITHUB_OAUTH_TOKEN
-  file: "../easy-voice-call-build/client_qt5.app.zip"
+  file: "scripts/EVC.dmg"
   on:
     tags: true
