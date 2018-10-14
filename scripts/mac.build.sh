@@ -38,4 +38,4 @@ rm -f  cmake_install.cmake
 cd ..
 mv client_qt5 EVC.app
 npm install -g appdmg
-appdmg appdmg/spec.json EVC.dmg
+appdmg ../easy-voice-call/appdmg/spec.json EVC.dmg
