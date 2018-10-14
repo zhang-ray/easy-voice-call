@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
     catch (std::exception &e){
-        e.waht();
+        std::cerr << "Exception: " << e.what() << "\n";
     }
 
 
@@ -115,7 +115,7 @@ MainWindow::~MainWindow()
         }
     }
     catch (std::exception &e){
-        e.waht();
+        std::cerr << "Exception: " << e.what() << "\n";
     }
 
     delete ui;
