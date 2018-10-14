@@ -39,3 +39,4 @@ cd ../../easy-voice-call/scripts/appdmg/
 mv ../../../easy-voice-call-build/client_qt5 EVC.app
 npm install -g appdmg
 appdmg spec.json EVC.dmg
+mv EVC.dmg ../../../
