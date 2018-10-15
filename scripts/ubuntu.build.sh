@@ -1,3 +1,4 @@
+sudo apt-get update
 sudo apt --quiet -y install libopus-dev portaudio19-dev libboost-all-dev qtbase5-dev
 
 mkdir ../easy-voice-call-build

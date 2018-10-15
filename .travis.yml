@@ -1,6 +1,6 @@
 os:
-  #- linux # Ubuntu 16.04 is only available for Enterprise edition...
-  - osx
+  - linux # Ubuntu 16.04 is only available for Enterprise edition...
+  # - osx
 language: cpp
 sudo: required
 
@@ -13,8 +13,8 @@ deploy:
   provider: releases
   api_key: $GITHUB_OAUTH_TOKEN
   file:
-    - ../EasyVoiceCall.dmg
-    #- ../EasyVoiceCall.qt5-x86_64.AppImage
+    #- ../EasyVoiceCall.dmg
+    - ../EasyVoiceCall.qt5-x86_64.AppImage
   skip_cleanup: true
   on:
     tags: true
