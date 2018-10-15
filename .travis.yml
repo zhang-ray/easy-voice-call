@@ -1,12 +1,12 @@
 os:
-  - linux
+  #- linux # Ubuntu 16.04 is only available for Enterprise edition...
   - osx
 language: cpp
 sudo: required
 
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]];    then ./scripts/mac.build.sh    ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]];  then ./scripts/ubuntu.build.sh ; fi
+  #- if [[ "$TRAVIS_OS_NAME" == "linux" ]];  then ./scripts/ubuntu.build.sh ; fi 
 
 
 deploy:
@@ -14,7 +14,7 @@ deploy:
   api_key: $GITHUB_OAUTH_TOKEN
   file:
     - ../EasyVoiceCall.dmg
-    - ../EasyVoiceCall.qt5-x86_64.AppImage
+    #- ../EasyVoiceCall.qt5-x86_64.AppImage
   skip_cleanup: true
   on:
     tags: true
