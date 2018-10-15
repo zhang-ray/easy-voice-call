@@ -28,7 +28,7 @@ convert -size 256x256 xc:transparent AppDir/EasyVoiceCall.qt5.png
 ../linuxdeploy-x86_64.AppImage --appdir=AppDir
 ../appimagetool-x86_64.AppImage AppDir
 mv EasyVoiceCall.qt5-x86_64.AppImage ../../
-
+cd ..
 
 
 ###################### make server AppImage ###################### 

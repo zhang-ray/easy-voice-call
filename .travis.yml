@@ -15,6 +15,7 @@ deploy:
   file:
     - ../EasyVoiceCall.dmg
     - ../EasyVoiceCall.qt5-x86_64.AppImage
+    - ../EasyVoiceCall.Server-x86_64.AppImage
   skip_cleanup: true
   on:
     tags: true
