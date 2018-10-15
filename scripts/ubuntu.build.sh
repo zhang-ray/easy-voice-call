@@ -22,3 +22,4 @@ chmod a+x linuxdeploy-x86_64.AppImage
 wget "https://github.com/AppImage/AppImageKit/releases/download/10/appimagetool-x86_64.AppImage"
 chmod a+x appimagetool-x86_64.AppImage
 ./appimagetool-x86_64.AppImage AppDir
+mv EasyVoiceCall.qt5-x86_64.AppImage ../
