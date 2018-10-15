@@ -37,6 +37,8 @@ rm -f  Makefile
 rm -f  cmake_install.cmake
 cd ../../easy-voice-call/scripts/appdmg/
 mv ../../../easy-voice-call-build/client_qt5 EVC.app
+cp Info.plist  EVC.app/Contents/
+cp PkgInfo     EVC.app/Contents/
 npm install -g appdmg
 appdmg spec.json EVC.dmg
 mv EVC.dmg ../../../
