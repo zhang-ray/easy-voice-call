@@ -23,14 +23,14 @@ build:
   #verbosity: quiet
 
 after_build:
-- cd ..\easy-voice-call
-- xcopy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_system-vc140-mt-x32-1_67.dll ..\easy-voice-call-build\client_qt5\Release\
-- C:\Qt\5.11.1\msvc2015\bin\windeployqt.exe ..\easy-voice-call-build\client_qt5\Release\client_qt5.exe
-- rename ..\easy-voice-call-build\client_qt5\Release\ ..\easy-voice-call-build\client_qt5\EasyVoiceCall.win32\
-- 7z a EasyVoiceCall.win32.zip ..\easy-voice-call-build\client_qt5\Release\
+- cd client_qt5
+- xcopy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_system-vc140-mt-x32-1_67.dll Release\
+- C:\Qt\5.11.1\msvc2015\bin\windeployqt.exe Release\client_qt5.exe
+- rename Release EasyVoiceCall.win32
+- 7z a EasyVoiceCall.win32.zip EasyVoiceCall.win32
 
 artifacts:
-- path: .\EasyVoiceCall.win32.zip
+- path: ..\easy-voice-call-build\client_qt5\EasyVoiceCall.win32.zip
 
 
 #image: ubuntu
