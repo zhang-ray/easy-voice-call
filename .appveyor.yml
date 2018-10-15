@@ -33,7 +33,6 @@ artifacts:
 - path: EasyVoiceCall.win32.zip
 
 deploy:
-  release: EasyVoiceCall.win32.zip
   provider: GitHub
   auth_token:
     secure: PiQDTyaNV3HdYRawTlwyD/bsMbpBg2Kx+/BEUEz9qOasvZlDBmxj3tFB0bNYwXIc
