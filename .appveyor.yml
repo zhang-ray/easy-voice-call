@@ -35,8 +35,7 @@ artifacts:
 deploy:
   release: EasyVoiceCall.win32.zip
   provider: GitHub
-  auth_token:
-    secure: $GITHUB_OAUTH_TOKEN
+  auth_token: $GITHUB_OAUTH_TOKEN
   artifact: EasyVoiceCall.win32.zip
   draft: false
   prerelease: false
