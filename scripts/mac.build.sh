@@ -30,15 +30,15 @@ make -j3
 /usr/local/Cellar/qt/5.11.2/bin/macdeployqt client_qt5
 cd client_qt5
 mkdir Contents/MacOS
-mv client_qt5 Contents/MacOS/EVC
+mv client_qt5 Contents/MacOS/EasyVoiceCall
 rm -rf CMakeFiles
 rm -rf client_qt5_autogen
 rm -f  Makefile
 rm -f  cmake_install.cmake
 cd ../../easy-voice-call/scripts/appdmg/
-mv ../../../easy-voice-call-build/client_qt5 EVC.app
-cp Info.plist  EVC.app/Contents/
-cp PkgInfo     EVC.app/Contents/
+mv ../../../easy-voice-call-build/client_qt5 EasyVoiceCall.app
+cp Info.plist  EasyVoiceCall.app/Contents/
+cp PkgInfo     EasyVoiceCall.app/Contents/
 npm install -g appdmg
-appdmg spec.json EVC.dmg
-mv EVC.dmg ../../../
+appdmg spec.json EasyVoiceCall.dmg
+mv EasyVoiceCall.dmg ../../../

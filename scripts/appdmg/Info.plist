@@ -7,12 +7,12 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Created by EVC</string>
+	<string>Created by EasyVoiceCall</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>EVC</string>
+	<string>EasyVoiceCall</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.zhang-ray.EVC</string>
+	<string>com.zhang-ray.easy-voice-call</string>
 </dict>
 </plist>
