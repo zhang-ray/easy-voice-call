@@ -85,7 +85,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
         if (ui->lineEdit_userName->text().isEmpty()){
-            ui->lineEdit_userName->setText(QSysInfo::prettyProductName());
+            // won't work well on Ubuntu 14.04, Qt 5.2.1
+            // error: ‘prettyProductName’ is not a member of ‘QSysInfo’ 
+            // ui->lineEdit_userName->setText(QSysInfo::prettyProductName());
         }
 
         if(! initEndpointAndCodec()){
