@@ -29,6 +29,8 @@ public:
         Undefined = 0,
         HeartBeatRequest,
         HeartBeatResponse,
+        LoginRequest,
+        LoginResponse,
         UserInfo,
         TextMessage,
         AudioMessage,
