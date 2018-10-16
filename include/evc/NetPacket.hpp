@@ -22,15 +22,16 @@
 
 class NetPacket{
 public:
-    enum { fixHeaderLength = 4+4+4+2+2 };
-    enum { maxPayloadLength = 1<<16 };
+    enum { FixHeaderLength = 4+4+4+2+2 };
+    enum { MaxPayloadLength = 1<<16 };
 
     enum class PayloadType : unsigned short {
-        undefined = 0,
-        heartBeat,
-        userInfo,
-        textPacket,
-        audioPacket,
+        Undefined = 0,
+        HeartBeatRequest,
+        HeartBeatResponse,
+        UserInfo,
+        TextMessage,
+        AudioMessage,
     };
 
 private:
@@ -38,7 +39,7 @@ private:
     std::vector<char> wholePacket_;
     void init(const PayloadType payloadType, const unsigned short payloadSize){
         wholePacket_.resize(
-                    fixHeaderLength+payloadSize
+                    FixHeaderLength+payloadSize
                     );
 
         memcpy(wholePacket_.data() + 0,       headMarker_.data(), 4);
@@ -48,14 +49,18 @@ private:
 
 public:
     NetPacket(){
-        init(PayloadType::undefined, 0);
+        init(PayloadType::Undefined, 0);
+    }
+
+    NetPacket(const PayloadType payloadType){
+        init(payloadType, 0);
     }
 
     NetPacket(const PayloadType payloadType, const std::vector<char> payload){
         unsigned short payloadSize = payload.size();
         init(payloadType, payloadSize);
 
-        memcpy(wholePacket_.data() + fixHeaderLength, payload.data(), payloadSize);
+        memcpy(wholePacket_.data() + FixHeaderLength, payload.data(), payloadSize);
     }
 
 
@@ -63,13 +68,13 @@ public:
         //         TODO: check
         unsigned short payloadSize;
         memcpy(&payloadSize, wholePacket_.data()+4*3+2, sizeof(decltype(payloadSize)));
-        wholePacket_.resize(fixHeaderLength + payloadSize);
+        wholePacket_.resize(FixHeaderLength + payloadSize);
 
         return true;
     }
 
 
-
+    PayloadType payloadType() const {return *((PayloadType*)(wholePacket_.data()+ 4*3));}
 
 
 
@@ -87,7 +92,7 @@ public:
     std::size_t wholePackLength() const{return wholePacket_.size();}
 
 
-    const char* payload() const{ return wholePacket_.data()+fixHeaderLength;}
-    char* payload() { return wholePacket_.data()+fixHeaderLength;}
-    std::size_t payloadLength() const{return wholePacket_.size()-fixHeaderLength;}
+    const char* payload() const{ return wholePacket_.data()+FixHeaderLength;}
+    char* payload() { return wholePacket_.data()+FixHeaderLength;}
+    std::size_t payloadLength() const{return wholePacket_.size()-FixHeaderLength;}
 };

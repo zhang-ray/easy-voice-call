@@ -55,12 +55,19 @@ public:
 
 
     void processClientMessagePayload(const NetPacket& msg,ParticipantPointer sender){
-        for (auto participant: participants_){
-            if (participant == sender){
-                continue;
-            }
+        auto payloadType = msg.payloadType();
+        if (payloadType ==NetPacket::PayloadType::HeartBeatRequest){
+            printf("got one heart beat request\n");
+            sender->deliver(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
+        }
+        else if (payloadType == NetPacket::PayloadType::TextMessage || payloadType == NetPacket::PayloadType::AudioMessage){
+            for (auto participant: participants_){
+                if (participant == sender){
+                    continue;
+                }
 
-            participant->deliver(msg);
+                participant->deliver(msg);
+            }
         }
     }
 
@@ -93,11 +100,11 @@ public:
     ReturnType start(){
         auto ret = room_.join(shared_from_this());
         if (!ret){
-            std::cout << std::endl << ret.message();
+            std::cout << ret.message() << std::endl;
             return ret;
         }
 
-        std::cout << std::endl << "one client connected!";
+        std::cout << "one client connected!" << std::endl;
 
         readHeader();
 
@@ -117,7 +124,7 @@ public:
 private:
     void readHeader() {
         auto self(shared_from_this());
-        boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.header(), NetPacket::fixHeaderLength),
+        boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.header(), NetPacket::FixHeaderLength),
                                 [this, self](boost::system::error_code ec, std::size_t /*length*/) {
             if (!ec && read_msg_.checkHeader()){
                 readPayload();

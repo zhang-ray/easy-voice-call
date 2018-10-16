@@ -19,11 +19,14 @@ int main(int argc, char **argv){
             tmp.push_back('s');
             tmp.push_back('g');
             tmp.push_back('0'+i);
-            goldens.push_back(new NetPacket(NetPacket::PayloadType::textPacket, tmp));
+            goldens.push_back(new NetPacket(NetPacket::PayloadType::TextMessage, tmp));
         }
 
         for (int i =0 ; i < 2; i++){
             clients.push_back(new TcpClient(argv[1], argv[2], [=](const NetPacket &netPacket){
+                if (netPacket.payloadType()!=NetPacket::PayloadType::TextMessage){
+                    throw;
+                }
                 auto size = netPacket.payloadLength();
                 if (size!=body_length){
                     throw;
@@ -64,7 +67,7 @@ int main(int argc, char **argv){
     }
 
     if(successed){
-        std::cout << "Everything is OK";
+        std::cout << "Everything is OK!\n";
     }
 
     return 0;

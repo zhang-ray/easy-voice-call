@@ -81,7 +81,7 @@ private:
 
     void readHeader(){
         boost::asio::async_read(socket_,
-                                boost::asio::buffer(read_msg_.header(), NetPacket::fixHeaderLength),
+                                boost::asio::buffer(read_msg_.header(), NetPacket::FixHeaderLength),
                                 [this](boost::system::error_code ec, std::size_t /*length*/){
             if (!ec && read_msg_.checkHeader()){
                 readPayload();

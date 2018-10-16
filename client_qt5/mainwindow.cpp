@@ -197,16 +197,25 @@ void MainWindow::onWorking() {
                     port->text().toStdString().c_str(),
                     [&](const NetPacket& netPacket){
             // on Received Data
-            std::vector<char> netBuff;
-            netBuff.resize(netPacket.payloadLength());
-            memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
-            std::vector<short> decodedPcm;
-            decoder->decode(netBuff, decodedPcm);
-            auto ret = device->write(decodedPcm);
-            if (!ret) {
-                std::cout << ret.message() << std::endl;
+            if (netPacket.payloadType()==NetPacket::PayloadType::HeartBeatRequest){
+                client.send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
+            }
+            else if (netPacket.payloadType()==NetPacket::PayloadType::HeartBeatResponse){
+                //throw;
+            }
+            else if (netPacket.payloadType()==NetPacket::PayloadType::AudioMessage){
+                std::vector<char> netBuff;
+                netBuff.resize(netPacket.payloadLength());
+                memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
+                std::vector<short> decodedPcm;
+                decoder->decode(netBuff, decodedPcm);
+                auto ret = device->write(decodedPcm);
+                if (!ret) {
+                    std::cout << ret.message() << std::endl;
+                }
             }
         });
+
 
         // sending work
         for (;;){
@@ -228,8 +237,21 @@ void MainWindow::onWorking() {
                 std::cout << retEncode.message() << std::endl;
                 break;
             }
-            NetPacket netPacket(NetPacket::PayloadType::audioPacket, outData);
-            client.send(netPacket);
+
+            client.send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
+
+
+
+            // send heartbeat
+            {
+                static auto lastTimeStamp = std::chrono::system_clock::now();
+                auto now = std::chrono::system_clock::now();
+                auto elapsed = now - lastTimeStamp;
+                if (elapsed > std::chrono::seconds(10)){
+                    client.send(NetPacket(NetPacket::PayloadType::HeartBeatRequest));
+                    lastTimeStamp = std::chrono::system_clock::now();
+                }
+            }
         }
     }
     catch (std::exception& e){
