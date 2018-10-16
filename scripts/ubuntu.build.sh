@@ -26,6 +26,12 @@ cp ./client_qt5 AppDir/usr/bin/EasyVoiceCall.qt5
 echo -e "[Desktop Entry]\nName=EasyVoiceCall.qt5\nExec=EasyVoiceCall.qt5\nIcon=EasyVoiceCall.qt5\nType=Application" > AppDir/EasyVoiceCall.qt5.desktop
 convert -size 256x256 xc:transparent AppDir/EasyVoiceCall.qt5.png
 ../linuxdeploy-x86_64.AppImage --appdir=AppDir
+# try to fix:
+# ``` This application failed to start because it could not find or load the Qt platform plugin "xcb".
+mkdir AppDir/usr/lib/x86_64-linux-gnu
+mkdir AppDir/usr/lib/x86_64-linux-gnu/qt5
+mkdir AppDir/usr/lib/x86_64-linux-gnu/qt5/plugins
+cp -r /usr/lib/x86_64-linux-gnu/qt5/plugins/platforms AppDir/usr/lib/x86_64-linux-gnu/qt5/plugins
 ../appimagetool-x86_64.AppImage AppDir
 mv EasyVoiceCall.qt5-x86_64.AppImage ../../
 cd ..
