@@ -198,7 +198,8 @@ void MainWindow::onWorking() {
                     [&](const NetPacket& netPacket){
             // on Received Data
             if (netPacket.payloadType()==NetPacket::PayloadType::HeartBeatRequest){
-                client.send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
+                // MSVC could not capture `client` reference...
+                // client.send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
             }
             else if (netPacket.payloadType()==NetPacket::PayloadType::HeartBeatResponse){
                 //throw;
