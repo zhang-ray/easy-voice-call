@@ -93,11 +93,11 @@ public:
     ReturnType start(){
         auto ret = room_.join(shared_from_this());
         if (!ret){
-            LOGV << ret.message();
+            std::cout << std::endl << ret.message();
             return ret;
         }
 
-        LOGV << "one client connected!";
+        std::cout << std::endl << "one client connected!";
 
         readHeader();
 

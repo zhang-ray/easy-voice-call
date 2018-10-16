@@ -30,8 +30,7 @@ int main(int argc, char **argv){
                 auto _1 = goldens[goldenIndex].data();
                 auto _2 = pData;
                 if(memcmp(_1, _2, size)){
-                    LOGE << "failed";
-                    throw;
+                    throw "failed";
                 }
 
             }, std::to_string(i)));
@@ -63,7 +62,7 @@ int main(int argc, char **argv){
     }
 
     if(successed){
-        LOGD << "Everything is OK";
+        std::cout << "Everything is OK";
     }
 
 #endif

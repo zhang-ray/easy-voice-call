@@ -24,40 +24,41 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     // load setting
-    {
+    try {
         QFile file("setting.txt");
-        if (!file.open(QIODevice::ReadWrite)){
-            throw;
-        }
-
-        char buf[1024];
-        qint64 lineLength = -1;
-        lineLength = file.readLine(buf, sizeof(buf));
-        if (lineLength != -1) {
-            // the line is available in buf
-            if (buf[lineLength-1]=='\n'){
-                buf[lineLength-1]=0;
+        if (file.open(QIODevice::ReadWrite)){
+            char buf[1024];
+            qint64 lineLength = -1;
+            lineLength = file.readLine(buf, sizeof(buf));
+            if (lineLength != -1) {
+                // the line is available in buf
+                if (buf[lineLength-1]=='\n'){
+                    buf[lineLength-1]=0;
+                }
+                ui->lineEdit_serverHost->setText(buf);
             }
-            ui->lineEdit_serverHost->setText(buf);
-        }
 
-        lineLength = file.readLine(buf, sizeof(buf));
-        if (lineLength != -1) {
-            // the line is available in buf
-            if (buf[lineLength-1]=='\n'){
-                buf[lineLength-1]=0;
+            lineLength = file.readLine(buf, sizeof(buf));
+            if (lineLength != -1) {
+                // the line is available in buf
+                if (buf[lineLength-1]=='\n'){
+                    buf[lineLength-1]=0;
+                }
+                ui->lineEdit_serverPort->setText(buf);
             }
-            ui->lineEdit_serverPort->setText(buf);
-        }
 
-        lineLength = file.readLine(buf, sizeof(buf));
-        if (lineLength != -1) {
-            // the line is available in buf
-            if (buf[lineLength-1]=='\n'){
-                buf[lineLength-1]=0;
+            lineLength = file.readLine(buf, sizeof(buf));
+            if (lineLength != -1) {
+                // the line is available in buf
+                if (buf[lineLength-1]=='\n'){
+                    buf[lineLength-1]=0;
+                }
+                ui->lineEdit_userName->setText(buf);
             }
-            ui->lineEdit_userName->setText(buf);
         }
+    }
+    catch (std::exception &e){
+        std::cerr << "Exception: " << e.what() << "\n";
     }
 
 
@@ -77,19 +78,24 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 
-    //    auto homePath = QDir::homePath();
+    try{
+        decoder = &(Factory::get().createAudioDecoder());
+        encoder = &(Factory::get().createAudioEncoder());
+        device = &(Factory::get().create());
 
-    decoder = &(Factory::get().createAudioDecoder());
-    encoder = &(Factory::get().createAudioEncoder());
-    device = &(Factory::get().create());
 
+        if (ui->lineEdit_userName->text().isEmpty()){
+            // won't work well on Ubuntu 14.04, Qt 5.2.1
+            // error: ‘prettyProductName’ is not a member of ‘QSysInfo’ 
+            // ui->lineEdit_userName->setText(QSysInfo::prettyProductName());
+        }
 
-    if (ui->lineEdit_userName->text().isEmpty()){
-        ui->lineEdit_userName->setText(QSysInfo::prettyProductName());
+        if(! initEndpointAndCodec()){
+            std::cerr << "initEndpointAndCodec return false;" << std::endl;
+        }
     }
-
-    if(! initEndpointAndCodec()){
-        throw;
+    catch (std::exception &e){
+        std::cerr << "Exception: " << e.what() << "\n";
     }
 }
 
@@ -99,7 +105,7 @@ MainWindow::~MainWindow()
 
 
     // save setting
-    {
+    try {
         QFile file("setting.txt");
         if (file.open(QIODevice::ReadWrite)){
             file.write(ui->lineEdit_serverHost->text().toStdString().c_str());
@@ -110,6 +116,9 @@ MainWindow::~MainWindow()
             file.write("\n");
             file.close();
         }
+    }
+    catch (std::exception &e){
+        std::cerr << "Exception: " << e.what() << "\n";
     }
 
     delete ui;

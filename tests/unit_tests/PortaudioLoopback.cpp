@@ -6,9 +6,6 @@
 #include "evc/Log.hpp"
 
 int main(int argc, char **argv){
-    LOGV;
-
-
 	auto &device = PortAudio::get();
 
 	if (device.init()) {
@@ -26,6 +23,5 @@ int main(int argc, char **argv){
 			}
 		}
 	}
-    LOGV;
     return 0;
 }

@@ -9,6 +9,5 @@ file(GLOB_RECURSE FILES_SOURCES *.cpp *.c)
 
 add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
 target_link_libraries(${PROJECT_NAME} 
-boost_system 
-boost_log
+boost_system
 pthread)
