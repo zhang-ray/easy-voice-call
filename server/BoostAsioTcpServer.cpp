@@ -82,11 +82,11 @@ public:
     Session(boost::asio::ip::tcp::socket socket, Room& room)
         : socket_(std::move(socket))
         , room_(room) {
-        LOGV << __FUNCTION__;
+        // LOGV << __FUNCTION__;
     }
 
     ~Session(){
-        LOGV << __FUNCTION__;
+        // LOGV << __FUNCTION__;
     }
 
 

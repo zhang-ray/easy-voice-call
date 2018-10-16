@@ -7,32 +7,34 @@
 enum {body_length = 4};
 
 int main(int argc, char **argv){
-#if 0
     bool successed = true;
     try{
         std::vector<TcpClient *> clients;
         std::vector<std::thread *> threads;
-        std::vector<std::string> goldens;
+        std::vector<NetPacket *> goldens;
 
         for (int i = 0; i < 2; i++){
-            std::string msg = "msg";
-            msg.append(std::to_string(i));
-            goldens.push_back(msg);
+            std::vector<char> tmp;
+            tmp.push_back('m');
+            tmp.push_back('s');
+            tmp.push_back('g');
+            tmp.push_back('0'+i);
+            goldens.push_back(new NetPacket(NetPacket::PayloadType::textPacket, tmp));
         }
 
         for (int i =0 ; i < 2; i++){
-            clients.push_back(new TcpClient(argv[1], argv[2], [=](const char *pData, std::size_t size){
+            clients.push_back(new TcpClient(argv[1], argv[2], [=](const NetPacket &netPacket){
+                auto size = netPacket.payloadLength();
                 if (size!=body_length){
                     throw;
                 }
 
                 auto goldenIndex = 1-i;
-                auto _1 = goldens[goldenIndex].data();
-                auto _2 = pData;
+                auto _1 = goldens[goldenIndex]->payload();
+                auto _2 = netPacket.payload();
                 if(memcmp(_1, _2, size)){
                     throw "failed";
                 }
-
             }, std::to_string(i)));
         }
 
@@ -41,7 +43,7 @@ int main(int argc, char **argv){
             threads.push_back(new std::thread([=, &successed](){
                 try {
                     for (int j = 0; j< 10000; j++){
-                        client->send(goldens[i].data(), goldens[i].size());
+                        client->send(*(goldens[i]));
                         std::this_thread::sleep_for(std::chrono::microseconds(10));
                     }
                 }
@@ -65,6 +67,5 @@ int main(int argc, char **argv){
         std::cout << "Everything is OK";
     }
 
-#endif
     return 0;
 }

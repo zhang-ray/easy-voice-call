@@ -24,10 +24,19 @@ class NetPacket{
 public:
     enum { fixHeaderLength = 4+4+4+2+2 };
     enum { maxPayloadLength = 1<<16 };
+
+    enum class PayloadType : unsigned short {
+        undefined = 0,
+        heartBeat,
+        userInfo,
+        textPacket,
+        audioPacket,
+    };
+
 private:
     const std::string headMarker_ = "evc ";
     std::vector<char> wholePacket_;
-    void init(const unsigned short payloadType, const unsigned short payloadSize){
+    void init(const PayloadType payloadType, const unsigned short payloadSize){
         wholePacket_.resize(
                     fixHeaderLength+payloadSize
                     );
@@ -39,10 +48,10 @@ private:
 
 public:
     NetPacket(){
-        init(0, 0);
+        init(PayloadType::undefined, 0);
     }
 
-    NetPacket(const unsigned short payloadType, const std::vector<char> payload){
+    NetPacket(const PayloadType payloadType, const std::vector<char> payload){
         unsigned short payloadSize = payload.size();
         init(payloadType, payloadSize);
 

@@ -228,7 +228,7 @@ void MainWindow::onWorking() {
                 std::cout << retEncode.message() << std::endl;
                 break;
             }
-            NetPacket netPacket(1, outData);
+            NetPacket netPacket(NetPacket::PayloadType::audioPacket, outData);
             client.send(netPacket);
         }
     }
