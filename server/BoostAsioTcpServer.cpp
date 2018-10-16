@@ -12,7 +12,6 @@
 #include <cstring>
 #include "evc/NetPacket.hpp"
 #include "evc/ReturnType.hpp"
-#include "evc/Log.hpp"
 
 
 class Participant{

@@ -1,5 +1,4 @@
 #include "evc/Alsa.hpp"
-#include "evc/Log.hpp"
 #include <iostream>
 
 

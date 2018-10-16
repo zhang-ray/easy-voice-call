@@ -3,7 +3,6 @@
 #include <thread>
 #include <chrono>
 #include "evc/PortAudio.hpp"
-#include "evc/Log.hpp"
 
 int main(int argc, char **argv){
 	auto &device = PortAudio::get();

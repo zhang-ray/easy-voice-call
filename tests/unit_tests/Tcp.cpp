@@ -2,7 +2,6 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include "evc/Log.hpp"
 
 enum {body_length = 4};
 

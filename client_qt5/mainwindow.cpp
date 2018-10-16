@@ -13,7 +13,6 @@
 
 #include "evc/Factory.hpp"
 #include "evc/TcpClient.hpp"
-#include "evc/Log.hpp"
 
 
 MainWindow::MainWindow(QWidget *parent) :
