@@ -12,7 +12,7 @@ project(easy-voice-call)
 #endif(CMAKE_COMPILER_IS_GNUCXX)
 
 add_subdirectory(client_essential)
-add_subdirectory(client_cli)
+#add_subdirectory(client_cli) # shorten building time
 add_subdirectory(client_qt5)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
