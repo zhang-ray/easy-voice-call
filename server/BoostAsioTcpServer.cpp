@@ -1,23 +1,21 @@
-
-#include <cstdlib>
 #include <deque>
-#include <iostream>
 #include <list>
 #include <memory>
 #include <set>
 #include <utility>
 #include <boost/asio.hpp>
-#include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <cstring>
 #include "evc/NetPacket.hpp"
 #include "evc/ReturnType.hpp"
-
+#include "ServerLogger.hpp"
 
 class Participant{
 public:
     virtual ~Participant() {}
     virtual void deliver(const NetPacket& msg) = 0;
+    virtual std::string info() = 0;
 };
 
 
@@ -55,8 +53,9 @@ public:
 
     void processClientMessagePayload(const NetPacket& msg,ParticipantPointer sender){
         auto payloadType = msg.payloadType();
+
+        BOOST_LOG_TRIVIAL(trace) << "sender: "<< sender->info() << "\t" << "payloadType: " << NetPacket::getDescription(payloadType);
         if (payloadType ==NetPacket::PayloadType::HeartBeatRequest){
-            printf("got one heart beat request\n");
             sender->deliver(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
         }
         else if (payloadType == NetPacket::PayloadType::TextMessage || payloadType == NetPacket::PayloadType::AudioMessage){
@@ -88,22 +87,20 @@ public:
     Session(boost::asio::ip::tcp::socket socket, Room& room)
         : socket_(std::move(socket))
         , room_(room) {
-        // LOGV << __FUNCTION__;
     }
 
     ~Session(){
-        // LOGV << __FUNCTION__;
     }
 
 
     ReturnType start(){
         auto ret = room_.join(shared_from_this());
         if (!ret){
-            std::cout << ret.message() << std::endl;
+            BOOST_LOG_TRIVIAL(error) << "Session start failed:" << ret.message();
             return ret;
         }
 
-        std::cout << "one client connected!" << std::endl;
+        BOOST_LOG_TRIVIAL(info) << "on accepted: " << socket_.remote_endpoint().address();
 
         readHeader();
 
@@ -118,6 +115,11 @@ public:
         if (!write_in_progress) {
             write();
         }
+    }
+
+    virtual std::string info() override {
+        auto __ = socket_.remote_endpoint();
+        return __.address().to_string() + ":"+std::to_string(__.port());
     }
 
 private:
@@ -183,6 +185,11 @@ public:
     Server(boost::asio::io_service& io_service, const boost::asio::ip::tcp::endpoint& endpoint)
         : acceptor_(io_service, endpoint)
         , socket_(io_service) {
+
+        {
+            BOOST_LOG_TRIVIAL(info) << "Server started: port = " << endpoint.port();
+        }
+
         doAccept();
     }
 
@@ -209,9 +216,27 @@ private:
 
 int main(int argc, char* argv[]) {
     try {
-        if (argc != 2) {
-            std::cerr << "Usage: EvcServer <port>\n";
-            return -1;
+        int port = 1222;
+
+        // init port
+        {
+            if (argc == 2) {
+                port = std::atoi(argv[1]);
+            }
+            else if (argc == 1){
+                port = 1222;
+            }
+            else {
+                std::cerr << "Usage: EvcServer <port>\n";
+                return -1;
+            }
+        }
+
+
+
+        /// init logger
+        {
+            //boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::trace);
         }
 
         boost::asio::io_service io_service;
@@ -219,9 +244,9 @@ int main(int argc, char* argv[]) {
                     io_service,
                     boost::asio::ip::tcp::endpoint(
                         boost::asio::ip::tcp::v4(),
-                        std::atoi(argv[1])
-                    )
-                );
+                        port
+                        )
+                    );
         io_service.run();
     }
     catch (std::exception& e) {

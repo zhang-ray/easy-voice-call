@@ -36,7 +36,7 @@ public:
         AudioMessage,
     };
 
-    auto getDescription(const PayloadType payloadType) -> const char * {
+    static auto getDescription(const PayloadType payloadType) -> const char * {
         switch (payloadType){
             case NetPacket::PayloadType::Undefined          : return "Undefined";
             case NetPacket::PayloadType::HeartBeatRequest   : return "HeartBeatRequest";
