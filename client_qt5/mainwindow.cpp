@@ -95,12 +95,22 @@ MainWindow::MainWindow(QWidget *parent) :
         if (!worker_.initCodec()){
             throw "worker_.initCodec failed";
         }
-        if (!worker_.initDevice([this](const std::string &micInfo, const std::string &spkInfo){
+        if (!worker_.initDevice(
+                    [this](const std::string &micInfo,
+                                       const std::string &spkInfo){
                                 ui->label_micTitle->setVisible(!micInfo.empty());
                                 ui->label_spkTitle->setVisible(!spkInfo.empty());
                                 ui->label_micInfo->setText(micInfo.c_str());
                                 ui->label_spkInfo->setText(spkInfo.c_str());
-    })){
+    },[this](const double newMicVolume){
+                    qDebug() << newMicVolume;
+//                    ui->progressBar_volumeMic->setValue(newMicVolume*100);
+
+    }, [this](const double newSpkVolume){
+                    qDebug() << newSpkVolume;
+//                    ui->progressBar_volumeSpk->setValue(newSpkVolume*100);
+    }
+                )){
             throw "worker_.initDevice failed";
         }
     }

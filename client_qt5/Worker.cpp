@@ -25,13 +25,17 @@ bool Worker::initCodec(){
     return false;
 }
 
-bool Worker::initDevice(std::function<void(const std::string &, const std::string &)> reportInfo){
+bool Worker::initDevice(std::function<void(const std::string &, const std::string &)> reportInfo,
+                        std::function<void(const double)> reportMicVolume,
+                        std::function<void(const double)> reportSpkVolume){
     device_ = &(Factory::get().create());
 
     std::string micInfo;
     std::string spkInfo;
     if (device_->init(micInfo, spkInfo)){
         reportInfo(micInfo, spkInfo);
+        micVolumeReporter_ = reportMicVolume;
+        spkVolumeReporter_ = reportSpkVolume;
         return true;
     }
     return false;
@@ -89,10 +93,15 @@ void Worker::syncStart(const std::string &host,
         for (;!gotoStop_;){
             const auto blockSize = 1920;
             std::vector<short> micBuffer(blockSize);
-            // TODO: use RingBuffer?
             auto ret = device_->read(micBuffer);
             if (!ret){
                 break;
+            }
+
+            // calculate mic Volume
+            {
+                // mock:
+                micVolumeReporter_((double)micBuffer[0]/(1<<15));
             }
             std::vector<char> outData;
             auto retEncode = encoder->encode(micBuffer, outData);
