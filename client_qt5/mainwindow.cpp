@@ -10,9 +10,10 @@
 #include <QDesktopWidget>
 #include <QStyle>
 #include <QDir>
+#include <QDebug>
+#include "Worker.hpp"
 
-#include "evc/Factory.hpp"
-#include "evc/TcpClient.hpp"
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -73,38 +74,43 @@ MainWindow::MainWindow(QWidget *parent) :
                         )
                     );
         setFixedSize(width(), height());
-        onDisconnected();
+        updateUiState(NetworkState::Disconnected);
     }
 
 
     try{
-        decoder = &(Factory::get().createAudioDecoder());
-        encoder = &(Factory::get().createAudioEncoder());
-        device = &(Factory::get().create());
-
-
         if (ui->lineEdit_userName->text().isEmpty()){
             // won't work well on Ubuntu 14.04, Qt 5.2.1
-            // error: ‘prettyProductName’ is not a member of ‘QSysInfo’ 
+            // error: ‘prettyProductName’ is not a member of ‘QSysInfo’
             // ui->lineEdit_userName->setText(QSysInfo::prettyProductName());
-        }
-
-        if(! initEndpointAndCodec()){
-            std::cerr << "initEndpointAndCodec return false;" << std::endl;
         }
     }
     catch (std::exception &e){
         std::cerr << "Exception: " << e.what() << "\n";
     }
+
+
+
+    try {
+        if (!worker_.initCodec()){
+            throw "worker_.initCodec failed";
+        }
+        if (!worker_.initDevice()){
+            throw "worker_.initDevice failed";
+        }
+    }
+    catch (std::exception &e){
+        qDebug() << "Exception: " << e.what() << "\n";
+    }
 }
 
 MainWindow::~MainWindow()
 {
-    fromUi_gotoDisconnect();
-
-
-    // save setting
     try {
+        worker_.syncStop();
+
+
+        // save setting
         QFile file("setting.txt");
         if (file.open(QIODevice::ReadWrite)){
             file.write(ui->lineEdit_serverHost->text().toStdString().c_str());
@@ -124,139 +130,80 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::on_pushButton_connecting_clicked(){
-    if (ui_connected_){
-        fromUi_gotoDisconnect();
-    }
-    else {
-        fromUi_gotoConnect();
-    }
-}
-
-void MainWindow::fromUi_gotoConnect()
-{
-    if (bgThread_ == nullptr){
-        bgThread_ = new std::thread([this](){
-            gotoStop_=false;
-            onWorking();
-        });
-    }
-    onConnected();
-
-}
-
-void MainWindow::fromUi_gotoDisconnect()
-{
-    gotoStop_=true;
-    if (bgThread_){
-        bgThread_->join();
-        bgThread_=nullptr;
-    }
-    onDisconnected();
-}
-
-bool MainWindow::initEndpointAndCodec(){
-    bool ok = false;
-    if (encoder->reInit()){
-        if (device->init()){
-            if (decoder->reInit()) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-void MainWindow::onConnected(){
-    ui_connected_ = true;
-
-    ui->lineEdit_userName->setEnabled(false);
-    ui->lineEdit_serverHost->setEnabled(false);
-    ui->lineEdit_serverPort->setEnabled(false);
-
-    ui->pushButton_connecting->setText("Disconnect!");
-}
-
-void MainWindow::onDisconnected(){
-    ui_connected_ = false;
-
-
-    ui->lineEdit_userName->setEnabled(true);
-    ui->lineEdit_serverHost->setEnabled(true);
-    ui->lineEdit_serverPort->setEnabled(true);
-
-    ui->pushButton_connecting->setText("Connect!");
-}
-
-void MainWindow::onWorking() {
-    try{
-        auto host = (QLineEdit*)(ui->lineEdit_serverHost);
-        auto port = (QLineEdit*)(ui->lineEdit_serverPort);
-        TcpClient client(
-                    host->text().toStdString().c_str(),
-                    port->text().toStdString().c_str(),
-                    [&](const NetPacket& netPacket){
-            // on Received Data
-            if (netPacket.payloadType()==NetPacket::PayloadType::HeartBeatRequest){
-                // MSVC could not capture `client` reference...
-                // client.send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
-            }
-            else if (netPacket.payloadType()==NetPacket::PayloadType::HeartBeatResponse){
-                //throw;
-            }
-            else if (netPacket.payloadType()==NetPacket::PayloadType::AudioMessage){
-                std::vector<char> netBuff;
-                netBuff.resize(netPacket.payloadLength());
-                memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
-                std::vector<short> decodedPcm;
-                decoder->decode(netBuff, decodedPcm);
-                auto ret = device->write(decodedPcm);
-                if (!ret) {
-                    std::cout << ret.message() << std::endl;
-                }
-            }
-        });
-
-
-        // sending work
-        for (;;){
-            if (gotoStop_){
-                break;
-            }
-
-
-            const auto blockSize = 1920;
-            std::vector<short> micBuffer(blockSize);
-            // TODO: use RingBuffer?
-            auto ret = device->read(micBuffer);
-            if (!ret){
-                break;
-            }
-            std::vector<char> outData;
-            auto retEncode = encoder->encode(micBuffer, outData);
-            if (!retEncode){
-                std::cout << retEncode.message() << std::endl;
-                break;
-            }
-
-            client.send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
-
-
-
-            // send heartbeat
+    switch (currentUiState_){
+    case NetworkState::Disconnected: {
+        {
+            worker_.asyncStart(
+                        ui->lineEdit_serverHost->text().toStdString(),
+                        ui->lineEdit_serverPort->text().toStdString(),
+                        [this](
+                        const NetworkState newState,
+                        const std::string extraMessage
+                        )
             {
-                static auto lastTimeStamp = std::chrono::system_clock::now();
-                auto now = std::chrono::system_clock::now();
-                auto elapsed = now - lastTimeStamp;
-                if (elapsed > std::chrono::seconds(10)){
-                    client.send(NetPacket(NetPacket::PayloadType::HeartBeatRequest));
-                    lastTimeStamp = std::chrono::system_clock::now();
-                }
+                showMessage(extraMessage);
+                updateUiState(newState);
             }
+            );
+        }
+        break;
+    }
+    case NetworkState::Connected:{
+        {
+            worker_.syncStop();
+            updateUiState(NetworkState::Disconnected);
+        }
+        break;
+    }
+    }
+}
+
+void MainWindow::updateUiState(const NetworkState networkState){
+    switch(networkState){
+    case NetworkState::Disconnected:{
+        ui->lineEdit_userName->setEnabled(true);
+        ui->lineEdit_serverHost->setEnabled(true);
+        ui->lineEdit_serverPort->setEnabled(true);
+
+        ui->pushButton_connecting->setEnabled(true);
+        ui->pushButton_connecting->setText("Connect!");
+        //showMessage("");
+        break;
+    }
+    case NetworkState::Connecting:{
+        ui->lineEdit_userName->setEnabled(false);
+        ui->lineEdit_serverHost->setEnabled(false);
+        ui->lineEdit_serverPort->setEnabled(false);
+        ui->pushButton_connecting->setEnabled(false);
+        ui->pushButton_connecting->setText("Connecting...");
+        break;
+    }
+    case NetworkState::Connected:{
+        ui->lineEdit_userName->setEnabled(false);
+        ui->lineEdit_serverHost->setEnabled(false);
+        ui->lineEdit_serverPort->setEnabled(false);
+
+        ui->pushButton_connecting->setEnabled(true);
+        ui->pushButton_connecting->setText("Disconnect!");
+        //        showMessage("Connected!");
+        break;
+    }
+    default:
+        break;
+    }
+    currentUiState_=networkState;
+}
+
+void MainWindow::showMessage(const std::string &message){
+    try {
+        if (message.empty()){
+            ui->statusBar->clearMessage();
+        }
+        else {
+            ui->statusBar->showMessage(message.c_str());
         }
     }
-    catch (std::exception& e){
-        std::cerr << "Exception: " << e.what() << "\n";
+    catch (std::exception &e){
+        qDebug() << e.what();
     }
-
-    return ;
 }

@@ -37,29 +37,14 @@ class BoostAsioTcpClient{
     friend class TcpClient;
 private:
     std::function<void(const NetPacket&)> onDataReceived_;
+    TcpClient *pTcpClient_ = nullptr;
 public:
     BoostAsioTcpClient(
             boost::asio::io_service& io_service,
             boost::asio::ip::tcp::resolver::iterator endpoint_iterator,
-            decltype(onDataReceived_) onDataReceived
-            )
-        : io_service_(io_service)
-        , socket_(io_service)
-        , onDataReceived_(onDataReceived) {
-        // connect(endpoint_iterator);
-
-        boost::asio::async_connect(socket_,
-                                   endpoint_iterator,
-                                   [this](boost::system::error_code ec,
-                                   boost::asio::ip::tcp::resolver::iterator){
-            if (ec) {
-                socket_.close();
-                return;
-            }
-
-            readHeader();
-        });
-    }
+            decltype(onDataReceived_) onDataReceived,
+            TcpClient *pTcpClient
+            );
 
 
 
@@ -147,37 +132,34 @@ private:
 
 
 class TcpClient : public NetClient {
+    friend class BoostAsioTcpClient;
 private:
     std::string id_;
     boost::asio::io_service io_service;
     std::shared_ptr<BoostAsioTcpClient> pClient = nullptr;
     std::shared_ptr<std::thread> pThread = nullptr;
+    bool isConnected_ = false;
 public:
     TcpClient(const char *host, const char *ip,
               decltype(BoostAsioTcpClient::onDataReceived_) onDataReceived_,
               const std::string &id="") : id_(id){
         boost::asio::ip::tcp::resolver resolver(io_service);
-        pClient = std::make_shared<BoostAsioTcpClient>(io_service, resolver.resolve({ host, ip }), onDataReceived_);
+        pClient = std::make_shared<BoostAsioTcpClient>(io_service, resolver.resolve({ host, ip }), onDataReceived_, this);
         pThread = std::make_shared<std::thread>([this](){ io_service.run(); });
-
-        /*
-        char line[NetPacket::max_body_length + 1];
-        while (std::cin.getline(line, NetPacket::max_body_length + 1))
-        {
-            NetPacket msg;
-            msg.body_length(std::strlen(line));
-            std::memcpy(msg.body(), line, msg.body_length());
-            msg.encode_header();
-            pClient->write(msg);
-        }
-        */
     }
 
 
     ~TcpClient(){
-        pClient->close();
-        pThread->join();
+        try {
+            pClient->close();
+            pThread->join();
+        }
+        catch(std::exception &e){
+            //
+        }
     }
+
+    bool isConnected() const {return isConnected_;}
 
     std::string id(){return id_;}
 
@@ -192,3 +174,32 @@ public:
 
 
 
+
+
+
+BoostAsioTcpClient::BoostAsioTcpClient(
+        boost::asio::io_service& io_service,
+        boost::asio::ip::tcp::resolver::iterator endpoint_iterator,
+        decltype(onDataReceived_) onDataReceived,
+        TcpClient *pTcpClient
+        )
+    : io_service_(io_service)
+    , socket_(io_service)
+    , onDataReceived_(onDataReceived)
+    , pTcpClient_(pTcpClient)
+{
+    // connect(endpoint_iterator);
+
+    boost::asio::async_connect(socket_,
+                               endpoint_iterator,
+                               [this](boost::system::error_code ec,
+                               boost::asio::ip::tcp::resolver::iterator){
+        if (ec) {
+            socket_.close();
+            return;
+        }
+
+        pTcpClient_->isConnected_ = true;
+        readHeader();
+    });
+}

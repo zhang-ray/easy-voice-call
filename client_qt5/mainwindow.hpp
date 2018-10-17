@@ -3,7 +3,8 @@
 
 #include <QMainWindow>
 #include <memory>
-#include <thread>
+#include "Worker.hpp"
+
 
 
 namespace Ui {
@@ -12,9 +13,7 @@ class MainWindow;
 
 
 
-class AudioDecoder;
-class AudioEncoder;
-class AudioDevice;
+
 
 class MainWindow : public QMainWindow
 {
@@ -26,32 +25,17 @@ public:
 
 private slots:
     void on_pushButton_connecting_clicked();
-private:
-    void fromUi_gotoConnect();
-    void fromUi_gotoDisconnect();
+    void updateUiState(const NetworkState networkState);
+
 private:
     Ui::MainWindow *ui = nullptr;
-    std::thread *bgThread_ = nullptr;
 
-    AudioDecoder* decoder = nullptr;
-    AudioEncoder* encoder = nullptr;
-    AudioDevice*  device = nullptr;
+    Worker worker_;
+private:
 
-    bool gotoStop_ = false;
-
+    NetworkState currentUiState_ = NetworkState::Disconnected;
 
 private:
-    bool ui_connected_ = false;
-private:
-    bool initEndpointAndCodec();
+    void showMessage(const std::string &message);
 
-    void onConnecting(){
-
-    }
-
-    void onConnected();
-    void onDisconnected();
-
-    void onWorking();
 };
-

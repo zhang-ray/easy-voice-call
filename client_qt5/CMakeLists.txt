@@ -49,6 +49,7 @@ set(SRCS
     mainwindow.ui
     mainwindow.cpp
     main.cpp
+    Worker.cpp
 )
 
 
