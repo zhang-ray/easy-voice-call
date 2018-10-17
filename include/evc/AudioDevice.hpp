@@ -7,8 +7,7 @@
 
 class AudioDevice {
 public:
-
-    virtual ReturnType init() = 0;
+    virtual ReturnType init(std::string &micInfo, std::string &spkInfo) = 0;
 
     virtual ReturnType read(std::vector<short> &buffer) = 0;
     virtual ReturnType write(const std::vector<short> &buffer) = 0;

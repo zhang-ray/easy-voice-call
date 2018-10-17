@@ -3,6 +3,7 @@
 #include <memory>
 #include <thread>
 #include <QDebug>
+#include <string>
 
 class AudioDecoder;
 class AudioEncoder;
@@ -28,7 +29,7 @@ public:
     ~Worker();
 
     bool initCodec();
-    bool initDevice();
+    bool initDevice(std::function<void(const std::string &,const std::string &)> reportInfo);
 
     void asyncStart(const std::string &host, const std::string &port,
                       std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
@@ -37,6 +38,9 @@ public:
     void syncStart(const std::string &host, const std::string &port,
                       std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
                       );
+
+
+    ///// TODO: blocked when server down?
     void syncStop(){
         if (netThread_){
             gotoStop_  = true;

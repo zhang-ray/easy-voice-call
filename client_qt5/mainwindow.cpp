@@ -95,7 +95,12 @@ MainWindow::MainWindow(QWidget *parent) :
         if (!worker_.initCodec()){
             throw "worker_.initCodec failed";
         }
-        if (!worker_.initDevice()){
+        if (!worker_.initDevice([this](const std::string &micInfo, const std::string &spkInfo){
+                                ui->label_micTitle->setVisible(!micInfo.empty());
+                                ui->label_spkTitle->setVisible(!spkInfo.empty());
+                                ui->label_micInfo->setText(micInfo.c_str());
+                                ui->label_spkInfo->setText(spkInfo.c_str());
+    })){
             throw "worker_.initDevice failed";
         }
     }

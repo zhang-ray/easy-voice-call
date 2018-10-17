@@ -5,7 +5,9 @@
 int main(int argc, char **argv){
     auto &device = Alsa::get();
 
-    if (device.init()) {
+    std::string micInfo;
+    std::string spkInfo;
+    if (device.init(micInfo, spkInfo)) {
         for (;;) {
             const auto blockSize = 1920;
             std::vector<short> micBuffer(blockSize);

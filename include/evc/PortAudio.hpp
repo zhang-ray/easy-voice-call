@@ -15,7 +15,7 @@ class PortAudio : public AudioDevice, public Singleton<PortAudio> {
 private:
     PaStream *stream_ = nullptr;
 public:
-    virtual ReturnType init() override{
+    virtual ReturnType init(std::string &micInfo, std::string &spkInfo) override{
         auto err = Pa_Initialize();
         if( err != paNoError ){
             return Pa_GetErrorText( err );

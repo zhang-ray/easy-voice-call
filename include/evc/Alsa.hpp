@@ -27,7 +27,7 @@ public:
         }
     }
 
-    ReturnType init() override {
+    ReturnType init(std::string &micInfo, std::string &spkInfo) override {
         auto configureDevice = [this](bool isInput) -> ReturnType {
             snd_pcm_t *handle = isInput ? handlerCapture_ : handlerPlay_;
 
@@ -97,6 +97,9 @@ public:
         if (!retOutput) {
             return retOutput;
         }
+
+        micInfo=szDeviceID;
+        spkInfo=szDeviceID;
 
         return 0;
     }

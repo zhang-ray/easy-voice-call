@@ -25,13 +25,14 @@ bool Worker::initCodec(){
     return false;
 }
 
-bool Worker::initDevice(){
+bool Worker::initDevice(std::function<void(const std::string &, const std::string &)> reportInfo){
     device_ = &(Factory::get().create());
 
-    if (device_->init()){
-        if (decoder->reInit()) {
-            return true;
-        }
+    std::string micInfo;
+    std::string spkInfo;
+    if (device_->init(micInfo, spkInfo)){
+        reportInfo(micInfo, spkInfo);
+        return true;
     }
     return false;
 }
