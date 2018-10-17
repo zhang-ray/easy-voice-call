@@ -26,7 +26,7 @@ include_directories(../include)
 if(WIN32)
 	include_directories(
         ../../include/
-        "C:/Libraries/boost_1_67_0/boost include/"
+        "C:/Libraries/boost_1_67_0/"
         )
 endif(WIN32)
 
