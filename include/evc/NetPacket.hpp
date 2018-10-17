@@ -36,6 +36,19 @@ public:
         AudioMessage,
     };
 
+    auto getDescription(const PayloadType payloadType) -> const char * {
+        switch (payloadType){
+            case NetPacket::PayloadType::Undefined          : return "Undefined";
+            case NetPacket::PayloadType::HeartBeatRequest   : return "HeartBeatRequest";
+            case NetPacket::PayloadType::HeartBeatResponse  : return "HeartBeatResponse";
+            case NetPacket::PayloadType::LoginRequest       : return "LoginRequest";
+            case NetPacket::PayloadType::LoginResponse      : return "LoginResponse";
+            case NetPacket::PayloadType::UserInfo           : return "UserInfo";
+            case NetPacket::PayloadType::TextMessage        : return "TextMessage";
+            case NetPacket::PayloadType::AudioMessage       : return "AudioMessage";
+        }
+    };
+
 private:
     const std::string headMarker_ = "evc ";
     std::vector<char> wholePacket_;
