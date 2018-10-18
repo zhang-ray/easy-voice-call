@@ -172,7 +172,8 @@ void MainWindow::showMessage(const std::string &message){
             ui->statusBar->clearMessage();
         }
         else {
-            ui->statusBar->showMessage(message.c_str());
+            ui->statusBar->showMessage(message.c_str()); // TODO: thread-unsafety?
+            qDebug() << message.c_str();
         }
     }
     catch (std::exception &e){

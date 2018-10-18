@@ -22,7 +22,7 @@ int main(int argc, char **argv){
         }
 
         for (int i =0 ; i < 2; i++){
-            clients.push_back(new TcpClient(argv[1], argv[2], [=](const NetPacket &netPacket){
+            clients.push_back(new TcpClient(argv[1], argv[2], [=](TcpClient *_TcpClient, const NetPacket &netPacket){
                 if (netPacket.payloadType()!=NetPacket::PayloadType::TextMessage){
                     throw;
                 }

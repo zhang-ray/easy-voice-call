@@ -36,7 +36,7 @@ class TcpClient;
 class BoostAsioTcpClient{
     friend class TcpClient;
 private:
-    std::function<void(const NetPacket&)> onDataReceived_;
+    std::function<void(TcpClient *TcpClient_, const NetPacket&)> onDataReceived_;
     TcpClient *pTcpClient_ = nullptr;
 public:
     BoostAsioTcpClient(
@@ -80,30 +80,7 @@ private:
 
 
 
-    void readPayload(){
-        boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.payload(), read_msg_.payloadLength()),
-                                [this](boost::system::error_code ec, std::size_t /*length*/) {
-            if (ec) {
-                socket_.close();
-                return;
-            }
-
-
-            ////////////////////////////////
-            ////////////////////////////////
-            ////////////////////////////////
-            ////////////////////////////////
-            /* GOT DATA! */
-            ////////////////////////////////
-            ////////////////////////////////
-            ////////////////////////////////
-            ////////////////////////////////
-            ////////////////////////////////
-            ////////////////////////////////
-            onDataReceived_(read_msg_);
-            readHeader();
-        });
-    }
+    void readPayload();
 
     void write(){
         boost::asio::async_write(socket_,
@@ -200,6 +177,31 @@ BoostAsioTcpClient::BoostAsioTcpClient(
         }
 
         pTcpClient_->isConnected_ = true;
+        readHeader();
+    });
+}
+
+void BoostAsioTcpClient::readPayload(){
+    boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.payload(), read_msg_.payloadLength()),
+                            [this](boost::system::error_code ec, std::size_t /*length*/) {
+        if (ec) {
+            socket_.close();
+            return;
+        }
+
+
+        ////////////////////////////////
+        ////////////////////////////////
+        ////////////////////////////////
+        ////////////////////////////////
+        /* GOT DATA! */
+        ////////////////////////////////
+        ////////////////////////////////
+        ////////////////////////////////
+        ////////////////////////////////
+        ////////////////////////////////
+        ////////////////////////////////
+        onDataReceived_(pTcpClient_, read_msg_);
         readHeader();
     });
 }

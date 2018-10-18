@@ -28,6 +28,9 @@ using ClientPacketQueue = std::deque<NetPacket>;
 
 
 
+/// TODO:
+/// Response some voice like "waiting for someone else login" ?
+///
 
 
 
@@ -52,19 +55,50 @@ public:
 
 
     void processClientMessagePayload(const NetPacket& msg,ParticipantPointer sender){
+        static uint32_t counterUserMessage_ = 0;
         auto payloadType = msg.payloadType();
 
-        BOOST_LOG_TRIVIAL(trace) << "sender: "<< sender->info() << "\t" << "payloadType: " << NetPacket::getDescription(payloadType);
-        if (payloadType ==NetPacket::PayloadType::HeartBeatRequest){
+        bool traceDump = true;
+        switch (payloadType){
+        case NetPacket::PayloadType::HeartBeatRequest:{
             sender->deliver(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
+            break;
         }
-        else if (payloadType == NetPacket::PayloadType::TextMessage || payloadType == NetPacket::PayloadType::AudioMessage){
+        case NetPacket::PayloadType::TextMessage :
+        case NetPacket::PayloadType::AudioMessage:
+        {
+            counterUserMessage_++;
             for (auto participant: participants_){
                 if (participant == sender){
                     continue;
                 }
 
                 participant->deliver(msg);
+            }
+            traceDump = false;
+            break;
+        }
+        case NetPacket::PayloadType::LoginRequest:
+        {
+            //// GOT login request!!!
+            sender->deliver(NetPacket(NetPacket::PayloadType::LoginResponse));
+            break;
+        }
+        case NetPacket::PayloadType::LogoutRequest:
+        {
+            leave(sender);
+            break;
+        }
+
+        default:
+            // WHAT?
+            break;
+        }
+
+        if(traceDump || counterUserMessage_%100==0){
+            BOOST_LOG_TRIVIAL(trace) << "["<< sender->info() << "] [" << NetPacket::getDescription(payloadType) << "]";
+            if (counterUserMessage_%100==0){
+                BOOST_LOG_TRIVIAL(trace) << "\t\tgot " << counterUserMessage_<< "\tUserMessage totally";
             }
         }
     }
@@ -169,7 +203,7 @@ private:
         });
     }
 
-
+private:
     boost::asio::ip::tcp::socket socket_;
     Room& room_;
     NetPacket read_msg_;

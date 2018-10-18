@@ -57,42 +57,58 @@ void Worker::syncStart(const std::string &host,
 
     try{
         gotoStop_ = false;
+        bool isLogin = false;
         TcpClient client(
                     host.c_str(),
                     constPort,
-                    [&](const NetPacket& netPacket){
+                    [&](TcpClient *_TcpClient, const NetPacket& netPacket){
             // on Received Data
-            if (netPacket.payloadType()==NetPacket::PayloadType::HeartBeatRequest){
-                // MSVC could not capture `client` reference...
-                // client.send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
-            }
-            else if (netPacket.payloadType()==NetPacket::PayloadType::HeartBeatResponse){
-                //throw;
-            }
-            else if (netPacket.payloadType()==NetPacket::PayloadType::AudioMessage){
-                std::vector<char> netBuff;
-                netBuff.resize(netPacket.payloadLength());
-                memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
-                std::vector<short> decodedPcm;
-                decoder->decode(netBuff, decodedPcm);
-                auto ret = device_->write(decodedPcm);
-                if (spkVolumeReporter_){
-                    static SuckAudioVolume sav;
-                    spkVolumeReporter_(sav.calculate(decodedPcm));
+            switch (netPacket.payloadType()){
+                case NetPacket::PayloadType::HeartBeatRequest:{
+                    _TcpClient->send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
+                    break;
                 }
-                if (!ret) {
-                    std::cout << ret.message() << std::endl;
+                case NetPacket::PayloadType::LoginResponse: {
+                    isLogin = true;
+                    qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
+                    break;
+                }
+                case NetPacket::PayloadType::AudioMessage: {
+                    std::vector<char> netBuff;
+                    netBuff.resize(netPacket.payloadLength());
+                    memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
+                    std::vector<short> decodedPcm;
+                    decoder->decode(netBuff, decodedPcm);
+                    auto ret = device_->write(decodedPcm);
+                    if (spkVolumeReporter_){
+                        static SuckAudioVolume sav;
+                        spkVolumeReporter_(sav.calculate(decodedPcm));
+                    }
+                    if (!ret) {
+                        std::cout << ret.message() << std::endl;
+                    }
+                    break;
                 }
             }
         });
 
 
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        /// TCP/UDP connecting phase
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         if (!client.isConnected()){
             toggleState(NetworkState::Disconnected, "Could not connect to Server...");
             return;
         }
 
+
+        /// App Login phase
+        client.send(NetPacket(NetPacket::PayloadType::LoginRequest));
+        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
+        if (!isLogin){
+            toggleState(NetworkState::Disconnected, "Could not Login to Server...");
+            return;
+        }
 
         toggleState(NetworkState::Connected, "");
 
@@ -100,6 +116,9 @@ void Worker::syncStart(const std::string &host,
         for (;!gotoStop_;){
             const auto blockSize = 1920;
             std::vector<short> micBuffer(blockSize);
+            /// TODO:
+            /// in practice, device_->read would be unblock in first several blocks
+            /// so let's clear microphone's buffer on first time???
             auto ret = device_->read(micBuffer);
             if (!ret){
                 break;
@@ -131,6 +150,12 @@ void Worker::syncStart(const std::string &host,
                 }
             }
         }
+
+
+        /// App logout
+        client.send(NetPacket(NetPacket::PayloadType::LogoutRequest));
+
+
     }
     catch (std::exception& e){
         std::cerr << "Exception: " << e.what() << "\n";

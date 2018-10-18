@@ -34,6 +34,8 @@ public:
         UserInfo,
         TextMessage,
         AudioMessage,
+        LogoutRequest,
+        LogoutResponse,
     };
 
     static auto getDescription(const PayloadType payloadType) -> const char * {
