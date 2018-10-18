@@ -1,0 +1,3 @@
+
+
+- when the server down, the client should be "notified" or "disconnected" at least...
