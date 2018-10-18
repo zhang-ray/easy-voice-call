@@ -57,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent) :
                     );
         setFixedSize(width(), height());
         updateUiState(NetworkState::Disconnected);
+
+        connect(ui->lineEdit_serverHost, SIGNAL(returnPressed()), ui->pushButton_connecting, SLOT(click()));
     }
 
 
@@ -67,9 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
         if (!worker_.initDevice(
                     [this](const std::string &micInfo,
                            const std::string &spkInfo){
-                            ui->label_micTitle->setVisible(!micInfo.empty());
                             ui->label_spkTitle->setVisible(!spkInfo.empty());setVisible(!micInfo.empty());
-                            ui->label_volumeSpk->setVisible(!spkInfo.empty());
                             ui->label_micInfo->setText(micInfo.c_str());
                             ui->label_spkInfo->setText(spkInfo.c_str());
                            },[this](const uint8_t newVolume){
@@ -111,6 +111,7 @@ void MainWindow::on_pushButton_connecting_clicked(){
     switch (currentUiState_){
     case NetworkState::Disconnected: {
         {
+            updateUiState(NetworkState::Connecting);
             worker_.asyncStart(
                         ui->lineEdit_serverHost->text().toStdString(),
                         [this](

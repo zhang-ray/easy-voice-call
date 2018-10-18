@@ -97,9 +97,9 @@
    <widget class="QLabel" name="label_micInfo">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>160</x>
       <y>20</y>
-      <width>191</width>
+      <width>221</width>
       <height>20</height>
      </rect>
     </property>
@@ -115,6 +115,9 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="QLabel" name="label_micTitle">
@@ -156,9 +159,9 @@
    <widget class="QLabel" name="label_spkInfo">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>160</x>
       <y>40</y>
-      <width>211</width>
+      <width>221</width>
       <height>20</height>
      </rect>
     </property>
@@ -175,11 +178,14 @@
     <property name="text">
      <string/>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
    </widget>
    <widget class="QLabel" name="label_volumeMic">
     <property name="geometry">
      <rect>
-      <x>342</x>
+      <x>80</x>
       <y>20</y>
       <width>21</width>
       <height>20</height>
@@ -191,7 +197,7 @@
      </font>
     </property>
     <property name="text">
-     <string/>
+     <string>0</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -200,7 +206,7 @@
    <widget class="QLabel" name="label_volumeSpk">
     <property name="geometry">
      <rect>
-      <x>342</x>
+      <x>80</x>
       <y>40</y>
       <width>21</width>
       <height>20</height>
@@ -212,7 +218,7 @@
      </font>
     </property>
     <property name="text">
-     <string/>
+     <string>0</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -254,48 +260,12 @@
      <string>or: 123.45.67.89</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_volumeMic_2">
-    <property name="geometry">
-     <rect>
-      <x>298</x>
-      <y>20</y>
-      <width>41</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>8</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>volume:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_volumeSpk_2">
-    <property name="geometry">
-     <rect>
-      <x>298</x>
-      <y>40</y>
-      <width>41</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>8</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>volume:</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_volumeMic_3">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>103</x>
       <y>20</y>
-      <width>21</width>
+      <width>61</width>
       <height>20</height>
      </rect>
     </property>
@@ -305,15 +275,15 @@
      </font>
     </property>
     <property name="text">
-     <string>%</string>
+     <string>%(volume)</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_volumeSpk_3">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>103</x>
       <y>40</y>
-      <width>16</width>
+      <width>61</width>
       <height>20</height>
      </rect>
     </property>
@@ -323,7 +293,7 @@
      </font>
     </property>
     <property name="text">
-     <string>%</string>
+     <string>%(volume)</string>
     </property>
    </widget>
   </widget>
