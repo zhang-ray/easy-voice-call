@@ -69,7 +69,6 @@ MainWindow::MainWindow(QWidget *parent) :
         if (!worker_.initDevice(
                     [this](const std::string &micInfo,
                            const std::string &spkInfo){
-                            ui->label_spkTitle->setVisible(!spkInfo.empty());setVisible(!micInfo.empty());
                             ui->label_micInfo->setText(micInfo.c_str());
                             ui->label_spkInfo->setText(spkInfo.c_str());
                            },[this](const uint8_t newVolume){
