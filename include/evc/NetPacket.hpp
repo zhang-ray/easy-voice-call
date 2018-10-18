@@ -84,7 +84,6 @@ public:
 
 
     bool checkHeader(){
-        //         TODO: check
         unsigned short payloadSize;
         memcpy(&payloadSize, wholePacket_.data()+4*3+2, sizeof(decltype(payloadSize)));
         wholePacket_.resize(FixHeaderLength + payloadSize);

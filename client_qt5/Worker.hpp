@@ -16,6 +16,10 @@ enum class NetworkState : unsigned char{
 };
 
 
+/// TODO:
+///    - make timestamp
+///    - use reliable UDP in weak network
+
 
 class Worker {
 private:

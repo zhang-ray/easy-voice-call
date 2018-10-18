@@ -13,7 +13,6 @@ int main(int argc, char **argv){
 		for (;;) {
 			const auto blockSize = 1920;
 			std::vector<short> micBuffer(blockSize);
-			// TODO: use RingBuffer?
 			auto retRead = device.read(micBuffer);
 			if (retRead) {
 				auto retWrite = device.write(micBuffer);
