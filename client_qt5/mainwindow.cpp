@@ -37,24 +37,6 @@ MainWindow::MainWindow(QWidget *parent) :
                 }
                 ui->lineEdit_serverHost->setText(buf);
             }
-
-            lineLength = file.readLine(buf, sizeof(buf));
-            if (lineLength != -1) {
-                // the line is available in buf
-                if (buf[lineLength-1]=='\n'){
-                    buf[lineLength-1]=0;
-                }
-                ui->lineEdit_serverPort->setText(buf);
-            }
-
-            lineLength = file.readLine(buf, sizeof(buf));
-            if (lineLength != -1) {
-                // the line is available in buf
-                if (buf[lineLength-1]=='\n'){
-                    buf[lineLength-1]=0;
-                }
-                ui->lineEdit_userName->setText(buf);
-            }
         }
     }
     catch (std::exception &e){
@@ -78,40 +60,25 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 
-    try{
-        if (ui->lineEdit_userName->text().isEmpty()){
-            // won't work well on Ubuntu 14.04, Qt 5.2.1
-            // error: ‘prettyProductName’ is not a member of ‘QSysInfo’
-            // ui->lineEdit_userName->setText(QSysInfo::prettyProductName());
-        }
-    }
-    catch (std::exception &e){
-        std::cerr << "Exception: " << e.what() << "\n";
-    }
-
-
-
     try {
         if (!worker_.initCodec()){
             throw "worker_.initCodec failed";
         }
         if (!worker_.initDevice(
                     [this](const std::string &micInfo,
-                                       const std::string &spkInfo){
-                                ui->label_micTitle->setVisible(!micInfo.empty());
-                                ui->label_spkTitle->setVisible(!spkInfo.empty());
-                                ui->label_micInfo->setText(micInfo.c_str());
-                                ui->label_spkInfo->setText(spkInfo.c_str());
-    },[this](const double newMicVolume){
-                    qDebug() << newMicVolume;
-//                    ui->progressBar_volumeMic->setValue(newMicVolume*100);
-
-    }, [this](const double newSpkVolume){
-                    qDebug() << newSpkVolume;
-//                    ui->progressBar_volumeSpk->setValue(newSpkVolume*100);
-    }
-                )){
-            throw "worker_.initDevice failed";
+                           const std::string &spkInfo){
+                            ui->label_micTitle->setVisible(!micInfo.empty());
+                            ui->label_spkTitle->setVisible(!spkInfo.empty());setVisible(!micInfo.empty());
+                            ui->label_volumeSpk->setVisible(!spkInfo.empty());
+                            ui->label_micInfo->setText(micInfo.c_str());
+                            ui->label_spkInfo->setText(spkInfo.c_str());
+                           },[this](const uint8_t newVolume){
+                                ui->label_volumeMic->setText(std::to_string(newVolume).c_str());
+                            }, [this](const uint8_t newVolume){
+                                ui->label_volumeSpk->setText(std::to_string(newVolume).c_str());
+                            }
+            )){
+                throw "worker_.initDevice failed";
         }
     }
     catch (std::exception &e){
@@ -130,10 +97,6 @@ MainWindow::~MainWindow()
         if (file.open(QIODevice::ReadWrite)){
             file.write(ui->lineEdit_serverHost->text().toStdString().c_str());
             file.write("\n");
-            file.write(ui->lineEdit_serverPort->text().toStdString().c_str());
-            file.write("\n");
-            file.write(ui->lineEdit_userName->text().toStdString().c_str());
-            file.write("\n");
             file.close();
         }
     }
@@ -150,7 +113,6 @@ void MainWindow::on_pushButton_connecting_clicked(){
         {
             worker_.asyncStart(
                         ui->lineEdit_serverHost->text().toStdString(),
-                        ui->lineEdit_serverPort->text().toStdString(),
                         [this](
                         const NetworkState newState,
                         const std::string extraMessage
@@ -176,9 +138,7 @@ void MainWindow::on_pushButton_connecting_clicked(){
 void MainWindow::updateUiState(const NetworkState networkState){
     switch(networkState){
     case NetworkState::Disconnected:{
-        ui->lineEdit_userName->setEnabled(true);
         ui->lineEdit_serverHost->setEnabled(true);
-        ui->lineEdit_serverPort->setEnabled(true);
 
         ui->pushButton_connecting->setEnabled(true);
         ui->pushButton_connecting->setText("Connect!");
@@ -186,17 +146,13 @@ void MainWindow::updateUiState(const NetworkState networkState){
         break;
     }
     case NetworkState::Connecting:{
-        ui->lineEdit_userName->setEnabled(false);
         ui->lineEdit_serverHost->setEnabled(false);
-        ui->lineEdit_serverPort->setEnabled(false);
         ui->pushButton_connecting->setEnabled(false);
         ui->pushButton_connecting->setText("Connecting...");
         break;
     }
     case NetworkState::Connected:{
-        ui->lineEdit_userName->setEnabled(false);
         ui->lineEdit_serverHost->setEnabled(false);
-        ui->lineEdit_serverPort->setEnabled(false);
 
         ui->pushButton_connecting->setEnabled(true);
         ui->pushButton_connecting->setText("Disconnect!");

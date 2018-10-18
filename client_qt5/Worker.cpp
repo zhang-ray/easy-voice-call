@@ -3,6 +3,10 @@
 
 #include "evc/Factory.hpp"
 #include "evc/TcpClient.hpp"
+#include "evc/AudioVolume.hpp"
+
+
+const char *constPort ="1222";
 
 Worker::~Worker(){
     try{
@@ -26,8 +30,8 @@ bool Worker::initCodec(){
 }
 
 bool Worker::initDevice(std::function<void(const std::string &, const std::string &)> reportInfo,
-                        std::function<void(const double)> reportMicVolume,
-                        std::function<void(const double)> reportSpkVolume){
+                        std::function<void(const uint8_t)> reportMicVolume,
+                        std::function<void(const uint8_t)> reportSpkVolume){
     device_ = &(Factory::get().create());
 
     std::string micInfo;
@@ -41,13 +45,12 @@ bool Worker::initDevice(std::function<void(const std::string &, const std::strin
     return false;
 }
 
-void Worker::asyncStart(const std::string &host, const std::string &port, std::function<void (const NetworkState &, const std::string &)> toggleState){
+void Worker::asyncStart(const std::string &host, std::function<void (const NetworkState &, const std::string &)> toggleState){
     syncStop();
-    netThread_.reset(new std::thread(std::bind(&Worker::syncStart, this, host, port, toggleState)));
+    netThread_.reset(new std::thread(std::bind(&Worker::syncStart, this, host, toggleState)));
 }
 
 void Worker::syncStart(const std::string &host,
-                        const std::string &port,
                         std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
                           ){
 
@@ -56,7 +59,7 @@ void Worker::syncStart(const std::string &host,
         gotoStop_ = false;
         TcpClient client(
                     host.c_str(),
-                    port.c_str(),
+                    constPort,
                     [&](const NetPacket& netPacket){
             // on Received Data
             if (netPacket.payloadType()==NetPacket::PayloadType::HeartBeatRequest){
@@ -73,6 +76,10 @@ void Worker::syncStart(const std::string &host,
                 std::vector<short> decodedPcm;
                 decoder->decode(netBuff, decodedPcm);
                 auto ret = device_->write(decodedPcm);
+                if (spkVolumeReporter_){
+                    static SuckAudioVolume sav;
+                    spkVolumeReporter_(sav.calculate(decodedPcm));
+                }
                 if (!ret) {
                     std::cout << ret.message() << std::endl;
                 }
@@ -97,12 +104,11 @@ void Worker::syncStart(const std::string &host,
             if (!ret){
                 break;
             }
-
-            // calculate mic Volume
-            {
-                // mock:
-                micVolumeReporter_((double)micBuffer[0]/(1<<15));
+            if (micVolumeReporter_){
+                static SuckAudioVolume sav;
+                micVolumeReporter_(sav.calculate(micBuffer));
             }
+
             std::vector<char> outData;
             auto retEncode = encoder->encode(micBuffer, outData);
             if (!retEncode){

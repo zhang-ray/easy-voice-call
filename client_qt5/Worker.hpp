@@ -24,20 +24,22 @@ private:
     AudioDevice *  device_ = nullptr;
     bool gotoStop_ = false;
     std::shared_ptr<std::thread> netThread_ = nullptr;
-    std::function<void(const double)>  micVolumeReporter_ = nullptr;
-    std::function<void(const double)>  spkVolumeReporter_ = nullptr;
+    std::function<void(const uint8_t)>  micVolumeReporter_ = nullptr;
+    std::function<void(const uint8_t)>  spkVolumeReporter_ = nullptr;
 
 public:
     ~Worker();
 
     bool initCodec();
-    bool initDevice(std::function<void(const std::string &,const std::string &)> reportInfo, std::function<void(const double)> reportMicVolume, std::function<void(const double)> reportSpkVolume);
+    bool initDevice(std::function<void(const std::string &,const std::string &)> reportInfo,
+                    std::function<void(const uint8_t)> reportMicVolume,
+                    std::function<void(const uint8_t)> reportSpkVolume);
 
-    void asyncStart(const std::string &host, const std::string &port,
+    void asyncStart(const std::string &host,
                       std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
                       );
 
-    void syncStart(const std::string &host, const std::string &port,
+    void syncStart(const std::string &host,
                       std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
                       );
 
