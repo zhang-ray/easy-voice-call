@@ -48,6 +48,8 @@ public:
             case NetPacket::PayloadType::UserInfo           : return "UserInfo";
             case NetPacket::PayloadType::TextMessage        : return "TextMessage";
             case NetPacket::PayloadType::AudioMessage       : return "AudioMessage";
+            case NetPacket::PayloadType::LogoutRequest      : return "LogoutRequest";
+            case NetPacket::PayloadType::LogoutResponse     : return "LogoutResponse";
         }
     };
 

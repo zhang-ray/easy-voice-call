@@ -96,7 +96,7 @@ public:
         }
 
         if(traceDump || counterUserMessage_%100==0){
-            BOOST_LOG_TRIVIAL(trace) << "["<< sender->info() << "] [" << NetPacket::getDescription(payloadType) << "]";
+            BOOST_LOG_TRIVIAL(trace) << "["<< sender->info() << "] [" << NetPacket::getDescription(payloadType) << "] [" << msg.wholePackLength() << " B]";
             if (counterUserMessage_%100==0){
                 BOOST_LOG_TRIVIAL(trace) << "\t\tgot " << counterUserMessage_<< "\tUserMessage totally";
             }
@@ -121,9 +121,11 @@ public:
     Session(boost::asio::ip::tcp::socket socket, Room& room)
         : socket_(std::move(socket))
         , room_(room) {
+        BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ ;
     }
 
     ~Session(){
+        BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ ;
     }
 
 
