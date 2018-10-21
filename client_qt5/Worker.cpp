@@ -94,16 +94,36 @@ void Worker::syncStart(const std::string &host,
 
 
         /// TCP/UDP connecting phase
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        if (!client.isConnected()){
-            toggleState(NetworkState::Disconnected, "Could not connect to Server...");
-            return;
+        /// timeout: 100ms
+        {
+            //
+            bool isOK = false;
+            for (int i = 0; i < 10; i++){
+                if (client.isConnected()){
+                    isOK = true;
+                    break;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            if (!isOK) {
+                toggleState(NetworkState::Disconnected, "Could not connect to Server...");
+                return;
+            }
         }
 
 
         /// App Login phase
-        client.send(NetPacket(NetPacket::PayloadType::LoginRequest));
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        /// timeout: 300ms
+        {
+            client.send(NetPacket(NetPacket::PayloadType::LoginRequest));
+            for (int i = 0; i < 10; i++){
+                if (isLogin){
+                    break;
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(30));
+            }
+        }
+
         qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
         if (!isLogin){
             toggleState(NetworkState::Disconnected, "Could not Login to Server...");
