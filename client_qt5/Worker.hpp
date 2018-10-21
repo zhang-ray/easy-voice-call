@@ -20,7 +20,7 @@ enum class NetworkState : unsigned char{
 ///    - make timestamp
 ///    - use reliable UDP in weak network
 ///    - check version (server & client)
-///    - display build date and git commit version in CLI/GUI and server side
+///    - display build date and git commit version in GUI and server side
 
 
 class Worker {
