@@ -4,7 +4,10 @@
 
 #include <vector>
 
-
+///
+/// \brief The AudioDevice class
+/// TODO:
+///    - a mechanism to monitor and avoid overrun and underrun?
 class AudioDevice {
 public:
     virtual ReturnType init(std::string &micInfo, std::string &spkInfo) = 0;
