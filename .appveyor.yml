@@ -1,7 +1,7 @@
 image: Visual Studio 2015
 
 before_build:
-- git submodule update --init --recursive # AppVeyor don't get submodule by default
+- git clone https://github.com/zhang-ray/audio-processing-module
 #- cmd: tree /F C:\Libraries\boost_1_67_0 
 #- cmd: tree /F C:\Qt\5.11.1\msvc2015
 - cd ..

@@ -5,6 +5,7 @@ language: cpp
 sudo: required
 
 script:
+  - git clone https://github.com/zhang-ray/audio-processing-module
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]];    then ./scripts/mac.build.sh    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]];  then ./scripts/ubuntu.build.sh ; fi 
 
