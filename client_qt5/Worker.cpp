@@ -4,7 +4,16 @@
 #include "evc/Factory.hpp"
 #include "evc/TcpClient.hpp"
 #include "evc/AudioVolume.hpp"
+#include <mutex> // for std::once_flag
 
+//// TODO
+//// don't include WEBRTC directly...
+#include "../audio-processing-module/independent_vad/src/webrtc_vad.hpp"
+
+namespace {
+VadInst* vad;
+std::once_flag once_vad;
+}
 
 const char *constPort ="1222";
 
@@ -31,7 +40,8 @@ bool Worker::initCodec(){
 
 bool Worker::initDevice(std::function<void(const std::string &, const std::string &)> reportInfo,
                         std::function<void(const uint8_t)> reportMicVolume,
-                        std::function<void(const uint8_t)> reportSpkVolume){
+                        std::function<void(const uint8_t)> reportSpkVolume,
+                        std::function<void(const bool)> vadReporter){
     device_ = &(Factory::get().create());
 
     std::string micInfo;
@@ -40,6 +50,7 @@ bool Worker::initDevice(std::function<void(const std::string &, const std::strin
         reportInfo(micInfo, spkInfo);
         micVolumeReporter_ = reportMicVolume;
         spkVolumeReporter_ = reportSpkVolume;
+        vadReporter_ = vadReporter;
         return true;
     }
     return false;
@@ -146,6 +157,27 @@ void Worker::syncStart(const std::string &host,
             if (micVolumeReporter_){
                 static SuckAudioVolume sav;
                 micVolumeReporter_(sav.calculate(micBuffer));
+            }
+            if (vadReporter_){
+
+                static int once = [&](){
+                    vad = WebRtcVad_Create();
+                    if (WebRtcVad_Init(vad)){
+                        std::cerr << "WebRtcVad_Init failed" << std::endl;
+                        return -1;
+                    }
+
+                    if (WebRtcVad_set_mode(vad, 3)){
+                        std::cerr << "WebRtcVad_set_mode failed" << std::endl;
+                        return -1;
+                    }
+                    return 0;
+                } ();
+                if (!once){
+                    for (int i = 0 ; i < 4; i++){
+                        vadReporter_(1==WebRtcVad_Process(vad, 48000, &(micBuffer[i*480]), 480));
+                    }
+                }
             }
 
             std::vector<char> outData;

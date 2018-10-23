@@ -11,6 +11,9 @@ project(easy-voice-call)
 #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 #endif(CMAKE_COMPILER_IS_GNUCXX)
 
+
+add_subdirectory(audio-processing-module/independent_vad)
+
 add_subdirectory(client_essential)
 #add_subdirectory(client_cli) # shorten building time
 add_subdirectory(client_qt5)

@@ -59,4 +59,7 @@ target_link_libraries(
     ${PROJECT_NAME}
     Qt5::Widgets
     client_essential
+
+##### TODO don't link vad from client_qt5
+    vad
 )

@@ -32,14 +32,16 @@ private:
     std::shared_ptr<std::thread> netThread_ = nullptr;
     std::function<void(const uint8_t)>  micVolumeReporter_ = nullptr;
     std::function<void(const uint8_t)>  spkVolumeReporter_ = nullptr;
-
+    std::function<void(const bool)>  vadReporter_ = nullptr;
 public:
     ~Worker();
 
     bool initCodec();
     bool initDevice(std::function<void(const std::string &,const std::string &)> reportInfo,
                     std::function<void(const uint8_t)> reportMicVolume,
-                    std::function<void(const uint8_t)> reportSpkVolume);
+                    std::function<void(const uint8_t)> reportSpkVolume,
+                    std::function<void(const bool)> vadReporter
+                    );
 
     void asyncStart(const std::string &host,
                       std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState

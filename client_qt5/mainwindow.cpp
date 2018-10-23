@@ -14,6 +14,8 @@
 #include "Worker.hpp"
 
 
+/// TODO:
+/// - display VAD result in real-time
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -75,6 +77,8 @@ MainWindow::MainWindow(QWidget *parent) :
                                 ui->label_volumeMic->setText(std::to_string(newVolume).c_str());
                             }, [this](const uint8_t newVolume){
                                 ui->label_volumeSpk->setText(std::to_string(newVolume).c_str());
+                            }, [this] (const bool isActive){
+                                    if (isActive) { qDebug() << "isActive" ;} else {qDebug() << "";}
                             }
             )){
                 throw "worker_.initDevice failed";
