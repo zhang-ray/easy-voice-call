@@ -1,0 +1,3 @@
+[submodule "audio-processing-module"]
+	path = audio-processing-module
+	url = https://github.com/zhang-ray/audio-processing-module
