@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
                             }, [this](const uint8_t newVolume){
                                 ui->label_volumeSpk->setText(std::to_string(newVolume).c_str());
                             }, [this] (const bool isActive){
-                                    if (isActive) { qDebug() << "isActive" ;} else {qDebug() << "";}
+                                ui->label_vad->setText(isActive? "active" : "inactive");
                             }
             )){
                 throw "worker_.initDevice failed";
