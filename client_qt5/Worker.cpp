@@ -9,13 +9,24 @@
 //// TODO
 //// don't include WEBRTC directly...
 #include "../audio-processing-module/independent_vad/src/webrtc_vad.hpp"
+#include "../audio-processing-module/independent_aec/src/echo_cancellation.h"
 
 namespace {
 VadInst* vad;
 std::once_flag once_vad;
+void *aec = nullptr;
 }
 
+using namespace webrtc;
+
 const char *constPort ="1222";
+
+Worker::Worker(){
+    aec = WebRtcAec_Create();
+    if (auto ret = WebRtcAec_Init(aec, 48000, 48000)){
+        throw "WebRtcAec_Init failed";
+    }
+}
 
 Worker::~Worker(){
     try{
@@ -90,6 +101,19 @@ void Worker::syncStart(const std::string &host,
                     memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
                     std::vector<short> decodedPcm;
                     decoder->decode(netBuff, decodedPcm);
+
+                    if (false/*TODO*/) {
+                        std::vector<float> floatFarend(decodedPcm.size());
+                        for (int i=0;i<decodedPcm.size(); i++){
+                            floatFarend[i] = decodedPcm[i]/(1<<15);
+                        }
+                        for (int i = 0; i < 1920; i+=160){
+                            auto ret = WebRtcAec_BufferFarend(aec, &(floatFarend[i]), 160);
+                            if (ret){
+                                throw;
+                            }
+                        }
+                    }
                     auto ret = device_->write(decodedPcm);
                     if (spkVolumeReporter_){
                         static SuckAudioVolume sav;
@@ -153,6 +177,31 @@ void Worker::syncStart(const std::string &host,
             auto ret = device_->read(micBuffer);
             if (!ret){
                 break;
+            }
+
+            if (false/*TODO*/) {
+                std::vector<float> floatNearend(micBuffer.size());
+                for (int i=0;i<micBuffer.size(); i++){
+                    floatNearend[i] = micBuffer[i]/(1<<15);
+                }
+                std::vector<float> out(micBuffer.size());
+                for (int i = 0; i < 1920; i+=160){
+                    auto temp = &(floatNearend[i]);
+                    auto temp2 = &(out[i]);
+
+                    auto ret =
+                            WebRtcAec_Process(aec,
+
+                                              ///TODO:
+                                              /// split_bands_const_f
+                                              &temp,
+
+                                              48000 / 16000
+                                              , &temp2, 160, 48000, 0 );
+                    if (ret){
+                        throw;
+                    }
+                }
             }
             if (micVolumeReporter_){
                 static SuckAudioVolume sav;

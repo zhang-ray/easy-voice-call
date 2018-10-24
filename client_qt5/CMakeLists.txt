@@ -62,4 +62,5 @@ target_link_libraries(
 
 ##### TODO don't link vad from client_qt5
     vad
+    aec
 )

@@ -34,6 +34,7 @@ private:
     std::function<void(const uint8_t)>  spkVolumeReporter_ = nullptr;
     std::function<void(const bool)>  vadReporter_ = nullptr;
 public:
+    Worker();
     ~Worker();
 
     bool initCodec();
