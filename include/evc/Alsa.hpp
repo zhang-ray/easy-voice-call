@@ -33,7 +33,7 @@ public:
 
             unsigned int nSampleRate = 16000;
             unsigned int nFragments  = 3;
-            snd_pcm_uframes_t nFrames = 1920 / bytesPerFrame_ * nFragments;
+            snd_pcm_uframes_t nFrames = blockSize / bytesPerFrame_ * nFragments;
             int err = 0;
             snd_pcm_hw_params_t *hw_params;
 

@@ -107,7 +107,7 @@ void Worker::syncStart(const std::string &host,
                         for (int i=0;i<decodedPcm.size(); i++){
                             floatFarend[i] = decodedPcm[i]/(1<<15);
                         }
-                        for (int i = 0; i < 1920; i+=160){
+                        for (int i = 0; i < blockSize; i+=160){
                             auto ret = WebRtcAec_BufferFarend(aec, &(floatFarend[i]), 160);
                             if (ret){
                                 throw;
@@ -169,7 +169,6 @@ void Worker::syncStart(const std::string &host,
 
         // sending work
         for (;!gotoStop_;){
-            const auto blockSize = 1920;
             std::vector<short> micBuffer(blockSize);
             /// TODO:
             /// in practice, device_->read would be unblock in first several blocks
@@ -185,7 +184,7 @@ void Worker::syncStart(const std::string &host,
                     floatNearend[i] = micBuffer[i]/(1<<15);
                 }
                 std::vector<float> out(micBuffer.size());
-                for (int i = 0; i < 1920; i+=160){
+                for (int i = 0; i < blockSize; i+=160){
                     auto temp = &(floatNearend[i]);
                     auto temp2 = &(out[i]);
 

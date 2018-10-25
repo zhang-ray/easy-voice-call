@@ -37,14 +37,7 @@ public:
     virtual ReturnType encode(const std::vector<short> &pcmData, std::vector<char> &encodedData) override {
         unsigned char cbits[MAX_PACKET_SIZE];
         /* Encode the frame. */
-        /* For example, at 48 kHz the permitted values are 120, 240, 480, 960, 1920, and 2880 */
-        std::set<int> validSampleRates = {120, 240, 480, 960, 1920, 2880};
         auto frame_size = pcmData.size();
-        // if (validSampleRate[frame_size]){}
-        if (validSampleRates.find(frame_size) == validSampleRates.end()){
-            printf("invalid frame_size=%d\n", frame_size);
-            return "invalid frame_size";
-        }
         auto nbBytes = opus_encode(encoder, pcmData.data(), frame_size, cbits, MAX_PACKET_SIZE);
         if (nbBytes<0) {
             fprintf(stderr, "%s:%d encode failed: %s\n", __FILE__, __LINE__, opus_strerror(nbBytes));

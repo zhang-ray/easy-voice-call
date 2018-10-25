@@ -4,6 +4,9 @@
 
 #include <vector>
 
+/// for mic and speaker
+enum {blockSize = 640};
+
 ///
 /// \brief The AudioDevice class
 /// TODO:

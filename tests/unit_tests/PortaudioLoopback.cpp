@@ -10,8 +10,7 @@ int main(int argc, char **argv){
     std::string micInfo;
     std::string spkInfo;
     if (device.init(micInfo, spkInfo)) {
-		for (;;) {
-			const auto blockSize = 1920;
+        for (;;) {
 			std::vector<short> micBuffer(blockSize);
 			auto retRead = device.read(micBuffer);
 			if (retRead) {
