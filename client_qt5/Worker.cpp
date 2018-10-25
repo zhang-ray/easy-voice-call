@@ -23,7 +23,7 @@ const char *constPort ="1222";
 
 Worker::Worker(){
     aec = WebRtcAec_Create();
-    if (auto ret = WebRtcAec_Init(aec, 16000, 16000)){
+    if (auto ret = WebRtcAec_Init(aec, sampleRate, sampleRate)){
         throw "WebRtcAec_Init failed";
     }
 }
@@ -195,7 +195,7 @@ void Worker::syncStart(const std::string &host,
                                               /// split_bands_const_f
                                               &temp,
 
-                                              16000 / 16000
+                                              sampleRate / 16000
                                               , &temp2, 160, 16000, 0 );
                     if (ret){
                         throw;
@@ -222,9 +222,7 @@ void Worker::syncStart(const std::string &host,
                     return 0;
                 } ();
                 if (!once){
-                    for (int i = 0 ; i < 4; i++){
-                        vadReporter_(1==WebRtcVad_Process(vad, 16000, &(micBuffer[i*480]), 480));
-                    }
+                    vadReporter_(1==WebRtcVad_Process(vad, sampleRate, &(micBuffer[0]), sampleRate/100));
                 }
             }
 

@@ -3,6 +3,7 @@
 #include "AudioEncoder.hpp"
 #include "evc/Singleton.hpp"
 #include <iostream>
+#include "AudioDevice.hpp"
 
 extern "C"{
 #include <fdk-aac/aacenc_lib.h>
@@ -33,7 +34,7 @@ public:
             std::cout << __FILE__ << ":" <<  __LINE__ << " ErrorStatus=" <<  ErrorStatus << std::endl;
             return ErrorStatus;
         }
-        if ((ErrorStatus = aacEncoder_SetParam(hAacEncoder, AACENC_SAMPLERATE, 16000)) != AACENC_OK ) {
+        if ((ErrorStatus = aacEncoder_SetParam(hAacEncoder, AACENC_SAMPLERATE, sampleRate)) != AACENC_OK ) {
             std::cout << __FILE__ << ":" <<  __LINE__ << " ErrorStatus=" <<  ErrorStatus << std::endl;
             return ErrorStatus;
         }

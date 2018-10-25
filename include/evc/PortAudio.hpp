@@ -11,8 +11,6 @@
 #include <iostream>
 
 
-#define SAMPLE_RATE (16000)
-
 class PortAudio : public AudioDevice, public Singleton<PortAudio> {
 private:
     PaStream *stream_ = nullptr;
@@ -28,7 +26,7 @@ public:
         err = Pa_OpenDefaultStream(
             &stream_,
             1, 1,
-            paInt16, SAMPLE_RATE,
+            paInt16, sampleRate,
             1<<7,
             nullptr, nullptr);
         if( err != paNoError ) {

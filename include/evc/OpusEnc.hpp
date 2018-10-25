@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "AudioEncoder.hpp"
+#include "AudioDevice.hpp"
 #include "Singleton.hpp"
 #include <cstring>
 #include <set>
@@ -21,7 +22,7 @@ private:
     OpusEncoder *encoder = nullptr;
 public:
     virtual ReturnType reInit() override {
-        encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &err);
+        encoder = opus_encoder_create(sampleRate, 1, OPUS_APPLICATION_VOIP, &err);
         if (err<0) {
             return err;
         }

@@ -6,6 +6,7 @@
 
 /// for mic and speaker
 enum {blockSize = 640};
+enum {sampleRate = 16000};
 
 ///
 /// \brief The AudioDevice class
