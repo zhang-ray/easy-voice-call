@@ -63,36 +63,12 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(ui->lineEdit_serverHost, SIGNAL(returnPressed()), ui->pushButton_connecting, SLOT(click()));
     }
 
-
-    try {
-        if (!worker_.initCodec()){
-            throw "worker_.initCodec failed";
-        }
-        if (!worker_.initDevice(
-                    [this](const std::string &micInfo,
-                           const std::string &spkInfo){
-                            ui->label_micInfo->setText(micInfo.c_str());
-                            ui->label_spkInfo->setText(spkInfo.c_str());
-                           },[this](const uint8_t newVolume){
-                                ui->label_volumeMic->setText(std::to_string(newVolume).c_str());
-                            }, [this](const uint8_t newVolume){
-                                ui->label_volumeSpk->setText(std::to_string(newVolume).c_str());
-                            }, [this] (const bool isActive){
-                                ui->label_vad->setText(isActive? "active" : "inactive");
-                            }
-            )){
-                throw "worker_.initDevice failed";
-        }
-    }
-    catch (std::exception &e){
-        qDebug() << "Exception: " << e.what() << "\n";
-    }
 }
 
 MainWindow::~MainWindow()
 {
     try {
-        worker_.syncStop();
+        worker_->syncStop();
 
 
         // save setting
@@ -115,7 +91,36 @@ void MainWindow::on_pushButton_connecting_clicked(){
     case NetworkState::Disconnected: {
         {
             updateUiState(NetworkState::Connecting);
-            worker_.asyncStart(
+
+
+            worker_ = std::make_shared<Worker>(new Worker(ui->checkBox_needAec->checkState()==Qt::CheckState::Checked));
+
+            try {
+                if (!worker_->initCodec()){
+                    throw "worker_.initCodec failed";
+                }
+                if (!worker_->initDevice(
+                            [this](const std::string &micInfo,
+                                   const std::string &spkInfo){
+                                    ui->label_micInfo->setText(micInfo.c_str());
+                                    ui->label_spkInfo->setText(spkInfo.c_str());
+                                   },[this](const uint8_t newVolume){
+                                        ui->label_volumeMic->setText(std::to_string(newVolume).c_str());
+                                    }, [this](const uint8_t newVolume){
+                                        ui->label_volumeSpk->setText(std::to_string(newVolume).c_str());
+                                    }, [this] (const bool isActive){
+                                        ui->label_vad->setText(isActive? "active" : "inactive");
+                                    }
+                    )){
+                        throw "worker_.initDevice failed";
+                }
+            }
+            catch (std::exception &e){
+                qDebug() << "Exception: " << e.what() << "\n";
+            }
+
+
+            worker_->asyncStart(
                         ui->lineEdit_serverHost->text().toStdString(),
                         [this](
                         const NetworkState newState,
@@ -131,7 +136,10 @@ void MainWindow::on_pushButton_connecting_clicked(){
     }
     case NetworkState::Connected:{
         {
-            worker_.syncStop();
+            if (worker_){
+                worker_->syncStop();
+                worker_=nullptr;
+            }
             updateUiState(NetworkState::Disconnected);
         }
         break;
@@ -143,7 +151,7 @@ void MainWindow::updateUiState(const NetworkState networkState){
     switch(networkState){
     case NetworkState::Disconnected:{
         ui->lineEdit_serverHost->setEnabled(true);
-
+        ui->checkBox_needAec->setEnabled(true);
         ui->pushButton_connecting->setEnabled(true);
         ui->pushButton_connecting->setText("Connect!");
         //showMessage("");
@@ -151,16 +159,16 @@ void MainWindow::updateUiState(const NetworkState networkState){
     }
     case NetworkState::Connecting:{
         ui->lineEdit_serverHost->setEnabled(false);
+        ui->checkBox_needAec->setEnabled(false);
         ui->pushButton_connecting->setEnabled(false);
         ui->pushButton_connecting->setText("Connecting...");
         break;
     }
     case NetworkState::Connected:{
         ui->lineEdit_serverHost->setEnabled(false);
-
+        ui->checkBox_needAec->setEnabled(false);
         ui->pushButton_connecting->setEnabled(true);
         ui->pushButton_connecting->setText("Disconnect!");
-        //        showMessage("Connected!");
         break;
     }
     default:

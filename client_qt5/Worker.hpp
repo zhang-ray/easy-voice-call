@@ -33,8 +33,9 @@ private:
     std::function<void(const uint8_t)>  micVolumeReporter_ = nullptr;
     std::function<void(const uint8_t)>  spkVolumeReporter_ = nullptr;
     std::function<void(const bool)>  vadReporter_ = nullptr;
+    bool needAec_ = false;
 public:
-    Worker();
+    Worker(bool needAec);
     ~Worker();
 
     bool initCodec();

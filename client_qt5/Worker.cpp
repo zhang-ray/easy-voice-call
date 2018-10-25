@@ -21,10 +21,14 @@ using namespace webrtc;
 
 const char *constPort ="1222";
 
-Worker::Worker(){
-    aec = WebRtcAec_Create();
-    if (auto ret = WebRtcAec_Init(aec, sampleRate, sampleRate)){
-        throw "WebRtcAec_Init failed";
+Worker::Worker(bool needAec)
+    :needAec_(needAec)
+{
+    if (needAec_){
+        aec = WebRtcAec_Create();
+        if (auto ret = WebRtcAec_Init(aec, sampleRate, sampleRate)){
+            throw "WebRtcAec_Init failed";
+        }
     }
 
 
@@ -118,8 +122,7 @@ void Worker::syncStart(const std::string &host,
                     std::vector<short> decodedPcm;
                     decoder->decode(netBuff, decodedPcm);
 
-                    //if (false/*TODO*/)
-                    {
+                    if (needAec_) {
                         std::vector<float> floatFarend(decodedPcm.size());
                         for (int i=0;i<decodedPcm.size(); i++){
                             floatFarend[i] = decodedPcm[i]/(1<<15);
@@ -196,8 +199,8 @@ void Worker::syncStart(const std::string &host,
             }
 
             std::vector<short> tobeSend(micBuffer.size());
-            //if (false/*TODO*/)
-            {
+
+            if (needAec_){
                 std::vector<float> floatNearend(micBuffer.size());
                 for (int i=0;i<micBuffer.size(); i++){
                     floatNearend[i] = (float)micBuffer[i]/(1<<15);
@@ -236,7 +239,7 @@ void Worker::syncStart(const std::string &host,
             }
 
             std::vector<char> outData;
-            auto retEncode = encoder->encode(tobeSend, outData);
+            auto retEncode = encoder->encode(needAec_? tobeSend: micBuffer, outData);
             if (!retEncode){
                 std::cout << retEncode.message() << std::endl;
                 break;
