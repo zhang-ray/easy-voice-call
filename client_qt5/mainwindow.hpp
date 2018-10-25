@@ -30,7 +30,7 @@ private slots:
 private:
     Ui::MainWindow *ui = nullptr;
 
-    std::shared_ptr<Worker> worker_ = nullptr;
+    std::unique_ptr<Worker> worker_ = nullptr;
 private:
 
     NetworkState currentUiState_ = NetworkState::Disconnected;

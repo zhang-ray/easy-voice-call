@@ -2,7 +2,7 @@
 
 project(client_qt5)
 
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
 
 if(WIN32)
     set(CMAKE_PREFIX_PATH "C:/Qt/5.11.1/msvc2015")
