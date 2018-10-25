@@ -26,7 +26,23 @@ Worker::Worker(){
     if (auto ret = WebRtcAec_Init(aec, sampleRate, sampleRate)){
         throw "WebRtcAec_Init failed";
     }
+
+
+
+    {
+        vad = WebRtcVad_Create();
+        if (WebRtcVad_Init(vad)){
+            std::cerr << "WebRtcVad_Init failed" << std::endl;
+            throw;
+        }
+
+        if (WebRtcVad_set_mode(vad, 3)){
+            std::cerr << "WebRtcVad_set_mode failed" << std::endl;
+            throw;
+        }
+    }
 }
+
 
 Worker::~Worker(){
     try{
@@ -102,7 +118,8 @@ void Worker::syncStart(const std::string &host,
                     std::vector<short> decodedPcm;
                     decoder->decode(netBuff, decodedPcm);
 
-                    if (false/*TODO*/) {
+                    //if (false/*TODO*/)
+                    {
                         std::vector<float> floatFarend(decodedPcm.size());
                         for (int i=0;i<decodedPcm.size(); i++){
                             floatFarend[i] = decodedPcm[i]/(1<<15);
@@ -178,10 +195,12 @@ void Worker::syncStart(const std::string &host,
                 break;
             }
 
-            if (false/*TODO*/) {
+            std::vector<short> tobeSend(micBuffer.size());
+            //if (false/*TODO*/)
+            {
                 std::vector<float> floatNearend(micBuffer.size());
                 for (int i=0;i<micBuffer.size(); i++){
-                    floatNearend[i] = micBuffer[i]/(1<<15);
+                    floatNearend[i] = (float)micBuffer[i]/(1<<15);
                 }
                 std::vector<float> out(micBuffer.size());
                 for (int i = 0; i < blockSize; i+=160){
@@ -190,44 +209,34 @@ void Worker::syncStart(const std::string &host,
 
                     auto ret =
                             WebRtcAec_Process(aec,
-
-                                              ///TODO:
-                                              /// split_bands_const_f
                                               &temp,
-
-                                              sampleRate / 16000
-                                              , &temp2, 160, 16000, 0 );
+                                              sampleRate / 16000,
+                                              &temp2,
+                                              blockSize,
+                                              blockSize,
+                                              0 );
                     if (ret){
                         throw;
                     }
+
+                    for (int j = i; j< i+blockSize; j++){
+                        tobeSend[j]=out[j]*(1<<15);
+                    }
                 }
             }
+
+
+
             if (micVolumeReporter_){
                 static SuckAudioVolume sav;
                 micVolumeReporter_(sav.calculate(micBuffer));
             }
             if (vadReporter_){
-
-                static int once = [&](){
-                    vad = WebRtcVad_Create();
-                    if (WebRtcVad_Init(vad)){
-                        std::cerr << "WebRtcVad_Init failed" << std::endl;
-                        return -1;
-                    }
-
-                    if (WebRtcVad_set_mode(vad, 3)){
-                        std::cerr << "WebRtcVad_set_mode failed" << std::endl;
-                        return -1;
-                    }
-                    return 0;
-                } ();
-                if (!once){
-                    vadReporter_(1==WebRtcVad_Process(vad, sampleRate, &(micBuffer[0]), sampleRate/100));
-                }
+                vadReporter_(1==WebRtcVad_Process(vad, sampleRate, &(micBuffer[0]), sampleRate/100));
             }
 
             std::vector<char> outData;
-            auto retEncode = encoder->encode(micBuffer, outData);
+            auto retEncode = encoder->encode(tobeSend, outData);
             if (!retEncode){
                 std::cout << retEncode.message() << std::endl;
                 break;
