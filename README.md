@@ -5,7 +5,7 @@ EVC(easy-voice-call) is a self-hosting voice chating App.
 - [x] private and secure - the server is self-hosting;
 - [x] cross platform (Windows, macOS and GNU/Linux) and easy-to-use GUI client;
 - [x] Voice Activity Detection; 
-- [ ] Acoustic Echo Cancellation; 
+- [x] Acoustic Echo Cancellation; 
 - [ ] Noise Suppression;
 - [ ] Voice Changing Capability;
 - [x] concise source code - less than 5k lines (including clients, server, unit_tests and smoking_tests code);

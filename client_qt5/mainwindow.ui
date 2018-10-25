@@ -338,14 +338,14 @@
    <widget class="QCheckBox" name="checkBox_needAec">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>160</x>
       <y>60</y>
       <width>111</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>Need Aec ?</string>
+     <string>AEC</string>
     </property>
     <property name="checked">
      <bool>true</bool>
@@ -358,7 +358,7 @@
      <x>0</x>
      <y>0</y>
      <width>403</width>
-     <height>23</height>
+     <height>41</height>
     </rect>
    </property>
   </widget>
