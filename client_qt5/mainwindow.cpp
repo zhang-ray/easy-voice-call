@@ -68,8 +68,9 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     try {
-        worker_->syncStop();
-
+        if (worker_){
+            worker_->syncStop();
+        }
 
         // save setting
         QFile file("setting.txt");
