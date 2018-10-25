@@ -5,8 +5,8 @@
 #include <vector>
 
 /// for mic and speaker
-enum {blockSize = 640};
 enum {sampleRate = 16000};
+enum {blockSize = sampleRate/100};
 
 ///
 /// \brief The AudioDevice class
