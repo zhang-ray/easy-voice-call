@@ -31,7 +31,7 @@ public:
         auto configureDevice = [this](bool isInput) -> ReturnType {
             snd_pcm_t *handle = isInput ? handlerCapture_ : handlerPlay_;
 
-            unsigned int nSampleRate = 48000;
+            unsigned int nSampleRate = 16000;
             unsigned int nFragments  = 3;
             snd_pcm_uframes_t nFrames = 1920 / bytesPerFrame_ * nFragments;
             int err = 0;

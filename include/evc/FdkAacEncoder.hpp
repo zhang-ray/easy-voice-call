@@ -33,7 +33,7 @@ public:
             std::cout << __FILE__ << ":" <<  __LINE__ << " ErrorStatus=" <<  ErrorStatus << std::endl;
             return ErrorStatus;
         }
-        if ((ErrorStatus = aacEncoder_SetParam(hAacEncoder, AACENC_SAMPLERATE, 48000)) != AACENC_OK ) {
+        if ((ErrorStatus = aacEncoder_SetParam(hAacEncoder, AACENC_SAMPLERATE, 16000)) != AACENC_OK ) {
             std::cout << __FILE__ << ":" <<  __LINE__ << " ErrorStatus=" <<  ErrorStatus << std::endl;
             return ErrorStatus;
         }

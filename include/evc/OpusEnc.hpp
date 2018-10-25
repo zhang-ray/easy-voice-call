@@ -21,7 +21,7 @@ private:
     OpusEncoder *encoder = nullptr;
 public:
     virtual ReturnType reInit() override {
-        encoder = opus_encoder_create(48000, 1, OPUS_APPLICATION_VOIP, &err);
+        encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &err);
         if (err<0) {
             return err;
         }

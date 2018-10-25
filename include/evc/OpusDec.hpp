@@ -18,7 +18,7 @@ private:
     OpusDecoder *decoder = nullptr;
 public:
     virtual ReturnType reInit() override {
-        decoder = opus_decoder_create(48000, 1, &err);
+        decoder = opus_decoder_create(16000, 1, &err);
         if (err<0) {
             return err;
         }
