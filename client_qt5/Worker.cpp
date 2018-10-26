@@ -10,11 +10,12 @@
 //// don't include WEBRTC directly...
 #include "../audio-processing-module/independent_vad/src/webrtc_vad.hpp"
 #include "../audio-processing-module/independent_aec/src/echo_cancellation.h"
+#include "../audio-processing-module/independent_ns/src/noise_suppression_x.hpp"
 
 namespace {
 VadInst* vad;
-std::once_flag once_vad;
 void *aec = nullptr;
+decltype(WebRtcNsx_Create()) ns_ = nullptr;
 }
 
 using namespace webrtc;
@@ -42,6 +43,17 @@ Worker::Worker(bool needAec)
 
         if (WebRtcVad_set_mode(vad, 3)){
             std::cerr << "WebRtcVad_set_mode failed" << std::endl;
+            throw;
+        }
+    }
+
+    {
+        ns_ = WebRtcNsx_Create();
+        if (WebRtcNsx_Init(ns_, 16000)){
+            throw;
+        }
+
+        if (WebRtcNsx_set_policy(ns_, 3)){
             throw;
         }
     }
@@ -189,23 +201,32 @@ void Worker::syncStart(const std::string &host,
 
         // sending work
         for (;!gotoStop_;){
-            std::vector<short> micBuffer(blockSize);
+            std::vector<short> denoisedBuffer(blockSize);
+            std::vector<short> tobeSend(blockSize);
+            std::vector<float> out(blockSize);
+
+
             /// TODO:
             /// in practice, device_->read would be unblock in first several blocks
             /// so let's clear microphone's buffer on first time???
-            auto ret = device_->read(micBuffer);
-            if (!ret){
-                break;
+            {
+                std::vector<short> micBuffer(blockSize);
+                auto ret = device_->read(micBuffer);
+                if (!ret){
+                    break;
+                }
+                auto temp = (short*)micBuffer.data();
+                auto outTemp = denoisedBuffer.data();
+                WebRtcNsx_Process(ns_, &temp, 1, &outTemp);
             }
 
-            std::vector<short> tobeSend(micBuffer.size());
+
 
             if (needAec_){
-                std::vector<float> floatNearend(micBuffer.size());
-                for (int i=0;i<micBuffer.size(); i++){
-                    floatNearend[i] = (float)micBuffer[i]/(1<<15);
+                std::vector<float> floatNearend(blockSize);
+                for (int i=0;i<blockSize; i++){
+                    floatNearend[i] = (float)denoisedBuffer[i]/(1<<15);
                 }
-                std::vector<float> out(micBuffer.size());
                 for (int i = 0; i < blockSize; i+=160){
                     auto temp = &(floatNearend[i]);
                     auto temp2 = &(out[i]);
@@ -232,14 +253,14 @@ void Worker::syncStart(const std::string &host,
 
             if (micVolumeReporter_){
                 static SuckAudioVolume sav;
-                micVolumeReporter_(sav.calculate(micBuffer));
+                micVolumeReporter_(sav.calculate(denoisedBuffer));
             }
             if (vadReporter_){
-                vadReporter_(1==WebRtcVad_Process(vad, sampleRate, &(micBuffer[0]), sampleRate/100));
+                vadReporter_(1==WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate/100));
             }
 
             std::vector<char> outData;
-            auto retEncode = encoder->encode(needAec_? tobeSend: micBuffer, outData);
+            auto retEncode = encoder->encode(needAec_? tobeSend: denoisedBuffer, outData);
             if (!retEncode){
                 std::cout << retEncode.message() << std::endl;
                 break;
