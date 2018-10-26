@@ -49,7 +49,7 @@ Worker::Worker(bool needAec)
 
     {
         ns_ = WebRtcNsx_Create();
-        if (WebRtcNsx_Init(ns_, 16000)){
+        if (WebRtcNsx_Init(ns_, sampleRate)){
             throw;
         }
 
