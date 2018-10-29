@@ -95,7 +95,7 @@ void MainWindow::on_pushButton_connecting_clicked(){
             updateUiState(NetworkState::Connecting);
 
 
-            worker_ = std::make_unique<Worker>(ui->checkBox_needAec->checkState()==Qt::CheckState::Checked);
+            worker_ = std::make_shared<Worker>(ui->checkBox_needAec->checkState()==Qt::CheckState::Checked);
 
             try {
                 if (!worker_->initCodec()){
