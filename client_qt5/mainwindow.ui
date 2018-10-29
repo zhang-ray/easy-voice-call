@@ -23,14 +23,14 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>90</y>
-      <width>71</width>
-      <height>17</height>
+      <y>89</y>
+      <width>91</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>16</pointsize>
+      <pointsize>18</pointsize>
      </font>
     </property>
     <property name="text">
@@ -41,14 +41,14 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>110</y>
+      <y>116</y>
       <width>161</width>
       <height>25</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>14</pointsize>
      </font>
     </property>
     <property name="text">
@@ -66,7 +66,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>13</pointsize>
+      <pointsize>14</pointsize>
      </font>
     </property>
     <property name="text">
@@ -84,7 +84,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>8</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="text">
@@ -97,14 +97,15 @@
    <widget class="QLabel" name="label_micInfo">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>20</y>
-      <width>221</width>
+      <x>190</x>
+      <y>8</y>
+      <width>191</width>
       <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <bold>true</bold>
       <underline>false</underline>
@@ -124,14 +125,14 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>20</y>
+      <y>8</y>
       <width>71</width>
       <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>14</pointsize>
      </font>
     </property>
     <property name="text">
@@ -142,14 +143,14 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>40</y>
+      <y>30</y>
       <width>71</width>
       <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>14</pointsize>
      </font>
     </property>
     <property name="text">
@@ -159,14 +160,15 @@
    <widget class="QLabel" name="label_spkInfo">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>40</y>
-      <width>221</width>
+      <x>190</x>
+      <y>30</y>
+      <width>191</width>
       <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <bold>true</bold>
       <underline>false</underline>
@@ -185,15 +187,15 @@
    <widget class="QLabel" name="label_volumeMic">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>20</y>
+      <x>85</x>
+      <y>8</y>
       <width>21</width>
       <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>8</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="text">
@@ -206,15 +208,15 @@
    <widget class="QLabel" name="label_volumeSpk">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>40</y>
+      <x>85</x>
+      <y>30</y>
       <width>21</width>
       <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>8</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="text">
@@ -228,14 +230,14 @@
     <property name="geometry">
      <rect>
       <x>32</x>
-      <y>131</y>
-      <width>161</width>
+      <y>139</y>
+      <width>181</width>
       <height>17</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>8</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="text">
@@ -245,15 +247,15 @@
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>64</x>
-      <y>143</y>
-      <width>121</width>
+      <x>70</x>
+      <y>154</y>
+      <width>131</width>
       <height>17</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>8</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="text">
@@ -263,15 +265,15 @@
    <widget class="QLabel" name="label_volumeMic_3">
     <property name="geometry">
      <rect>
-      <x>103</x>
-      <y>20</y>
-      <width>61</width>
+      <x>111</x>
+      <y>8</y>
+      <width>71</width>
       <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>8</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="text">
@@ -281,15 +283,15 @@
    <widget class="QLabel" name="label_volumeSpk_3">
     <property name="geometry">
      <rect>
-      <x>103</x>
-      <y>40</y>
-      <width>61</width>
+      <x>111</x>
+      <y>30</y>
+      <width>71</width>
       <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>8</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="text">
@@ -300,14 +302,14 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>60</y>
+      <y>59</y>
       <width>71</width>
       <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>12</pointsize>
+      <pointsize>14</pointsize>
      </font>
     </property>
     <property name="text">
@@ -318,14 +320,14 @@
     <property name="geometry">
      <rect>
       <x>80</x>
-      <y>60</y>
+      <y>59</y>
       <width>71</width>
       <height>20</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <pointsize>8</pointsize>
+      <pointsize>10</pointsize>
      </font>
     </property>
     <property name="text">
@@ -339,10 +341,15 @@
     <property name="geometry">
      <rect>
       <x>160</x>
-      <y>60</y>
+      <y>59</y>
       <width>111</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>AEC</string>
