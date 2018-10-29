@@ -54,7 +54,12 @@ set(SRCS
 
 
 
-add_executable(${PROJECT_NAME} ${SRCS})
+if(WIN32)
+    add_executable(${PROJECT_NAME} ${SRCS})
+else(WIN32)
+    add_executable(${PROJECT_NAME} ${SRCS})
+endif(WIN32)
+
 target_link_libraries(
     ${PROJECT_NAME}
     Qt5::Widgets

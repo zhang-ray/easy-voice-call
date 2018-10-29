@@ -42,7 +42,7 @@
      <rect>
       <x>30</x>
       <y>110</y>
-      <width>141</width>
+      <width>161</width>
       <height>25</height>
      </rect>
     </property>
@@ -58,9 +58,9 @@
    <widget class="QPushButton" name="pushButton_connecting">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>220</x>
       <y>90</y>
-      <width>201</width>
+      <width>171</width>
       <height>61</height>
      </rect>
     </property>
@@ -229,7 +229,7 @@
      <rect>
       <x>32</x>
       <y>131</y>
-      <width>141</width>
+      <width>161</width>
       <height>17</height>
      </rect>
     </property>
@@ -247,7 +247,7 @@
      <rect>
       <x>64</x>
       <y>143</y>
-      <width>101</width>
+      <width>121</width>
       <height>17</height>
      </rect>
     </property>
@@ -358,7 +358,7 @@
      <x>0</x>
      <y>0</y>
      <width>403</width>
-     <height>41</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>
