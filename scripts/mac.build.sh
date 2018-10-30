@@ -32,6 +32,22 @@ rm -rf client_qt5_autogen
 rm -f  Makefile
 rm -f  cmake_install.cmake
 cd ../../easy-voice-call/scripts/appdmg/
+
+cp ../../misc/Icon.png Icon.png
+mkdir MyIcon.iconset
+sips -z 16 16     Icon.png --out MyIcon.iconset/icon_16x16.png
+sips -z 32 32     Icon.png --out MyIcon.iconset/icon_16x16@2x.png
+sips -z 32 32     Icon.png --out MyIcon.iconset/icon_32x32.png
+sips -z 64 64     Icon.png --out MyIcon.iconset/icon_32x32@2x.png
+sips -z 128 128   Icon.png --out MyIcon.iconset/icon_128x128.png
+sips -z 256 256   Icon.png --out MyIcon.iconset/icon_128x128@2x.png
+sips -z 256 256   Icon.png --out MyIcon.iconset/icon_256x256.png
+sips -z 512 512   Icon.png --out MyIcon.iconset/icon_256x256@2x.png
+sips -z 512 512   Icon.png --out MyIcon.iconset/icon_512x512.png
+cp Icon.png MyIcon.iconset/icon_512x512@2x.png
+iconutil -c icns MyIcon.iconset
+
+
 mv ../../../easy-voice-call-build/client_qt5 EasyVoiceCall.app
 cp Info.plist  EasyVoiceCall.app/Contents/
 cp PkgInfo     EasyVoiceCall.app/Contents/
