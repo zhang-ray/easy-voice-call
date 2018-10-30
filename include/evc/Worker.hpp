@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <thread>
-#include <QDebug>
 #include <string>
 
 class AudioDecoder;

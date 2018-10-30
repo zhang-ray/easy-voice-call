@@ -1,4 +1,4 @@
-#include "Worker.hpp"
+#include "evc/Worker.hpp"
 
 
 #include "evc/Factory.hpp"
@@ -65,7 +65,7 @@ Worker::~Worker(){
         syncStop();
     }
     catch(std::exception &e){
-        qDebug() << e.what();
+        //qDebug() << e.what();
     }
 }
 
@@ -124,7 +124,7 @@ void Worker::syncStart(const std::string &host,
                 }
                 case NetPacket::PayloadType::LoginResponse: {
                     isLogin = true;
-                    qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
+                    //qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
                     break;
                 }
                 case NetPacket::PayloadType::AudioMessage: {
@@ -191,7 +191,7 @@ void Worker::syncStart(const std::string &host,
             }
         }
 
-        qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
+        // qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
         if (!isLogin){
             toggleState(NetworkState::Disconnected, "Could not Login to Server...");
             return;

@@ -24,7 +24,7 @@ set(CMAKE_AUTOUIC ON)
 
 include_directories(../include)
 if(WIN32)
-	include_directories(
+        include_directories(
         ../../include/
         "C:/Libraries/boost_1_67_0/"
         )
@@ -49,13 +49,12 @@ set(SRCS
     mainwindow.ui
     mainwindow.cpp
     main.cpp
-    Worker.cpp
 )
 
 
 
 if(WIN32)
-    add_executable(${PROJECT_NAME} ${SRCS})
+    add_executable(${PROJECT_NAME} WIN32 ${SRCS})
 else(WIN32)
     add_executable(${PROJECT_NAME} ${SRCS})
 endif(WIN32)
@@ -70,3 +69,9 @@ target_link_libraries(
     aec
     ns
 )
+
+
+
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} Qt5::WinMain)
+endif(WIN32)

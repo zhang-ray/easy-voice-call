@@ -12,7 +12,6 @@
 #include <QDir>
 #include <QDebug>
 #include <memory>
-#include "Worker.hpp"
 
 
 /// TODO:

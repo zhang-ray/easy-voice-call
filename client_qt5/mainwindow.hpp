@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <memory>
-#include "Worker.hpp"
+#include "evc/Worker.hpp"
 
 
 
