@@ -6,10 +6,8 @@
 	<string>NSApplication</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>CFBundleGetInfoString</key>
-	<string>Created by EasyVoiceCall</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
+	<key>CFBundleIconFile</key>
+	<string>MyIcon</string>
 	<key>CFBundleExecutable</key>
 	<string>EasyVoiceCall</string>
 	<key>CFBundleIdentifier</key>
