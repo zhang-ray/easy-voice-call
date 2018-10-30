@@ -51,6 +51,7 @@ iconutil -c icns MyIcon.iconset
 mv ../../../easy-voice-call-build/client_qt5 EasyVoiceCall.app
 cp Info.plist  EasyVoiceCall.app/Contents/
 cp PkgInfo     EasyVoiceCall.app/Contents/
+cp MyIcon.icns EasyVoiceCall.app/Resources/
 npm install -g appdmg
 appdmg spec.json EasyVoiceCall.dmg
 mv EasyVoiceCall.dmg ../../../

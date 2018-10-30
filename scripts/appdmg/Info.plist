@@ -14,5 +14,7 @@
 	<string>EasyVoiceCall</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.zhang-ray.easy-voice-call</string>
+	<key>CFBundleIconFile</key>
+	<string>MyIcon.icns</string>
 </dict>
 </plist>
