@@ -255,18 +255,24 @@ void Worker::syncStart(const std::string &host,
                 static SuckAudioVolume sav;
                 micVolumeReporter_(sav.calculate(denoisedBuffer));
             }
+
+            auto haveVoice = (1==WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate/100));
             if (vadReporter_){
-                vadReporter_(1==WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate/100));
+                vadReporter_(haveVoice);
             }
 
-            std::vector<char> outData;
-            auto retEncode = encoder->encode(needAec_? tobeSend: denoisedBuffer, outData);
-            if (!retEncode){
-                std::cout << retEncode.message() << std::endl;
-                break;
-            }
 
-            client.send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
+            //// encode and send voice only if voice activated
+            if (haveVoice){
+                std::vector<char> outData;
+                auto retEncode = encoder->encode(needAec_? tobeSend: denoisedBuffer, outData);
+                if (!retEncode){
+                    std::cout << retEncode.message() << std::endl;
+                    break;
+                }
+
+                client.send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
+            }
 
 
 
