@@ -54,7 +54,7 @@ set(SRCS
 
 
 if(WIN32)
-    add_executable(${PROJECT_NAME} WIN32 ${SRCS})
+    add_executable(${PROJECT_NAME} WIN32 ${SRCS} resources/Resource.rc)
 else(WIN32)
     add_executable(${PROJECT_NAME} ${SRCS})
 endif(WIN32)

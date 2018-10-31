@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 }
 
 #else
-
+#include "resources/resource.h"
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     MainWindow w;
