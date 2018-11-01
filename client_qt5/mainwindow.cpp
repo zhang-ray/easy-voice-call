@@ -19,6 +19,7 @@
 
 QEvent::Type AudioVolumeEvent::sType = (QEvent::Type)QEvent::registerEventType();
 QEvent::Type VadEvent::sType = (QEvent::Type)QEvent::registerEventType();
+QEvent::Type NetworkStateEvent::sType = (QEvent::Type)QEvent::registerEventType();
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -137,7 +138,7 @@ MainWindow::MainWindow(QWidget *parent)
         {
             onVolumeChanged({AudioInOut::In, 0u});
             onVolumeChanged({AudioInOut::Out, 0u});
-            updateUiState(NetworkState::Disconnected);
+            onNetworkChanged(NetworkState::Disconnected);
             toggleAdvancedMode(true);
             showMessage("F1: help    F2: advanced mode");
         }
@@ -179,44 +180,49 @@ void MainWindow::on_pushButton_connecting_clicked(){
                 worker_->syncStop();
                 worker_=nullptr;
             }
-            updateUiState(NetworkState::Disconnected);
+            onNetworkChanged(NetworkState::Disconnected);
         }
         break;
     }
     }
 }
 
-void MainWindow::updateUiState(const NetworkState networkState){
-    switch(networkState){
-    case NetworkState::Disconnected:{
-        ui->lineEdit_serverHost->setEnabled(true);
-        ui->lineEdit_serverPort->setEnabled(true);
-        ui->checkBox_needAec->setEnabled(true);
-        ui->pushButton_connecting->setEnabled(true);
-        ui->pushButton_connecting->setText("Connect!");
-        //showMessage("");
-        break;
+void MainWindow::onNetworkChanged(const NetworkState networkState){
+    if(mainThreadId_ == std::this_thread::get_id()){
+        switch(networkState){
+        case NetworkState::Disconnected:{
+            ui->lineEdit_serverHost->setEnabled(true);
+            ui->lineEdit_serverPort->setEnabled(true);
+            ui->checkBox_needAec->setEnabled(true);
+            ui->pushButton_connecting->setEnabled(true);
+            ui->pushButton_connecting->setText("Connect!");
+            //showMessage("");
+            break;
+        }
+        case NetworkState::Connecting:{
+            ui->lineEdit_serverHost->setEnabled(false);
+            ui->lineEdit_serverPort->setEnabled(false);
+            ui->checkBox_needAec->setEnabled(false);
+            ui->pushButton_connecting->setEnabled(false);
+            ui->pushButton_connecting->setText("Connecting...");
+            break;
+        }
+        case NetworkState::Connected:{
+            ui->lineEdit_serverHost->setEnabled(false);
+            ui->lineEdit_serverPort->setEnabled(false);
+            ui->checkBox_needAec->setEnabled(false);
+            ui->pushButton_connecting->setEnabled(true);
+            ui->pushButton_connecting->setText("Disconnect!");
+            break;
+        }
+        default:
+            break;
+        }
+        currentUiState_=networkState;
     }
-    case NetworkState::Connecting:{
-        ui->lineEdit_serverHost->setEnabled(false);
-        ui->lineEdit_serverPort->setEnabled(false);
-        ui->checkBox_needAec->setEnabled(false);
-        ui->pushButton_connecting->setEnabled(false);
-        ui->pushButton_connecting->setText("Connecting...");
-        break;
+    else{
+        QCoreApplication::postEvent(this, new NetworkStateEvent(networkState));
     }
-    case NetworkState::Connected:{
-        ui->lineEdit_serverHost->setEnabled(false);
-        ui->lineEdit_serverPort->setEnabled(false);
-        ui->checkBox_needAec->setEnabled(false);
-        ui->pushButton_connecting->setEnabled(true);
-        ui->pushButton_connecting->setText("Disconnect!");
-        break;
-    }
-    default:
-        break;
-    }
-    currentUiState_=networkState;
 }
 
 void MainWindow::onVolumeChanged(const AudioIoVolume aivl) {
@@ -249,7 +255,7 @@ void MainWindow::toggleAdvancedMode(bool newMode)
 
 void MainWindow::gotoWork(){
     try {
-        updateUiState(NetworkState::Connecting);
+        onNetworkChanged(NetworkState::Connecting);
 
 
         worker_ = std::make_shared<Worker>(ui->checkBox_needAec->checkState()==Qt::CheckState::Checked);
@@ -276,7 +282,7 @@ void MainWindow::gotoWork(){
                     )
         {
             showMessage(extraMessage);
-            updateUiState(newState);
+            onNetworkChanged(newState);
         }
         );
 
@@ -315,11 +321,19 @@ bool MainWindow::event(QEvent *event)
     } else if (event->type() == AudioVolumeEvent::sType) {
         AudioVolumeEvent *myEvent = static_cast<AudioVolumeEvent *>(event);
         onVolumeChanged({myEvent->io_, myEvent->level_});
+        delete myEvent;
         return true;
     }
     else if (event->type() == VadEvent::sType){
         VadEvent *myEvent = static_cast<VadEvent *>(event);
         onVad(myEvent->isActive_);
+        delete myEvent;
+        return true;
+    }
+    else if (event->type() == NetworkStateEvent::sType){
+        NetworkStateEvent *myEvent = static_cast<NetworkStateEvent *>(event);
+        onNetworkChanged(myEvent->state_);
+        delete myEvent;
         return true;
     }
 

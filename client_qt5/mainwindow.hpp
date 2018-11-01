@@ -38,6 +38,15 @@ public:
     VadEvent(const bool isActive):isActive_(isActive), QEvent(sType){}
 };
 
+
+class NetworkStateEvent : public QEvent {
+public:
+    static QEvent::Type sType;
+    NetworkState state_;
+    NetworkStateEvent(const NetworkState state):state_(state), QEvent(sType){}
+};
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -48,10 +57,10 @@ public:
 
 private slots:
     void on_pushButton_connecting_clicked();
-    void updateUiState(const NetworkState networkState);
 
 
     /// TODO: render max volume bar
+    void onNetworkChanged(const NetworkState networkState);
     void onVolumeChanged(const AudioIoVolume);
     void onDeviceNameChanged(const std::string &newMic, const std::string &newSpk){}
     void onVad(bool isActive);
