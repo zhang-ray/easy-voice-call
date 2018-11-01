@@ -321,19 +321,16 @@ bool MainWindow::event(QEvent *event)
     } else if (event->type() == AudioVolumeEvent::sType) {
         AudioVolumeEvent *myEvent = static_cast<AudioVolumeEvent *>(event);
         onVolumeChanged({myEvent->io_, myEvent->level_});
-        delete myEvent;
         return true;
     }
     else if (event->type() == VadEvent::sType){
         VadEvent *myEvent = static_cast<VadEvent *>(event);
         onVad(myEvent->isActive_);
-        delete myEvent;
         return true;
     }
     else if (event->type() == NetworkStateEvent::sType){
         NetworkStateEvent *myEvent = static_cast<NetworkStateEvent *>(event);
         onNetworkChanged(myEvent->state_);
-        delete myEvent;
         return true;
     }
 
