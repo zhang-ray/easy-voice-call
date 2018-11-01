@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>microphone.png</file>
+        <file>speaker.png</file>
+        <file>vertical_bar_empty.png</file>
+        <file>vertical_bar_full.png</file>
+        <file>vertical_bar_half_full.png</file>
+    </qresource>
+</RCC>

@@ -20,7 +20,7 @@ decltype(WebRtcNsx_Create()) ns_ = nullptr;
 
 using namespace webrtc;
 
-const char *constPort ="1222";
+//const char *constPort ="80";
 
 Worker::Worker(bool needAec)
     :needAec_(needAec)
@@ -82,8 +82,7 @@ bool Worker::initCodec(){
 }
 
 bool Worker::initDevice(std::function<void(const std::string &, const std::string &)> reportInfo,
-                        std::function<void(const uint8_t)> reportMicVolume,
-                        std::function<void(const uint8_t)> reportSpkVolume,
+                        std::function<void(const AudioIoVolume)> reportVolume,
                         std::function<void(const bool)> vadReporter){
     device_ = &(Factory::get().create());
 
@@ -91,20 +90,19 @@ bool Worker::initDevice(std::function<void(const std::string &, const std::strin
     std::string spkInfo;
     if (device_->init(micInfo, spkInfo)){
         reportInfo(micInfo, spkInfo);
-        micVolumeReporter_ = reportMicVolume;
-        spkVolumeReporter_ = reportSpkVolume;
+        volumeReporter_ = reportVolume;
         vadReporter_ = vadReporter;
         return true;
     }
     return false;
 }
 
-void Worker::asyncStart(const std::string &host, std::function<void (const NetworkState &, const std::string &)> toggleState){
+void Worker::asyncStart(const std::string &host,const std::string &port, std::function<void (const NetworkState &, const std::string &)> toggleState){
     syncStop();
-    netThread_.reset(new std::thread(std::bind(&Worker::syncStart, this, host, toggleState)));
+    netThread_.reset(new std::thread(std::bind(&Worker::syncStart, this, host, port, toggleState)));
 }
 
-void Worker::syncStart(const std::string &host,
+void Worker::syncStart(const std::string &host,const std::string &port,
                         std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
                           ){
 
@@ -114,7 +112,7 @@ void Worker::syncStart(const std::string &host,
         bool isLogin = false;
         TcpClient client(
                     host.c_str(),
-                    constPort,
+                    port.c_str(),
                     [&](TcpClient *_TcpClient, const NetPacket& netPacket){
             // on Received Data
             switch (netPacket.payloadType()){
@@ -147,9 +145,9 @@ void Worker::syncStart(const std::string &host,
                         }
                     }
                     auto ret = device_->write(decodedPcm);
-                    if (spkVolumeReporter_){
+                    if (volumeReporter_){
                         static SuckAudioVolume sav;
-                        spkVolumeReporter_(sav.calculate(decodedPcm));
+                        volumeReporter_({AudioInOut::Out, sav.calculate(decodedPcm, AudioIoVolume::MAX_VOLUME_LEVEL)});
                     }
                     if (!ret) {
                         std::cout << ret.message() << std::endl;
@@ -251,9 +249,9 @@ void Worker::syncStart(const std::string &host,
 
 
 
-            if (micVolumeReporter_){
+            if (volumeReporter_){
                 static SuckAudioVolume sav;
-                micVolumeReporter_(sav.calculate(denoisedBuffer));
+                volumeReporter_({AudioInOut::In, sav.calculate(denoisedBuffer, AudioIoVolume::MAX_VOLUME_LEVEL)});
             }
 
             auto haveVoice = (1==WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate/100));

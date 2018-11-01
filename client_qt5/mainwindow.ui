@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>403</width>
-    <height>244</height>
+    <width>600</width>
+    <height>400</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="font">
    <font>
@@ -19,334 +25,448 @@
    <string>Easy Voice Call</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QLabel" name="label">
+   <widget class="QGroupBox" name="groupBox_ain">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>89</y>
-      <width>91</width>
-      <height>21</height>
+      <y>20</y>
+      <width>250</width>
+      <height>60</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>18</pointsize>
-     </font>
+    <property name="title">
+     <string>audio-in</string>
     </property>
-    <property name="text">
-     <string>Server</string>
-    </property>
+    <widget class="QLabel" name="label_img_ain">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>20</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_ain_bar0">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_ain_bar1">
+     <property name="geometry">
+      <rect>
+       <x>65</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_ain_bar2">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_ain_bar3">
+     <property name="geometry">
+      <rect>
+       <x>95</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_ain_bar4">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_ain_bar5">
+     <property name="geometry">
+      <rect>
+       <x>125</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_ain_bar6">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_ain_bar7">
+     <property name="geometry">
+      <rect>
+       <x>155</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_ain_bar8">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_ain_bar9">
+     <property name="geometry">
+      <rect>
+       <x>185</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_serverHost">
+   <widget class="QGroupBox" name="groupBox_aout">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>116</y>
-      <width>161</width>
-      <height>25</height>
+      <x>20</x>
+      <y>100</y>
+      <width>250</width>
+      <height>60</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
+    <property name="title">
+     <string>audio-out</string>
     </property>
-    <property name="text">
-     <string>127.0.0.1</string>
+    <widget class="QLabel" name="label_img_aout">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>20</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_aout_bar0">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_aout_bar2">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_aout_bar3">
+     <property name="geometry">
+      <rect>
+       <x>95</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_aout_bar4">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_aout_bar5">
+     <property name="geometry">
+      <rect>
+       <x>125</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_aout_bar6">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_aout_bar7">
+     <property name="geometry">
+      <rect>
+       <x>155</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_aout_bar8">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_aout_bar1">
+     <property name="geometry">
+      <rect>
+       <x>65</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_img_aout_bar9">
+     <property name="geometry">
+      <rect>
+       <x>185</x>
+       <y>30</y>
+       <width>10</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_server">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>190</y>
+      <width>250</width>
+      <height>60</height>
+     </rect>
     </property>
+    <property name="title">
+     <string>server</string>
+    </property>
+    <widget class="QLineEdit" name="lineEdit_serverHost">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>160</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_serverPort">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>30</y>
+       <width>60</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>80</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QPushButton" name="pushButton_connecting">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>90</y>
-      <width>171</width>
-      <height>61</height>
+      <x>20</x>
+      <y>280</y>
+      <width>250</width>
+      <height>60</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Connect!</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_micInfo">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>8</y>
-      <width>191</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-      <underline>false</underline>
-     </font>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
     </property>
     <property name="text">
      <string/>
     </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
    </widget>
-   <widget class="QLabel" name="label_micTitle">
+   <widget class="QGroupBox" name="groupBox_details">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>8</y>
-      <width>71</width>
-      <height>20</height>
+      <x>300</x>
+      <y>20</y>
+      <width>250</width>
+      <height>340</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
+    <property name="title">
+     <string>details</string>
     </property>
-    <property name="text">
-     <string>Mic</string>
-    </property>
+    <widget class="QGroupBox" name="groupBox_vad">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>231</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>VAD</string>
+     </property>
+     <widget class="QLabel" name="label_vad">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>28</y>
+        <width>67</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_aec">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>231</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>AEC</string>
+     </property>
+     <widget class="QCheckBox" name="checkBox_needAec">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>26</y>
+        <width>92</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>AEC</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QTextBrowser" name="textBrowser">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>180</y>
+       <width>221</width>
+       <height>151</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
-   <widget class="QLabel" name="label_spkTitle">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>30</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Speaker</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_spkInfo">
-    <property name="geometry">
-     <rect>
-      <x>190</x>
-      <y>30</y>
-      <width>191</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-      <underline>false</underline>
-     </font>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_volumeMic">
-    <property name="geometry">
-     <rect>
-      <x>85</x>
-      <y>8</y>
-      <width>21</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>0</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_volumeSpk">
-    <property name="geometry">
-     <rect>
-      <x>85</x>
-      <y>30</y>
-      <width>21</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>0</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_9">
-    <property name="geometry">
-     <rect>
-      <x>32</x>
-      <y>142</y>
-      <width>181</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>example: your.server.com</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_10">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>158</y>
-      <width>131</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>or: 123.45.67.89</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_volumeMic_3">
-    <property name="geometry">
-     <rect>
-      <x>111</x>
-      <y>8</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>%(volume)</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_volumeSpk_3">
-    <property name="geometry">
-     <rect>
-      <x>111</x>
-      <y>30</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>%(volume)</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_vadTitle">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>59</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>VAD</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_vad">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>59</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-    </property>
-   </widget>
-   <widget class="QCheckBox" name="checkBox_needAec">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>59</y>
-      <width>111</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>AEC</string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>403</width>
-     <height>23</height>
-    </rect>
-   </property>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>

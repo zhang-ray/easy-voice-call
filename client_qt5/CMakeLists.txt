@@ -49,14 +49,19 @@ set(SRCS
     mainwindow.ui
     mainwindow.cpp
     main.cpp
+
 )
+
+# QRC files
+set(QRC_SOURCE_FILES resources/Resource.qrc)
+qt5_add_resources(QRC_FILES ${QRC_SOURCE_FILES})
 
 
 
 if(WIN32)
-    add_executable(${PROJECT_NAME} WIN32 ${SRCS} resources/Resource.rc)
+    add_executable(${PROJECT_NAME} WIN32 ${SRCS} ${QRC_FILES} resources/Resource.rc)
 else(WIN32)
-    add_executable(${PROJECT_NAME} ${SRCS})
+    add_executable(${PROJECT_NAME} ${SRCS} ${QRC_FILES})
 endif(WIN32)
 
 target_link_libraries(

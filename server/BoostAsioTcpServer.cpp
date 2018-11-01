@@ -252,15 +252,12 @@ private:
 
 int main(int argc, char* argv[]) {
     try {
-        int port = 1222;
+        int port = 80;
 
         // init port
         {
             if (argc == 2) {
                 port = std::atoi(argv[1]);
-            }
-            else if (argc == 1){
-                port = 1222;
             }
             else {
                 std::cerr << "Usage: EvcServer <port>\n";

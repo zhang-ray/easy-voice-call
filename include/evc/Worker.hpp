@@ -8,6 +8,30 @@ class AudioDecoder;
 class AudioEncoder;
 class AudioDevice;
 
+
+enum class AudioInOut : uint8_t{
+    In,
+    Out
+};
+
+
+class AudioIoVolume {
+public:
+    enum { MAX_VOLUME_LEVEL = 10};
+
+    using Level = uint8_t;
+
+    AudioInOut io_;
+    Level level_;
+public:
+    AudioIoVolume(const AudioInOut io, const Level level)
+        :io_(io)
+        ,level_(level)
+    {
+
+    }
+};
+
 enum class NetworkState : unsigned char{
     Disconnected,
     Connecting,
@@ -29,8 +53,7 @@ private:
     AudioDevice *  device_ = nullptr;
     bool gotoStop_ = false;
     std::shared_ptr<std::thread> netThread_ = nullptr;
-    std::function<void(const uint8_t)>  micVolumeReporter_ = nullptr;
-    std::function<void(const uint8_t)>  spkVolumeReporter_ = nullptr;
+    std::function<void(const AudioIoVolume)>  volumeReporter_ = nullptr;
     std::function<void(const bool)>  vadReporter_ = nullptr;
     bool needAec_ = false;
 public:
@@ -39,16 +62,15 @@ public:
 
     bool initCodec();
     bool initDevice(std::function<void(const std::string &,const std::string &)> reportInfo,
-                    std::function<void(const uint8_t)> reportMicVolume,
-                    std::function<void(const uint8_t)> reportSpkVolume,
+                    std::function<void(const AudioIoVolume)> reportVolume,
                     std::function<void(const bool)> vadReporter
                     );
 
-    void asyncStart(const std::string &host,
+    void asyncStart(const std::string &host, const std::string &port,
                       std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
                       );
 
-    void syncStart(const std::string &host,
+    void syncStart(const std::string &host, const std::string &port,
                       std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
                       );
 
