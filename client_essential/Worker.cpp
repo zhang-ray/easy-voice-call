@@ -3,6 +3,7 @@
 
 #include "evc/Factory.hpp"
 #include "evc/TcpClient.hpp"
+#include "evc/RingBuffer.hpp"
 #include <mutex> // for std::once_flag
 
 //// TODO
@@ -23,6 +24,7 @@ using namespace webrtc;
 
 Worker::Worker(bool needAec)
     :needAec_(needAec)
+    , s2cPcmBuffer_(sizeof(short)*160,100)
 {
     if (needAec_){
         aec = WebRtcAec_Create();
@@ -91,6 +93,47 @@ bool Worker::initDevice(std::function<void(const std::string &, const std::strin
         reportInfo(micInfo, spkInfo);
         volumeReporter_ = reportVolume;
         vadReporter_ = vadReporter;
+
+        /// TODO: LPC
+
+        playbackThread_ = std::make_shared<std::thread>([this](){
+            std::vector<short> pcmLPC(s2cPcmBuffer_.bytePerElement(), 0);
+            std::vector<short> tmp(s2cPcmBuffer_.bytePerElement());
+
+            for (;!gotoStop_;){
+                auto pcm = &pcmLPC;
+                if (s2cPcmBuffer_.popElements((uint8_t*)tmp.data(), 1)){
+                    pcm = &tmp;
+                }
+
+                device_->write(*pcm);
+
+                if (volumeReporter_){
+                    auto currentLevel = sav.calculate(*pcm, AudioIoVolume::MAX_VOLUME_LEVEL);
+                    static auto recentMaxLevel = currentLevel;
+
+                    static auto lastTimeStamp = std::chrono::system_clock::now();
+                    auto now = std::chrono::system_clock::now();
+                    auto elapsed = now - lastTimeStamp;
+
+                    // hold on 1s
+                    if (elapsed > std::chrono::seconds(1)){
+                        recentMaxLevel=0;
+                        lastTimeStamp = std::chrono::system_clock::now();
+                    }
+
+
+                    if (currentLevel>recentMaxLevel){
+                        recentMaxLevel=currentLevel;
+                        // re calculate hold-on time
+                        lastTimeStamp = std::chrono::system_clock::now();
+                    }
+
+                    volumeReporter_({AudioInOut::Out, currentLevel, recentMaxLevel});
+                }
+            }
+        });
+
         return true;
     }
     return false;
@@ -101,10 +144,10 @@ void Worker::asyncStart(const std::string &host,const std::string &port, std::fu
     netThread_.reset(new std::thread(std::bind(&Worker::syncStart, this, host, port, toggleState)));
 }
 
+
 void Worker::syncStart(const std::string &host,const std::string &port,
                        std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
                        ){
-
 
     try{
         gotoStop_ = false;
@@ -143,33 +186,12 @@ void Worker::syncStart(const std::string &host,const std::string &port,
                         }
                     }
                 }
-                auto ret = device_->write(decodedPcm);
-                if (volumeReporter_){
-                    auto currentLevel = sav.calculate(decodedPcm, AudioIoVolume::MAX_VOLUME_LEVEL);
-                    static auto recentMaxLevel = currentLevel;
 
-                    static auto lastTimeStamp = std::chrono::system_clock::now();
-                        auto now = std::chrono::system_clock::now();
-                        auto elapsed = now - lastTimeStamp;
-
-                        // hold on 1s
-                        if (elapsed > std::chrono::seconds(1)){
-                            recentMaxLevel=0;
-                            lastTimeStamp = std::chrono::system_clock::now();
-                        }
-
-
-                    if (currentLevel>recentMaxLevel){
-                        recentMaxLevel=currentLevel;
-                        // re calculate hold-on time
-                        lastTimeStamp = std::chrono::system_clock::now();
-                    }
-
-                    volumeReporter_({AudioInOut::Out, currentLevel, recentMaxLevel});
+                auto bRet = s2cPcmBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1);
+                if (!bRet){
+                    //qDebug() << "pushElements failed!";
                 }
-                if (!ret) {
-                    std::cout << ret.message() << std::endl;
-                }
+
                 break;
             }
             }
@@ -272,14 +294,14 @@ void Worker::syncStart(const std::string &host,const std::string &port,
                 static auto recentMaxLevel = currentLevel;
 
                 static auto lastTimeStamp = std::chrono::system_clock::now();
-                    auto now = std::chrono::system_clock::now();
-                    auto elapsed = now - lastTimeStamp;
+                auto now = std::chrono::system_clock::now();
+                auto elapsed = now - lastTimeStamp;
 
-                    // hold on 1s
-                    if (elapsed > std::chrono::seconds(1)){
-                        recentMaxLevel=0;
-                        lastTimeStamp = std::chrono::system_clock::now();
-                    }
+                // hold on 1s
+                if (elapsed > std::chrono::seconds(1)){
+                    recentMaxLevel=0;
+                    lastTimeStamp = std::chrono::system_clock::now();
+                }
 
 
                 if (currentLevel>recentMaxLevel){

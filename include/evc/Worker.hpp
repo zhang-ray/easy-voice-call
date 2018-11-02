@@ -3,7 +3,7 @@
 #include <memory>
 #include <thread>
 #include <string>
-
+#include "evc/RingBuffer.hpp"
 #include "evc/AudioVolume.hpp"
 
 class AudioDecoder;
@@ -64,6 +64,9 @@ private:
     uint8_t vadCounter_ = 0; // nbActivated
     bool needSend_ = true;
     SuckAudioVolume sav;
+private:
+    std::shared_ptr<std::thread> playbackThread_ = nullptr;
+    RingBuffer s2cPcmBuffer_;
 public:
     Worker(bool needAec);
     ~Worker();
@@ -85,12 +88,18 @@ public:
 
     ///// TODO: blocked when server down?
     void syncStop(){
+        gotoStop_  = true;
         if (netThread_){
-            gotoStop_  = true;
             if(netThread_->joinable()){
                 netThread_->join();
             }
             netThread_ = nullptr;
+        }
+        if (playbackThread_){
+            if (playbackThread_->joinable()){
+                playbackThread_->join();
+            }
+            playbackThread_=nullptr;
         }
     }
 };
