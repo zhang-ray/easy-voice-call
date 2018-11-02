@@ -3,7 +3,6 @@
 
 #include "evc/Factory.hpp"
 #include "evc/TcpClient.hpp"
-#include "evc/AudioVolume.hpp"
 #include <mutex> // for std::once_flag
 
 //// TODO
@@ -146,8 +145,27 @@ void Worker::syncStart(const std::string &host,const std::string &port,
                 }
                 auto ret = device_->write(decodedPcm);
                 if (volumeReporter_){
-                    static SuckAudioVolume sav;
-                    volumeReporter_({AudioInOut::Out, sav.calculate(decodedPcm, AudioIoVolume::MAX_VOLUME_LEVEL)});
+                    auto currentLevel = sav.calculate(decodedPcm, AudioIoVolume::MAX_VOLUME_LEVEL);
+                    static auto recentMaxLevel = currentLevel;
+
+                    static auto lastTimeStamp = std::chrono::system_clock::now();
+                        auto now = std::chrono::system_clock::now();
+                        auto elapsed = now - lastTimeStamp;
+
+                        // hold on 1s
+                        if (elapsed > std::chrono::seconds(1)){
+                            recentMaxLevel=0;
+                            lastTimeStamp = std::chrono::system_clock::now();
+                        }
+
+
+                    if (currentLevel>recentMaxLevel){
+                        recentMaxLevel=currentLevel;
+                        // re calculate hold-on time
+                        lastTimeStamp = std::chrono::system_clock::now();
+                    }
+
+                    volumeReporter_({AudioInOut::Out, currentLevel, recentMaxLevel});
                 }
                 if (!ret) {
                     std::cout << ret.message() << std::endl;
@@ -250,8 +268,27 @@ void Worker::syncStart(const std::string &host,const std::string &port,
 
 
             if (volumeReporter_){
-                static SuckAudioVolume sav;
-                volumeReporter_({AudioInOut::In, sav.calculate(denoisedBuffer, AudioIoVolume::MAX_VOLUME_LEVEL)});
+                auto currentLevel = sav.calculate(denoisedBuffer, AudioIoVolume::MAX_VOLUME_LEVEL);
+                static auto recentMaxLevel = currentLevel;
+
+                static auto lastTimeStamp = std::chrono::system_clock::now();
+                    auto now = std::chrono::system_clock::now();
+                    auto elapsed = now - lastTimeStamp;
+
+                    // hold on 1s
+                    if (elapsed > std::chrono::seconds(1)){
+                        recentMaxLevel=0;
+                        lastTimeStamp = std::chrono::system_clock::now();
+                    }
+
+
+                if (currentLevel>recentMaxLevel){
+                    recentMaxLevel=currentLevel;
+                    // re calculate hold-on time
+                    lastTimeStamp = std::chrono::system_clock::now();
+                }
+
+                volumeReporter_({AudioInOut::In, currentLevel, recentMaxLevel});
             }
 
 

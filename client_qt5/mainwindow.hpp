@@ -21,12 +21,6 @@ public:
         , AudioIoVolume(aiv)
     {
     }
-
-    AudioVolumeEvent(const AudioInOut io, const uint8_t level)
-        : QEvent(sType)
-        , AudioIoVolume(io, level)
-    {
-    }
 };
 
 
@@ -57,9 +51,6 @@ public:
 
 private slots:
     void on_pushButton_connecting_clicked();
-
-
-    /// TODO: render max volume bar
     void onNetworkChanged(const NetworkState networkState);
     void onVolumeChanged(const AudioIoVolume);
     void onDeviceNameChanged(const std::string &newMic, const std::string &newSpk){}

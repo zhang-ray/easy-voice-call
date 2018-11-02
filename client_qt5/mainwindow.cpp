@@ -136,8 +136,8 @@ MainWindow::MainWindow(QWidget *parent)
 
         /// init state
         {
-            onVolumeChanged({AudioInOut::In, 0u});
-            onVolumeChanged({AudioInOut::Out, 0u});
+            onVolumeChanged({AudioInOut::In, 0u, 0u});
+            onVolumeChanged({AudioInOut::Out, 0u, 0u});
             onNetworkChanged(NetworkState::Disconnected);
             toggleAdvancedMode(true);
             showMessage("F1: help    F2: toggle mode (advanced/easy mode)");
@@ -242,6 +242,9 @@ void MainWindow::onVolumeChanged(const AudioIoVolume aivl) {
         for (int i =0;i< AudioIoVolume::MAX_VOLUME_LEVEL;i++){
             label_img_[(uint8_t)aivl.io_][i]->setPixmap(i<aivl.level_? vertical_bar_half_full: vertical_bar_empty);
         }
+        if (aivl.recentMaxLevel_> aivl.level_){
+            label_img_[(uint8_t)aivl.io_][aivl.recentMaxLevel_]->setPixmap(vertical_bar_full);
+        }
     }
     else{
         QCoreApplication::postEvent(this, new AudioVolumeEvent(aivl));
@@ -340,7 +343,7 @@ bool MainWindow::event(QEvent *event)
         return true;
     } else if (event->type() == AudioVolumeEvent::sType) {
         AudioVolumeEvent *myEvent = static_cast<AudioVolumeEvent *>(event);
-        onVolumeChanged({myEvent->io_, myEvent->level_});
+        onVolumeChanged({myEvent->io_, myEvent->level_, myEvent->recentMaxLevel_});
         return true;
     }
     else if (event->type() == VadEvent::sType){

@@ -4,6 +4,8 @@
 #include <thread>
 #include <string>
 
+#include "evc/AudioVolume.hpp"
+
 class AudioDecoder;
 class AudioEncoder;
 class AudioDevice;
@@ -23,10 +25,12 @@ public:
 
     AudioInOut io_;
     Level level_;
+    Level recentMaxLevel_;
 public:
-    AudioIoVolume(const AudioInOut io, const Level level)
+    AudioIoVolume(const AudioInOut io, const Level level, const Level recentMaxLevel)
         :io_(io)
         ,level_(level)
+    , recentMaxLevel_(recentMaxLevel)
     {
 
     }
@@ -59,6 +63,7 @@ private:
 
     uint8_t vadCounter_ = 0; // nbActivated
     bool needSend_ = true;
+    SuckAudioVolume sav;
 public:
     Worker(bool needAec);
     ~Worker();
