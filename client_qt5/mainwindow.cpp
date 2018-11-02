@@ -335,6 +335,7 @@ bool MainWindow::event(QEvent *event)
         else if (ke->key() == Qt::Key_F2){
             toggleAdvancedMode();
         }
+        return true;
     } else if (event->type() == AudioVolumeEvent::sType) {
         AudioVolumeEvent *myEvent = static_cast<AudioVolumeEvent *>(event);
         onVolumeChanged({myEvent->io_, myEvent->level_});
