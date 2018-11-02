@@ -141,6 +141,9 @@ MainWindow::MainWindow(QWidget *parent)
             onNetworkChanged(NetworkState::Disconnected);
             toggleAdvancedMode(true);
             showMessage("F1: help    F2: toggle mode (advanced/easy mode)");
+            ui->radioButton_tcp->toggle();
+            ui->radioButton_rtp->setEnabled(false);
+            ui->radioButton_rudp->setEnabled(false);
         }
 
 
@@ -264,7 +267,10 @@ void MainWindow::toggleAdvancedMode(bool newMode)
 {
     advancedMode_ = newMode;
     ui->groupBox_details->setVisible(advancedMode_);
+    /*
     ui->lineEdit_serverPort->setVisible(advancedMode_);
+    ui->groupBox_protocol->setVisible(advancedMode_);
+    */
     setFixedSize(advancedMode_?600:300,400);
 }
 
