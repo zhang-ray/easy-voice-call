@@ -124,6 +124,7 @@ MainWindow::MainWindow(QWidget *parent)
         /// tool tip
         {
             ui->lineEdit_serverHost->setToolTip("example: your.server.com\n or:      12.45.67.89");
+            ui->toggleButton_micMute->setToolTip("Mute Microphone!");
         }
 
 
@@ -349,6 +350,10 @@ bool MainWindow::event(QEvent *event)
         return true;
     } else if (event->type() == AudioVolumeEvent::sType) {
         AudioVolumeEvent *myEvent = static_cast<AudioVolumeEvent *>(event);
+        if (myEvent->io_==AudioInOut::In && ui->toggleButton_micMute->isChecked()){
+            // we got an AudioVolumeEvent here after toggleButton_micMute checked sometimes;
+            return true;
+        }
         onVolumeChanged({myEvent->io_, myEvent->level_, myEvent->recentMaxLevel_});
         return true;
     }
@@ -366,3 +371,14 @@ bool MainWindow::event(QEvent *event)
     return QWidget::event(event);
 }
 
+
+void MainWindow::on_toggleButton_micMute_clicked(bool checked){
+    if (worker_){
+        worker_->setMute(checked);
+    }
+
+    /// clean UI
+    if (checked){
+        onVolumeChanged({AudioInOut::In, 0u, 0u});
+    }
+}

@@ -62,6 +62,7 @@ private:
     bool needAec_ = false;
 
     uint8_t vadCounter_ = 0; // nbActivated
+    bool mute_ = false;
     bool needSend_ = true;
     SuckAudioVolume sav;
 private:
@@ -71,6 +72,7 @@ public:
     Worker(bool needAec);
     ~Worker();
 
+    void setMute(bool mute){mute_ = mute;}
     bool initCodec();
     bool initDevice(std::function<void(const std::string &,const std::string &)> reportInfo,
                     std::function<void(const AudioIoVolume)> reportVolume,

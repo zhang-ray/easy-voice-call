@@ -58,6 +58,8 @@ private slots:
     void toggleAdvancedMode(){toggleAdvancedMode(!advancedMode_);}
     void toggleAdvancedMode(bool newMode);
     void gotoWork();
+    void on_toggleButton_micMute_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui = nullptr;
 

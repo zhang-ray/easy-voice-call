@@ -247,115 +247,116 @@ void Worker::syncStart(const std::string &host,const std::string &port,
             /// TODO:
             /// in practice, device_->read would be unblock in first several blocks
             /// so let's clear microphone's buffer on first time???
-            {
-                std::vector<short> micBuffer(blockSize);
-                auto ret = device_->read(micBuffer);
-                if (!ret){
-                    break;
+            if (!mute_){
+                {
+                    std::vector<short> micBuffer(blockSize);
+                    auto ret = device_->read(micBuffer);
+                    if (!ret){
+                        break;
+                    }
+                    auto temp = (short*)micBuffer.data();
+                    auto outTemp = denoisedBuffer.data();
+                    WebRtcNsx_Process(ns_, &temp, 1, &outTemp);
                 }
-                auto temp = (short*)micBuffer.data();
-                auto outTemp = denoisedBuffer.data();
-                WebRtcNsx_Process(ns_, &temp, 1, &outTemp);
-            }
 
 
 
-            if (needAec_){
-                std::vector<float> floatNearend(blockSize);
-                for (int i=0;i<blockSize; i++){
-                    floatNearend[i] = (float)denoisedBuffer[i]/(1<<15);
+                if (needAec_){
+                    std::vector<float> floatNearend(blockSize);
+                    for (int i=0;i<blockSize; i++){
+                        floatNearend[i] = (float)denoisedBuffer[i]/(1<<15);
+                    }
+                    for (int i = 0; i < blockSize; i+=160){
+                        auto temp = &(floatNearend[i]);
+                        auto temp2 = &(out[i]);
+
+                        auto ret =
+                                WebRtcAec_Process(aec,
+                                                  &temp,
+                                                  sampleRate / 16000,
+                                                  &temp2,
+                                                  blockSize,
+                                                  blockSize,
+                                                  0 );
+                        if (ret){
+                            throw;
+                        }
+
+                        for (int j = i; j< i+blockSize; j++){
+                            tobeSend[j]=out[j]*(1<<15);
+                        }
+                    }
                 }
-                for (int i = 0; i < blockSize; i+=160){
-                    auto temp = &(floatNearend[i]);
-                    auto temp2 = &(out[i]);
 
-                    auto ret =
-                            WebRtcAec_Process(aec,
-                                              &temp,
-                                              sampleRate / 16000,
-                                              &temp2,
-                                              blockSize,
-                                              blockSize,
-                                              0 );
-                    if (ret){
-                        throw;
+
+
+                if (volumeReporter_){
+                    auto currentLevel = sav.calculate(denoisedBuffer, AudioIoVolume::MAX_VOLUME_LEVEL);
+                    static auto recentMaxLevel = currentLevel;
+
+                    static auto lastTimeStamp = std::chrono::system_clock::now();
+                    auto now = std::chrono::system_clock::now();
+                    auto elapsed = now - lastTimeStamp;
+
+                    // hold on 1s
+                    if (elapsed > std::chrono::seconds(1)){
+                        recentMaxLevel=0;
+                        lastTimeStamp = std::chrono::system_clock::now();
                     }
 
-                    for (int j = i; j< i+blockSize; j++){
-                        tobeSend[j]=out[j]*(1<<15);
+
+                    if (currentLevel>recentMaxLevel){
+                        recentMaxLevel=currentLevel;
+                        // re calculate hold-on time
+                        lastTimeStamp = std::chrono::system_clock::now();
+                    }
+
+                    volumeReporter_({AudioInOut::In, currentLevel, recentMaxLevel});
+                }
+
+
+                auto haveVoice = (1==WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate/100));
+                if (vadReporter_){
+                    vadReporter_(haveVoice);
+                }
+
+
+                if (haveVoice){
+                    vadCounter_++;
+                    needSend_=true;
+                }
+
+
+                {
+                    static auto lastTimeStamp = std::chrono::system_clock::now();
+                    auto now = std::chrono::system_clock::now();
+                    auto elapsed = now - lastTimeStamp;
+
+                    if (elapsed > std::chrono::seconds(1)){
+                        if (vadCounter_==0){
+                            /// 100 section per one second
+                            /// in last one second, no voice found
+                            /// so that we predict there's no voice in future
+                            needSend_ = false;
+                        }
+                        lastTimeStamp = std::chrono::system_clock::now();
+
+                        vadCounter_=0;
                     }
                 }
-            }
 
 
-
-            if (volumeReporter_){
-                auto currentLevel = sav.calculate(denoisedBuffer, AudioIoVolume::MAX_VOLUME_LEVEL);
-                static auto recentMaxLevel = currentLevel;
-
-                static auto lastTimeStamp = std::chrono::system_clock::now();
-                auto now = std::chrono::system_clock::now();
-                auto elapsed = now - lastTimeStamp;
-
-                // hold on 1s
-                if (elapsed > std::chrono::seconds(1)){
-                    recentMaxLevel=0;
-                    lastTimeStamp = std::chrono::system_clock::now();
-                }
-
-
-                if (currentLevel>recentMaxLevel){
-                    recentMaxLevel=currentLevel;
-                    // re calculate hold-on time
-                    lastTimeStamp = std::chrono::system_clock::now();
-                }
-
-                volumeReporter_({AudioInOut::In, currentLevel, recentMaxLevel});
-            }
-
-
-            auto haveVoice = (1==WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate/100));
-            if (vadReporter_){
-                vadReporter_(haveVoice);
-            }
-
-
-            if (haveVoice){
-                vadCounter_++;
-                needSend_=true;
-            }
-
-
-            {
-                static auto lastTimeStamp = std::chrono::system_clock::now();
-                auto now = std::chrono::system_clock::now();
-                auto elapsed = now - lastTimeStamp;
-
-                if (elapsed > std::chrono::seconds(1)){
-                    if (vadCounter_==0){
-                        /// 100 section per one second
-                        /// in last one second, no voice found
-                        /// so that we predict there's no voice in future
-                        needSend_ = false;
+                if (needSend_){
+                    std::vector<char> outData;
+                    auto retEncode = encoder->encode(needAec_? tobeSend: denoisedBuffer, outData);
+                    if (!retEncode){
+                        std::cout << retEncode.message() << std::endl;
+                        break;
                     }
-                    lastTimeStamp = std::chrono::system_clock::now();
 
-                    vadCounter_=0;
+                    client.send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
                 }
             }
-
-
-            if (needSend_){
-                std::vector<char> outData;
-                auto retEncode = encoder->encode(needAec_? tobeSend: denoisedBuffer, outData);
-                if (!retEncode){
-                    std::cout << retEncode.message() << std::endl;
-                    break;
-                }
-
-                client.send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
-            }
-
 
 
             // send heartbeat

@@ -180,6 +180,22 @@
       <string/>
      </property>
     </widget>
+    <widget class="QPushButton" name="toggleButton_micMute">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>30</y>
+       <width>31</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>M</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_aout">
     <property name="geometry">
@@ -423,10 +439,6 @@
        <string>RUDP</string>
       </property>
      </widget>
-     <zorder>radioButton_tcp</zorder>
-     <zorder>radioButton_rtp</zorder>
-     <zorder>radioButton_rudp</zorder>
-     <zorder>verticalSpacer</zorder>
     </widget>
    </widget>
    <widget class="QPushButton" name="pushButton_connecting">
