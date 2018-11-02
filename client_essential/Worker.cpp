@@ -140,8 +140,7 @@ bool Worker::initDevice(std::function<void(const std::string &, const std::strin
 }
 
 void Worker::asyncStart(const std::string &host,const std::string &port, std::function<void (const NetworkState &, const std::string &)> toggleState){
-    syncStop();
-    netThread_.reset(new std::thread(std::bind(&Worker::syncStart, this, host, port, toggleState)));
+    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, host, port, toggleState));
 }
 
 
