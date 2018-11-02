@@ -5,5 +5,7 @@
         <file>vertical_bar_empty.png</file>
         <file>vertical_bar_full.png</file>
         <file>vertical_bar_half_full.png</file>
+        <file>call_up.png</file>
+        <file>hang_up.png</file>
     </qresource>
 </RCC>

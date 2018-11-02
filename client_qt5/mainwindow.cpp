@@ -206,6 +206,7 @@ void MainWindow::onNetworkChanged(const NetworkState networkState){
             ui->checkBox_needAec->setEnabled(true);
             ui->pushButton_connecting->setEnabled(true);
             ui->pushButton_connecting->setText("Connect!");
+            ui->pushButton_connecting->setIcon(QPixmap(":/call_up.png"));
             //showMessage("");
             break;
         }
@@ -222,6 +223,7 @@ void MainWindow::onNetworkChanged(const NetworkState networkState){
             ui->lineEdit_serverPort->setEnabled(false);
             ui->checkBox_needAec->setEnabled(false);
             ui->pushButton_connecting->setEnabled(true);
+            ui->pushButton_connecting->setIcon(QPixmap(":/hang_up.png"));
             ui->pushButton_connecting->setText("Disconnect!");
             break;
         }
