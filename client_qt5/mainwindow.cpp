@@ -14,7 +14,7 @@
 #include <memory>
 #include <QKeyEvent>
 #include <QDesktopServices>
-
+#include "git_info.hpp"
 
 
 QEvent::Type AudioVolumeEvent::sType = (QEvent::Type)QEvent::registerEventType();
@@ -140,7 +140,17 @@ MainWindow::MainWindow(QWidget *parent)
             onVolumeChanged({AudioInOut::Out, 0u});
             onNetworkChanged(NetworkState::Disconnected);
             toggleAdvancedMode(true);
-            showMessage("F1: help    F2: advanced mode");
+            showMessage("F1: help    F2: toggle mode (advanced/easy mode)");
+        }
+
+
+        {
+            std::string title("EasyVoiceCall");
+#ifdef GIT_TAG
+            title.append(" ");
+            title.append(GIT_TAG);
+#endif //#ifdef GIT_TAG
+            setWindowTitle(title.c_str());
         }
     }
 
