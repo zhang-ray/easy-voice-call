@@ -283,6 +283,12 @@ void MainWindow::gotoWork(){
         }
 
 
+        ui->lineEdit_serverHost->setText(
+                    ui->lineEdit_serverHost->text().trimmed()
+                    );
+        ui->lineEdit_serverPort->setText(
+                    ui->lineEdit_serverPort->text().trimmed()
+                    );
         worker_->asyncStart(
                     ui->lineEdit_serverHost->text().toStdString(),
                     ui->lineEdit_serverPort->text().toStdString(),
@@ -302,6 +308,7 @@ void MainWindow::gotoWork(){
     }
 
 }
+
 
 void MainWindow::showMessage(const std::string &message){
     try {
