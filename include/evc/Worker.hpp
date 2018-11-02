@@ -56,6 +56,9 @@ private:
     std::function<void(const AudioIoVolume)>  volumeReporter_ = nullptr;
     std::function<void(const bool)>  vadReporter_ = nullptr;
     bool needAec_ = false;
+
+    uint8_t vadCounter_ = 0; // nbActivated
+    bool needSend_ = true;
 public:
     Worker(bool needAec);
     ~Worker();

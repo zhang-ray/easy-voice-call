@@ -103,8 +103,8 @@ void Worker::asyncStart(const std::string &host,const std::string &port, std::fu
 }
 
 void Worker::syncStart(const std::string &host,const std::string &port,
-                        std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
-                          ){
+                       std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
+                       ){
 
 
     try{
@@ -116,44 +116,44 @@ void Worker::syncStart(const std::string &host,const std::string &port,
                     [&](TcpClient *_TcpClient, const NetPacket& netPacket){
             // on Received Data
             switch (netPacket.payloadType()){
-                case NetPacket::PayloadType::HeartBeatRequest:{
-                    _TcpClient->send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
-                    break;
-                }
-                case NetPacket::PayloadType::LoginResponse: {
-                    isLogin = true;
-                    //qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
-                    break;
-                }
-                case NetPacket::PayloadType::AudioMessage: {
-                    std::vector<char> netBuff;
-                    netBuff.resize(netPacket.payloadLength());
-                    memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
-                    std::vector<short> decodedPcm;
-                    decoder->decode(netBuff, decodedPcm);
+            case NetPacket::PayloadType::HeartBeatRequest:{
+                _TcpClient->send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
+                break;
+            }
+            case NetPacket::PayloadType::LoginResponse: {
+                isLogin = true;
+                //qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
+                break;
+            }
+            case NetPacket::PayloadType::AudioMessage: {
+                std::vector<char> netBuff;
+                netBuff.resize(netPacket.payloadLength());
+                memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
+                std::vector<short> decodedPcm;
+                decoder->decode(netBuff, decodedPcm);
 
-                    if (needAec_) {
-                        std::vector<float> floatFarend(decodedPcm.size());
-                        for (int i=0;i<decodedPcm.size(); i++){
-                            floatFarend[i] = decodedPcm[i]/(1<<15);
+                if (needAec_) {
+                    std::vector<float> floatFarend(decodedPcm.size());
+                    for (int i=0;i<decodedPcm.size(); i++){
+                        floatFarend[i] = decodedPcm[i]/(1<<15);
+                    }
+                    for (int i = 0; i < blockSize; i+=160){
+                        auto ret = WebRtcAec_BufferFarend(aec, &(floatFarend[i]), 160);
+                        if (ret){
+                            throw;
                         }
-                        for (int i = 0; i < blockSize; i+=160){
-                            auto ret = WebRtcAec_BufferFarend(aec, &(floatFarend[i]), 160);
-                            if (ret){
-                                throw;
-                            }
-                        }
                     }
-                    auto ret = device_->write(decodedPcm);
-                    if (volumeReporter_){
-                        static SuckAudioVolume sav;
-                        volumeReporter_({AudioInOut::Out, sav.calculate(decodedPcm, AudioIoVolume::MAX_VOLUME_LEVEL)});
-                    }
-                    if (!ret) {
-                        std::cout << ret.message() << std::endl;
-                    }
-                    break;
                 }
+                auto ret = device_->write(decodedPcm);
+                if (volumeReporter_){
+                    static SuckAudioVolume sav;
+                    volumeReporter_({AudioInOut::Out, sav.calculate(decodedPcm, AudioIoVolume::MAX_VOLUME_LEVEL)});
+                }
+                if (!ret) {
+                    std::cout << ret.message() << std::endl;
+                }
+                break;
+            }
             }
         });
 
@@ -254,14 +254,39 @@ void Worker::syncStart(const std::string &host,const std::string &port,
                 volumeReporter_({AudioInOut::In, sav.calculate(denoisedBuffer, AudioIoVolume::MAX_VOLUME_LEVEL)});
             }
 
+
             auto haveVoice = (1==WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate/100));
             if (vadReporter_){
                 vadReporter_(haveVoice);
             }
 
 
-            //// encode and send voice only if voice activated
             if (haveVoice){
+                vadCounter_++;
+                needSend_=true;
+            }
+
+
+            {
+                static auto lastTimeStamp = std::chrono::system_clock::now();
+                auto now = std::chrono::system_clock::now();
+                auto elapsed = now - lastTimeStamp;
+
+                if (elapsed > std::chrono::seconds(1)){
+                    if (vadCounter_==0){
+                        /// 100 section per one second
+                        /// in last one second, no voice found
+                        /// so that we predict there's no voice in future
+                        needSend_ = false;
+                    }
+                    lastTimeStamp = std::chrono::system_clock::now();
+
+                    vadCounter_=0;
+                }
+            }
+
+
+            if (needSend_){
                 std::vector<char> outData;
                 auto retEncode = encoder->encode(needAec_? tobeSend: denoisedBuffer, outData);
                 if (!retEncode){
