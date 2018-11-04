@@ -175,7 +175,7 @@ void Worker::syncStart(const std::string &host,const std::string &port,
 
                 if (needAec_) {
                     std::vector<float> floatFarend(decodedPcm.size());
-                    for (int i=0;i<decodedPcm.size(); i++){
+                    for (auto i=0u;i<decodedPcm.size(); i++){
                         floatFarend[i] = ((float)decodedPcm[i])/(1<<15);
                     }
                     for (int i = 0; i < blockSize; i+=160){
@@ -282,7 +282,7 @@ void Worker::syncStart(const std::string &host,const std::string &port,
                         }
 
                         for (int j = i; j< i+blockSize; j++){
-                            tobeSend[j]=out[j]*(1<<15);
+                            tobeSend[j]=(short)(out[j]*(1<<15));
                         }
                     }
                 }

@@ -76,10 +76,13 @@ public:
     }
 
     NetPacket(const PayloadType payloadType, const std::vector<char> payload){
-        unsigned short payloadSize = payload.size();
-        init(payloadType, payloadSize);
+        auto payloadSize = payload.size();
+        if (payloadSize > (uint16_t)(-1)) {
+            throw "payloadSize larger than max of uint16_t";
+        }
+        init(payloadType, (uint16_t)payloadSize);
 
-        memcpy(wholePacket_.data() + FixHeaderLength, payload.data(), payloadSize);
+        memcpy(wholePacket_.data() + FixHeaderLength, payload.data(), (uint16_t)payloadSize);
     }
 
 

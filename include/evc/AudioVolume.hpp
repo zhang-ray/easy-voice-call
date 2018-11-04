@@ -17,6 +17,6 @@ public:
         }
         sum *= MAX_VOLUME_LEVEL;
         auto ret = sum / (1<<15) / buffer.size();
-        return ret ;
+        return (uint8_t)ret ;
     }
 };
