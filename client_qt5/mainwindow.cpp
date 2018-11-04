@@ -125,6 +125,7 @@ MainWindow::MainWindow(QWidget *parent)
         /// tool tip
         {
             ui->lineEdit_serverHost->setToolTip("example: your.server.com\n or:      12.45.67.89");
+            ui->lineEdit_serverPort->setToolTip("your server's port number");
             ui->toggleButton_micMute->setToolTip("Mute Microphone!");
         }
 
