@@ -20,6 +20,7 @@
 QEvent::Type AudioVolumeEvent::sType = (QEvent::Type)QEvent::registerEventType();
 QEvent::Type VadEvent::sType = (QEvent::Type)QEvent::registerEventType();
 QEvent::Type NetworkStateEvent::sType = (QEvent::Type)QEvent::registerEventType();
+QEvent::Type ShowTextMessageEvent::sType = (QEvent::Type)QEvent::registerEventType();
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -322,8 +323,8 @@ void MainWindow::gotoWork(){
 }
 
 
-void MainWindow::showMessage(const std::string &message){
-    try {
+void MainWindow::showMessage(const std::string &message) {
+    if (mainThreadId_ == std::this_thread::get_id()) {
         if (message.empty()){
             ui->statusBar->clearMessage();
         }
@@ -332,8 +333,8 @@ void MainWindow::showMessage(const std::string &message){
             qDebug() << message.c_str();
         }
     }
-    catch (std::exception &e){
-        qDebug() << e.what();
+    else {
+        QCoreApplication::postEvent(this, new ShowTextMessageEvent(message));
     }
 }
 
@@ -367,6 +368,12 @@ bool MainWindow::event(QEvent *event)
         onNetworkChanged(myEvent->state_);
         return true;
     }
+    else if (event->type() == ShowTextMessageEvent::sType) {
+        auto myEvent = static_cast<ShowTextMessageEvent*> (event);
+        showMessage(myEvent->message_);
+        return true;
+    }
+
 
     return QWidget::event(event);
 }

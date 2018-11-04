@@ -40,6 +40,13 @@ public:
     NetworkStateEvent(const NetworkState state):state_(state), QEvent(sType){}
 };
 
+class ShowTextMessageEvent : public QEvent {
+public:
+    static QEvent::Type sType;
+    std::string message_;
+    ShowTextMessageEvent(const std::string &m):message_(m), QEvent(sType){}
+};
+
 
 class MainWindow : public QMainWindow
 {
