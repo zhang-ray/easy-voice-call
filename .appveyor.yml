@@ -13,7 +13,7 @@ before_build:
 #- xcopy C:\Libraries\boost_1_67_0\boost include\boost /E # shorten building time
 #- xcopy C:\Libraries\boost_1_67_0\lib32-msvc-14.0 C:\projects\build\Release /E # shorten building time
 - mkdir easy-voice-call-build\ && cd easy-voice-call-build\
-- cmake ..\easy-voice-call
+- cmake -Wno-dev ..\easy-voice-call
 
 configuration:
   - Release
