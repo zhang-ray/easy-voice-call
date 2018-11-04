@@ -72,8 +72,8 @@ public:
         }
 
         auto posTail = posStart_ + currentSize_;
-        auto tailCap = (int)maxSize_ - posTail;
-        if (tailCap > 0) {
+        if (maxSize_ > posTail) {
+            auto tailCap = maxSize_ - posTail;
             if ((int)nbElement <= tailCap) {
                 std::memcpy(&payload_[bytePerElement_*posTail],data,bytePerElement_ * nbElement);
             }

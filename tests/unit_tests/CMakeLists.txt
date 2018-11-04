@@ -77,3 +77,4 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 
+add_executable(RingBuffer RingBuffer.cpp)
