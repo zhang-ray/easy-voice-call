@@ -176,7 +176,7 @@ void Worker::syncStart(const std::string &host,const std::string &port,
                 if (needAec_) {
                     std::vector<float> floatFarend(decodedPcm.size());
                     for (int i=0;i<decodedPcm.size(); i++){
-                        floatFarend[i] = decodedPcm[i]/(1<<15);
+                        floatFarend[i] = ((float)decodedPcm[i])/(1<<15);
                     }
                     for (int i = 0; i < blockSize; i+=160){
                         auto ret = WebRtcAec_BufferFarend(aec, &(floatFarend[i]), 160);
