@@ -26,7 +26,7 @@ build:
 after_build:
 - cd client_qt5
 - mkdir EasyVoiceCall.win32
-- xcopy Release\client_qt5.exe EasyVoiceCall.win32\EasyVoiceCall.exe
+- copy Release\client_qt5.exe EasyVoiceCall.win32\EasyVoiceCall.exe
 - xcopy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_system-vc140-mt-x32-1_67.dll EasyVoiceCall.win32\
 - C:\Qt\5.11.1\msvc2015\bin\windeployqt.exe EasyVoiceCall.win32\EasyVoiceCall.exe
 - 7z a ..\..\easy-voice-call\EasyVoiceCall.win32.zip EasyVoiceCall.win32
