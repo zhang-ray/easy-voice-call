@@ -6,6 +6,9 @@
 #include "evc/Worker.hpp"
 #include <QLabel>
 #include <QEvent>
+#include <QTemporaryDir>
+#include <QFile>
+
 
 namespace Ui {
 class MainWindow;
@@ -81,6 +84,7 @@ private:
     QPixmap vertical_bar_full;
     QPixmap vertical_bar_half_full;
     QLabel* label_img_[2][AudioIoVolume::MAX_VOLUME_LEVEL];
+    QString confFileName_ = "evc.config.txt";
     bool advancedMode_ = true;
 
     std::thread::id mainThreadId_ = std::this_thread::get_id();

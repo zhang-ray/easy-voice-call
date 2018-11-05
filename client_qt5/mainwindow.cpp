@@ -32,15 +32,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     // load setting
     try {
-        QFile file("setting.txt");
-        if (file.open(QIODevice::ReadWrite)){
+        QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+        QFile file(dir.filePath(confFileName_));
+        if (file.open(QIODevice::ReadWrite)) {
             char buf[1024];
             qint64 lineLength = -1;
             lineLength = file.readLine(buf, sizeof(buf));
             if (lineLength != -1) {
                 // the line is available in buf
-                if (buf[lineLength-1]=='\n'){
-                    buf[lineLength-1]=0;
+                if (buf[lineLength - 1] == '\n') {
+                    buf[lineLength - 1] = 0;
                 }
                 ui->lineEdit_serverHost->setText(buf);
             }
@@ -168,8 +169,14 @@ MainWindow::~MainWindow()
         }
 
         // save setting
-        QFile file("setting.txt");
-        if (file.open(QIODevice::ReadWrite)){
+        auto qStringFolder = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        QDir dir(qStringFolder);
+        if (!dir.exists()) {
+            dir.mkdir(qStringFolder);
+        }
+
+        QFile file(dir.filePath(confFileName_));
+        if (file.open(QIODevice::ReadWrite)) {
             file.write(ui->lineEdit_serverHost->text().toStdString().c_str());
             file.write("\n");
             file.close();
