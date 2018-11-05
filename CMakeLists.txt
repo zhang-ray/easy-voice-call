@@ -18,8 +18,6 @@ add_subdirectory(client_essential)
 #add_subdirectory(client_cli) # shorten building time
 add_subdirectory(client_qt5)
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 add_subdirectory(server)
-endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
 add_subdirectory(tests/unit_tests)
