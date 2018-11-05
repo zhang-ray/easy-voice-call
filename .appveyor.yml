@@ -2,16 +2,12 @@ image: Visual Studio 2015
 
 before_build:
 - git clone https://github.com/zhang-ray/audio-processing-module
-#- cmd: tree /F C:\Libraries\boost_1_67_0 
-#- cmd: tree /F C:\Qt\5.11.1\msvc2015
 - cd ..
 - ps: Start-FileDownload 'https://github.com/zhang-ray/opus/releases/download/1.0.5/opus-112-win32-build.7z'
 - 7z x opus-112-win32-build.7z
 - ps: Start-FileDownload 'https://github.com/zhang-ray/portaudio/releases/download/1.0.4/pa19-win32-x86-release-build.7z'
 - 7z x pa19-win32-x86-release-build.7z
 - mkdir include\boost
-#- xcopy C:\Libraries\boost_1_67_0\boost include\boost /E # shorten building time
-#- xcopy C:\Libraries\boost_1_67_0\lib32-msvc-14.0 C:\projects\build\Release /E # shorten building time
 - mkdir easy-voice-call-build\ && cd easy-voice-call-build\
 - cmake -Wno-dev ..\easy-voice-call
 
@@ -21,13 +17,12 @@ configuration:
 build:
   project: ..\easy-voice-call-build\easy-voice-call.sln
   parallel: true
-  #verbosity: quiet
+  verbosity: quiet
 
 after_build:
 - cd client_qt5
 - mkdir EasyVoiceCall.win32
 - copy Release\client_qt5.exe EasyVoiceCall.win32\EasyVoiceCall.exe
-- xcopy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_system-vc140-mt-x32-1_67.dll EasyVoiceCall.win32\
 - C:\Qt\5.11.1\msvc2015\bin\windeployqt.exe EasyVoiceCall.win32\EasyVoiceCall.exe
 - 7z a ..\..\easy-voice-call\EasyVoiceCall.win32.zip EasyVoiceCall.win32
 

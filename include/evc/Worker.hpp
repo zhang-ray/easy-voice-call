@@ -3,6 +3,7 @@
 #include <memory>
 #include <thread>
 #include <string>
+#include "Logger.hpp"
 #ifdef RINGBUFFER
 #include "evc/RingBuffer.hpp"
 #endif // RINGBUFFER

@@ -167,7 +167,6 @@ void Worker::syncStart(const std::string &host,const std::string &port,
             }
             case NetPacket::PayloadType::LoginResponse: {
                 isLogin = true;
-                //qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
                 break;
             }
             case NetPacket::PayloadType::AudioMessage: {
@@ -193,7 +192,7 @@ void Worker::syncStart(const std::string &host,const std::string &port,
 #ifdef RINGBUFFER
                 auto bRet = s2cPcmBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1);
                 if (!bRet){
-                    //qDebug() << "pushElements failed!";
+
                 }
 #else //RINGBUFFER
                 device_->write(decodedPcm);
@@ -235,7 +234,6 @@ void Worker::syncStart(const std::string &host,const std::string &port,
             }
         }
 
-        // qDebug() << "&isLogin=" << &isLogin << "\t" << __FUNCTION__;
         if (!isLogin){
             toggleState(NetworkState::Disconnected, "Could not Login to Server...");
             return;

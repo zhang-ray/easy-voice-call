@@ -10,12 +10,10 @@
 #include <QDesktopWidget>
 #include <QStyle>
 #include <QDir>
-#include <QDebug>
 #include <memory>
 #include <QKeyEvent>
 #include <QDesktopServices>
 #include "git_info.hpp"
-
 
 QEvent::Type AudioVolumeEvent::sType = (QEvent::Type)QEvent::registerEventType();
 QEvent::Type VadEvent::sType = (QEvent::Type)QEvent::registerEventType();
@@ -31,7 +29,6 @@ MainWindow::MainWindow(QWidget *parent)
     ,vertical_bar_half_full(":/vertical_bar_half_full.png")
 {
     ui->setupUi(this);
-
 
     // load setting
     try {
@@ -158,6 +155,11 @@ MainWindow::MainWindow(QWidget *parent)
 #endif //#ifdef GIT_TAG
             setWindowTitle(title.c_str());
         }
+    }
+
+
+    for (int i = 0; i < 100000; i++) {
+        BOOST_LOG_TRIVIAL(error) << "233";
     }
 
 }
@@ -317,8 +319,8 @@ void MainWindow::gotoWork(){
         );
 
     }
-    catch (std::exception &e){
-        qDebug() << "Exception: " << e.what() << "\n";
+    catch (std::exception &e) {
+        BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "]" << __FILE__ << ":" << __LINE__ << "] " << e.what();
     }
 
 }
@@ -331,7 +333,6 @@ void MainWindow::showMessage(const std::string &message) {
         }
         else {
             ui->statusBar->showMessage(message.c_str());
-            qDebug() << message.c_str();
         }
     }
     else {
