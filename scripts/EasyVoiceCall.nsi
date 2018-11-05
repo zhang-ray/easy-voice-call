@@ -60,7 +60,8 @@ Section "Start Menu Shortcuts"
 
   CreateDirectory "$SMPROGRAMS\EasyVoiceCall"
   CreateShortcut "$SMPROGRAMS\EasyVoiceCall\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortcut "$SMPROGRAMS\EasyVoiceCall\EasyVoiceCall.lnk" "$INSTDIR\EasyVoiceCall.nsi" "" "$INSTDIR\EasyVoiceCall.nsi" 0
+  CreateShortcut "$SMPROGRAMS\EasyVoiceCall\EasyVoiceCall.lnk" "$INSTDIR\EasyVoiceCall.exe" "" "$INSTDIR\EasyVoiceCall.exe" 0
+  CreateShortCut "$DESKTOP\EasyVoiceCall.lnk" "$INSTDIR\EasyVoiceCall.exe" ""
   
 SectionEnd
 
