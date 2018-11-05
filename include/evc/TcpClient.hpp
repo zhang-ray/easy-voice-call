@@ -132,7 +132,7 @@ public:
             pThread->join();
         }
         catch (std::exception &e) {
-            BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "]" <<  __FILE__<<":"<<__LINE__ << "] " << e.what();
+            BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" <<  __FILE__<<":"<<__LINE__ << "] " << e.what();
         }
     }
 

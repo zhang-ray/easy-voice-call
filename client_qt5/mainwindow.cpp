@@ -158,10 +158,6 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
 
-    for (int i = 0; i < 100000; i++) {
-        BOOST_LOG_TRIVIAL(error) << "233";
-    }
-
 }
 
 MainWindow::~MainWindow()
@@ -182,6 +178,8 @@ MainWindow::~MainWindow()
     catch (std::exception &e){
         std::cerr << "Exception: " << e.what() << "\n";
     }
+
+    BOOST_LOG_TRIVIAL(trace) << __FUNCTION__;
 
     delete ui;
 }
@@ -320,7 +318,7 @@ void MainWindow::gotoWork(){
 
     }
     catch (std::exception &e) {
-        BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "]" << __FILE__ << ":" << __LINE__ << "] " << e.what();
+        BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
     }
 
 }
