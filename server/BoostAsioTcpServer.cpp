@@ -11,7 +11,7 @@
 #include "evc/ReturnType.hpp"
 #include "ServerLogger.hpp"
 
-class Participant{
+class Participant {
 public:
     virtual ~Participant() {}
     virtual void deliver(const NetPacket& msg) = 0;
@@ -19,6 +19,7 @@ public:
 };
 
 
+bool isEchoMode = false;
 
 
 using ParticipantPointer = std::shared_ptr<Participant>;
@@ -36,9 +37,9 @@ using ClientPacketQueue = std::deque<NetPacket>;
 
 class Room {
 public:
-    ReturnType join(ParticipantPointer participant){
+    ReturnType join(ParticipantPointer participant) {
         auto size__ = participants_.size();
-        if (participants_.size()>=2){
+        if (participants_.size() >= 2) {
             return "participants_.count()>2";
         }
         participants_.insert(participant);
@@ -48,33 +49,42 @@ public:
 
 
 
-    void leave(ParticipantPointer participant){
+    void leave(ParticipantPointer participant) {
         participants_.erase(participant);
     }
 
 
 
-    void processClientMessagePayload(const NetPacket& msg,ParticipantPointer sender){
+    void processClientMessagePayload(const NetPacket& msg, ParticipantPointer sender) {
         static uint32_t counterUserMessage_ = 0;
         auto payloadType = msg.payloadType();
 
         bool traceDump = true;
-        switch (payloadType){
-        case NetPacket::PayloadType::HeartBeatRequest:{
+        switch (payloadType) {
+        case NetPacket::PayloadType::HeartBeatRequest: {
             sender->deliver(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
             break;
         }
-        case NetPacket::PayloadType::TextMessage :
+        case NetPacket::PayloadType::TextMessage:
         case NetPacket::PayloadType::AudioMessage:
         {
             counterUserMessage_++;
-            for (auto participant: participants_){
-                if (participant == sender){
-                    continue;
-                }
 
-                participant->deliver(msg);
+            if (isEchoMode) {
+                /// echo mode
+                sender->deliver(msg);;
             }
+            else {
+                /// broadcast mode
+                for (auto participant : participants_) {
+                    if (participant == sender) {
+                        continue;
+                    }
+
+                    participant->deliver(msg);
+                }
+            }
+
             traceDump = false;
             break;
         }
@@ -95,10 +105,10 @@ public:
             break;
         }
 
-        if(traceDump || counterUserMessage_%100==0){
-            BOOST_LOG_TRIVIAL(trace) << "["<< sender->info() << "] [" << NetPacket::getDescription(payloadType) << "] [" << msg.wholePackLength() << " B]";
-            if (counterUserMessage_%100==0){
-                BOOST_LOG_TRIVIAL(trace) << "\t\tgot " << counterUserMessage_<< "\tUserMessage totally";
+        if (traceDump || counterUserMessage_ % 100 == 0) {
+            BOOST_LOG_TRIVIAL(trace) << "[" << sender->info() << "] [" << NetPacket::getDescription(payloadType) << "] [" << msg.wholePackLength() << " B]";
+            if (counterUserMessage_ % 100 == 0) {
+                BOOST_LOG_TRIVIAL(trace) << "\t\tgot " << counterUserMessage_ << "\tUserMessage totally";
             }
         }
     }
@@ -121,17 +131,17 @@ public:
     Session(boost::asio::ip::tcp::socket socket, Room& room)
         : socket_(std::move(socket))
         , room_(room) {
-        BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ ;
+        BOOST_LOG_TRIVIAL(trace) << __FUNCTION__;
     }
 
-    ~Session(){
-        BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ ;
+    ~Session() {
+        BOOST_LOG_TRIVIAL(trace) << __FUNCTION__;
     }
 
 
-    ReturnType start(){
+    ReturnType start() {
         auto ret = room_.join(shared_from_this());
-        if (!ret){
+        if (!ret) {
             BOOST_LOG_TRIVIAL(error) << "Session start failed:" << ret.message();
             return ret;
         }
@@ -155,18 +165,18 @@ public:
 
     virtual std::string info() override {
         auto __ = socket_.remote_endpoint();
-        return __.address().to_string() + ":"+std::to_string(__.port());
+        return __.address().to_string() + ":" + std::to_string(__.port());
     }
 
 private:
     void readHeader() {
         auto self(shared_from_this());
         boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.header(), NetPacket::FixHeaderLength),
-                                [this, self](boost::system::error_code ec, std::size_t /*length*/) {
-            if (!ec && read_msg_.checkHeader()){
+            [this, self](boost::system::error_code ec, std::size_t /*length*/) {
+            if (!ec && read_msg_.checkHeader()) {
                 readPayload();
             }
-            else{
+            else {
                 room_.leave(shared_from_this());
             }
         });
@@ -176,12 +186,12 @@ private:
     void readPayload() {
         auto self(shared_from_this());
         boost::asio::async_read(socket_, boost::asio::buffer(read_msg_.payload(), read_msg_.payloadLength()),
-                                [this, self](boost::system::error_code ec, std::size_t /*length*/) {
-            if (!ec){
+            [this, self](boost::system::error_code ec, std::size_t /*length*/) {
+            if (!ec) {
                 room_.processClientMessagePayload(read_msg_, shared_from_this());
                 readHeader();
             }
-            else{
+            else {
                 room_.leave(shared_from_this());
             }
         });
@@ -193,13 +203,14 @@ private:
     void write() {
         auto self(shared_from_this());
         boost::asio::async_write(socket_, boost::asio::buffer(write_msgs_.front().header(), write_msgs_.front().wholePackLength()),
-                                 [this, self](boost::system::error_code ec, std::size_t /*length*/){
-            if (!ec){
+            [this, self](boost::system::error_code ec, std::size_t /*length*/) {
+            if (!ec) {
                 write_msgs_.pop_front();
-                if (!write_msgs_.empty()){
+                if (!write_msgs_.empty()) {
                     write();
                 }
-            }else{
+            }
+            else {
                 room_.leave(shared_from_this());
             }
         });
@@ -222,16 +233,16 @@ public:
         : acceptor_(io_service, endpoint)
         , socket_(io_service) {
 
-        {
-            BOOST_LOG_TRIVIAL(info) << "Server started: port = " << endpoint.port();
-        }
+            {
+                BOOST_LOG_TRIVIAL(info) << "Server started: port = " << endpoint.port() << " " << (isEchoMode ? "echo" : "broadcast") << " mode";
+            }
 
-        doAccept();
+            doAccept();
     }
 
 private:
-    void doAccept(){
-        acceptor_.async_accept(socket_,[this](boost::system::error_code errorCode){
+    void doAccept() {
+        acceptor_.async_accept(socket_, [this](boost::system::error_code errorCode) {
             if (!errorCode) {
                 std::make_shared<Session>(std::move(socket_), room_)->start();
             }
@@ -247,7 +258,10 @@ private:
 };
 
 
-
+void printUsage() {
+    std::cerr << "Usage: EvcServer <port>\n";
+    std::cerr << "   or: EvcServer <port> <broadcast/echo>\n";
+}
 
 
 int main(int argc, char* argv[]) {
@@ -256,15 +270,26 @@ int main(int argc, char* argv[]) {
 
         // init port
         {
-            if (argc == 2) {
+            if ((argc == 2) || (argc == 3)) {
+                if (!strcmp("broadcast", argv[2])) {
+                    isEchoMode = false;
+                }
+                else if (!strcmp("echo", argv[2])) {
+                    isEchoMode = true;
+                }
+                else {
+                    printUsage();
+                    return -1;
+                }
                 port = std::atoi(argv[1]);
             }
             else {
-                std::cerr << "Usage: EvcServer <port>\n";
+                printUsage();
                 return -1;
             }
         }
 
+        BOOST_LOG_TRIVIAL(trace) << "PORT=" << port;
 
 
         /// init logger
@@ -274,12 +299,12 @@ int main(int argc, char* argv[]) {
 
         boost::asio::io_service io_service;
         Server server(
-                    io_service,
-                    boost::asio::ip::tcp::endpoint(
-                        boost::asio::ip::tcp::v4(),
-                        port
-                        )
-                    );
+            io_service,
+            boost::asio::ip::tcp::endpoint(
+                boost::asio::ip::tcp::v4(),
+                port
+            )
+        );
         io_service.run();
     }
     catch (std::exception& e) {
@@ -288,3 +313,4 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
+
