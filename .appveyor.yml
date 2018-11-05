@@ -25,7 +25,7 @@ after_build:
 - copy Release\client_qt5.exe EasyVoiceCall.win32\EasyVoiceCall.exe
 - C:\Qt\5.11.1\msvc2015\bin\windeployqt.exe EasyVoiceCall.win32\EasyVoiceCall.exe
 - 7z a ..\..\easy-voice-call\EasyVoiceCall.win32.portable.zip EasyVoiceCall.win32
-- "C:\Program Files (x86)\NSIS\Bin\makensis.exe" ..\..\easy-voice-call\scripts\EasyVoiceCall.nsi
+- makensis ..\..\easy-voice-call\scripts\EasyVoiceCall.nsi
 - move EasyVoiceCall.installer.exe ..\..\easy-voice-call\
 
 
