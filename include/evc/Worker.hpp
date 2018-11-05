@@ -3,7 +3,9 @@
 #include <memory>
 #include <thread>
 #include <string>
+#ifdef RINGBUFFER
 #include "evc/RingBuffer.hpp"
+#endif // RINGBUFFER
 #include "evc/AudioVolume.hpp"
 
 class AudioDecoder;
@@ -67,7 +69,9 @@ private:
     SuckAudioVolume sav;
 private:
     std::shared_ptr<std::thread> playbackThread_ = nullptr;
+#ifdef RINGBUFFER
     RingBuffer s2cPcmBuffer_;
+#endif // RINGBUFFER
 public:
     Worker(bool needAec);
     ~Worker();

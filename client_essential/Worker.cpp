@@ -24,7 +24,9 @@ using namespace webrtc;
 
 Worker::Worker(bool needAec)
     :needAec_(needAec)
+#ifdef RINGBUFFER
     , s2cPcmBuffer_(sizeof(short)*160,100)
+#endif
 {
     if (needAec_){
         aec = WebRtcAec_Create();
@@ -95,8 +97,8 @@ bool Worker::initDevice(std::function<void(const std::string &, const std::strin
         vadReporter_ = vadReporter;
 
         /// TODO: LPC
-
-        playbackThread_ = std::make_shared<std::thread>([this](){
+#ifdef RINGBUFFER
+        playbackThread_ = std::make_shared<std::thread>([this]() {
             std::vector<short> pcmLPC(s2cPcmBuffer_.bytePerElement(), 0);
             std::vector<short> tmp(s2cPcmBuffer_.bytePerElement());
 
@@ -133,7 +135,7 @@ bool Worker::initDevice(std::function<void(const std::string &, const std::strin
                 }
             }
         });
-
+#endif // RINGBUFFER
         return true;
     }
     return false;
@@ -186,11 +188,14 @@ void Worker::syncStart(const std::string &host,const std::string &port,
                     }
                 }
 
+#ifdef RINGBUFFER
                 auto bRet = s2cPcmBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1);
                 if (!bRet){
                     //qDebug() << "pushElements failed!";
                 }
-
+#else //RINGBUFFER
+                device_->write(decodedPcm);
+#endif
                 break;
             }
             }

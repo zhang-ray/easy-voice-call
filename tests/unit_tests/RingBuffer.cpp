@@ -14,7 +14,7 @@ int main(void){
                 printf("pop failed\n");
             }
             else {
-                printf("got %d, remain %d element(s)\n" , data, ringBuff.size());
+                printf("got %d, \t remain %d \t element(s)\n" , data, ringBuff.size());
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
