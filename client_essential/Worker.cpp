@@ -4,6 +4,8 @@
 #include "evc/Factory.hpp"
 #include "evc/TcpClient.hpp"
 #include "evc/RingBuffer.hpp"
+#include "evc/Logger.hpp"
+
 #include <mutex> // for std::once_flag
 
 //// TODO
@@ -68,7 +70,7 @@ Worker::~Worker(){
         syncStop();
     }
     catch(std::exception &e){
-        //qDebug() << e.what();
+        BOOST_LOG_TRIVIAL(error) << e.what();
     }
 }
 

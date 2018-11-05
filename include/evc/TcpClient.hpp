@@ -25,7 +25,7 @@
 #include <thread>
 #include <boost/asio.hpp>
 #include "NetPacket.hpp"
-
+#include "Logger.hpp"
 
 using NetPacketQueue = std::deque<NetPacket>;
 
@@ -131,8 +131,8 @@ public:
             pClient->close();
             pThread->join();
         }
-        catch(std::exception &e){
-            //
+        catch (std::exception &e) {
+            BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "]" <<  __FILE__<<":"<<__LINE__ << "] " << e.what();
         }
     }
 

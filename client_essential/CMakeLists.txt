@@ -9,6 +9,7 @@ if(WIN32)
         ../../include/
         "C:/Libraries/boost_1_67_0/"
         )
+	add_definitions(-D_WIN32_WINNT=0x0A00)
 endif(WIN32)
 
 file(GLOB_RECURSE FILES_SOURCES *.cpp *.c)
@@ -28,9 +29,7 @@ endif(WIN32)
 add_library(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} opus celt silk_common silk_fixed silk_float portaudio_static_x86
-        boost_system-vc140-mt-x32-1_67
-    )
+    target_link_libraries(${PROJECT_NAME} opus celt silk_common silk_fixed silk_float portaudio_static_x86)
 else(WIN32)
     if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         target_link_libraries(${PROJECT_NAME} opus pthread
