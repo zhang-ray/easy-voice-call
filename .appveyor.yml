@@ -24,19 +24,20 @@ after_build:
 - mkdir EasyVoiceCall.win32
 - copy Release\client_qt5.exe EasyVoiceCall.win32\EasyVoiceCall.exe
 - C:\Qt\5.11.1\msvc2015\bin\windeployqt.exe EasyVoiceCall.win32\EasyVoiceCall.exe
-- 7z a ..\..\easy-voice-call\EasyVoiceCall.win32.portable.zip EasyVoiceCall.win32
-- makensis ..\..\easy-voice-call\scripts\EasyVoiceCall.nsi
+#- 7z a ..\..\easy-voice-call\EasyVoiceCall.win32.portable.zip EasyVoiceCall.win32
+- copy ..\..\easy-voice-call\scripts\EasyVoiceCall.nsi .
+- makensis EasyVoiceCall.nsi
 - move EasyVoiceCall.installer.exe ..\..\easy-voice-call\
 
 
 artifacts:
-- path: scripts\EasyVoiceCall.installer.exe
+- path: EasyVoiceCall.installer.exe
 
 deploy:
   provider: GitHub
   auth_token:
     secure: PiQDTyaNV3HdYRawTlwyD/bsMbpBg2Kx+/BEUEz9qOasvZlDBmxj3tFB0bNYwXIc
-  artifact: scripts\EasyVoiceCall.installer.exe
+  artifact: EasyVoiceCall.installer.exe
   draft: false
   prerelease: false
   on:
