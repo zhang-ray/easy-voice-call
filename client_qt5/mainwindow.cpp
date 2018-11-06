@@ -13,6 +13,9 @@
 #include <memory>
 #include <QKeyEvent>
 #include <QDesktopServices>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <fstream>
 #include "git_info.hpp"
 
 QEvent::Type AudioVolumeEvent::sType = (QEvent::Type)QEvent::registerEventType();
@@ -33,17 +36,21 @@ MainWindow::MainWindow(QWidget *parent)
     // load setting
     try {
         QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
-        QFile file(dir.filePath(confFileName_));
-        if (file.open(QIODevice::ReadWrite)) {
-            char buf[1024];
-            qint64 lineLength = -1;
-            lineLength = file.readLine(buf, sizeof(buf));
-            if (lineLength != -1) {
-                // the line is available in buf
-                if (buf[lineLength - 1] == '\n') {
-                    buf[lineLength - 1] = 0;
+        QFile file(dir.filePath(configFileBaseName_));
+        if (file.open(QIODevice::ReadOnly)) {
+            boost::property_tree::ptree root;
+            boost::property_tree::read_json(file.fileName().toStdString(), root);
+            ui->lineEdit_serverHost->setText(root.get<std::string>("server.host").c_str());
+            ui->lineEdit_serverPort->setText(root.get<std::string>("server.port").c_str());
+            auto audioInMock = root.get<std::string>("audio.fakeInPcmFilePath");
+            if (audioInMock.length() > 0) {
+                std::ifstream ifs(audioInMock.c_str(), std::ios::binary | std::ios::ate);
+                if (ifs.is_open()) {
+                    auto theSize = ifs.tellg();
+                    fakeAudioIn_.resize(theSize / sizeof(int16_t));
+                    ifs.seekg(0, std::ios::beg);
+                    ifs.read((char *)(fakeAudioIn_.data()), theSize);
                 }
-                ui->lineEdit_serverHost->setText(buf);
             }
         }
     }
@@ -175,11 +182,19 @@ MainWindow::~MainWindow()
             dir.mkdir(qStringFolder);
         }
 
-        QFile file(dir.filePath(confFileName_));
+        QFile file(dir.filePath(configFileBaseName_));
         if (file.open(QIODevice::ReadWrite)) {
-            file.write(ui->lineEdit_serverHost->text().toStdString().c_str());
-            file.write("\n");
-            file.close();
+            boost::property_tree::ptree root;
+            try {
+                boost::property_tree::read_json(file.fileName().toStdString(), root);
+            }
+            catch (std::exception &e) {
+                /// maybe load fail
+                BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
+            }
+            root.put("server.host", ui->lineEdit_serverHost->text().toStdString().c_str());
+            root.put("server.port", ui->lineEdit_serverPort->text().toStdString().c_str());
+            boost::property_tree::write_json(file.fileName().toStdString(), root);
         }
     }
     catch (std::exception &e){
@@ -311,12 +326,13 @@ void MainWindow::gotoWork(){
                     ui->lineEdit_serverPort->text().trimmed()
                     );
         worker_->asyncStart(
-                    ui->lineEdit_serverHost->text().toStdString(),
-                    ui->lineEdit_serverPort->text().toStdString(),
-                    [this](
-                    const NetworkState newState,
-                    const std::string extraMessage
-                    )
+            ui->lineEdit_serverHost->text().toStdString(),
+            ui->lineEdit_serverPort->text().toStdString(),
+            fakeAudioIn_,
+            [this](
+                const NetworkState newState,
+                const std::string extraMessage
+                )
         {
             showMessage(extraMessage);
             onNetworkChanged(newState);

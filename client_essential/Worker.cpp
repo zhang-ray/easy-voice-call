@@ -143,14 +143,17 @@ bool Worker::initDevice(std::function<void(const std::string &, const std::strin
     return false;
 }
 
-void Worker::asyncStart(const std::string &host,const std::string &port, std::function<void (const NetworkState &, const std::string &)> toggleState){
-    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, host, port, toggleState));
+void Worker::asyncStart(const std::string &host, const std::string &port,
+    const std::vector<int16_t> fakeAudioIn,
+    std::function<void(const NetworkState &, const std::string &)> toggleState) {
+    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, host, port, fakeAudioIn, toggleState));
 }
 
 
-void Worker::syncStart(const std::string &host,const std::string &port,
-                       std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
-                       ){
+void Worker::syncStart(const std::string &host, const std::string &port,
+    const std::vector<int16_t> fakeAudioIn,
+    std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
+) {
 
     try{
         gotoStop_ = false;
@@ -240,7 +243,8 @@ void Worker::syncStart(const std::string &host,const std::string &port,
         }
 
         toggleState(NetworkState::Connected, "");
-
+        
+        auto fakeAudioInOffset = 0u;
         // sending work
         for (;!gotoStop_;){
             std::vector<short> denoisedBuffer(blockSize);
@@ -254,9 +258,19 @@ void Worker::syncStart(const std::string &host,const std::string &port,
             if (!mute_){
                 {
                     std::vector<short> micBuffer(blockSize);
-                    auto ret = device_->read(micBuffer);
-                    if (!ret){
-                        break;
+
+                    if (fakeAudioIn.size() > 0) {
+                        if (fakeAudioInOffset + blockSize > fakeAudioIn.size()) {
+                            fakeAudioInOffset = 0;
+                        }
+                        std::memcpy(micBuffer.data(), &(fakeAudioIn[fakeAudioInOffset]), blockSize * sizeof(int16_t));
+                        fakeAudioInOffset += blockSize;
+                    }
+                    else {
+                        auto ret = device_->read(micBuffer);
+                        if (!ret) {
+                            break;
+                        }
                     }
                     auto temp = (short*)micBuffer.data();
                     auto outTemp = denoisedBuffer.data();

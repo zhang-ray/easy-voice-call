@@ -84,8 +84,9 @@ private:
     QPixmap vertical_bar_full;
     QPixmap vertical_bar_half_full;
     QLabel* label_img_[2][AudioIoVolume::MAX_VOLUME_LEVEL];
-    QString confFileName_ = "evc.config.txt";
+    QString configFileBaseName_ = "config.json";
     bool advancedMode_ = true;
+    std::vector<int16_t> fakeAudioIn_;
 
     std::thread::id mainThreadId_ = std::this_thread::get_id();
 

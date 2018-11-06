@@ -85,12 +85,14 @@ public:
                     );
 
     void asyncStart(const std::string &host, const std::string &port,
-                      std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
-                      );
+        const std::vector<int16_t> fakeAudioIn,
+        std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
+    );
 
     void syncStart(const std::string &host, const std::string &port,
-                      std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
-                      );
+        const std::vector<int16_t> fakeAudioIn,
+        std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
+    );
 
 
     ///// TODO: blocked when server down?
