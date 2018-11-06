@@ -19,5 +19,3 @@ add_subdirectory(client_essential)
 add_subdirectory(client_qt5)
 
 add_subdirectory(server)
-
-add_subdirectory(tests/unit_tests)

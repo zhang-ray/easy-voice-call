@@ -13,6 +13,10 @@ else(WIN32)
     endif()
 endif(WIN32)
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    # macOS
+	add_definitions(-DBOOST_LOG_DYN_LINK)
+endif()
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -84,19 +88,19 @@ else(WIN32)
     add_executable(${PROJECT_NAME} ${SRCS} ${QRC_FILES})
 endif(WIN32)
 
-target_link_libraries(
-    ${PROJECT_NAME}
-    Qt5::Widgets
-    client_essential
-
-##### TODO don't link vad from client_qt5
-    vad
-    aec
-    ns
-)
-
-
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} Qt5::WinMain)
+    target_link_libraries(${PROJECT_NAME} Qt5::Widgets client_essential vad aec ns Qt5::WinMain)
+else(WIN32)
+	if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+		# macOS
+		link_directories(/usr/local/lib/)
+	    target_link_libraries(${PROJECT_NAME} Qt5::Widgets client_essential vad aec ns
+        boost_system boost_system-mt 
+        boost_log_setup boost_log_setup-mt 
+        boost_log boost_log-mt 
+        boost_filesystem boost_filesystem-mt 
+        boost_thread-mt
+        pthread )
+    endif()
 endif(WIN32)

@@ -12,6 +12,12 @@ if(WIN32)
 	add_definitions(-D_WIN32_WINNT=0x0A00)
 endif(WIN32)
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    # macOS
+	add_definitions(-DBOOST_LOG_DYN_LINK)
+endif()
+
+
 file(GLOB_RECURSE FILES_SOURCES *.cpp *.c)
 file(GLOB_RECURSE FILES_INCLUDE *.hpp *.h ../include/*.hpp ../include/*.h)
 
@@ -40,7 +46,10 @@ else(WIN32)
     else(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         # macOS
         target_link_libraries(${PROJECT_NAME} portaudio opus pthread
-            boost_system
+            boost_system boost_system-mt 
+            boost_log_setup boost_log_setup-mt 
+            boost_log boost_log-mt 
+            boost_thread-mt
             pthread
         )
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
