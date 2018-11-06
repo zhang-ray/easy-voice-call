@@ -16,6 +16,10 @@ add_subdirectory(audio-processing-module)
 
 add_subdirectory(client_essential)
 #add_subdirectory(client_cli) # shorten building time
-add_subdirectory(client_qt5)
+
+# Ubuntu 14.04's Qt is to old...
+if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    add_subdirectory(client_qt5)
+endif()
 
 add_subdirectory(server)

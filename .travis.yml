@@ -14,8 +14,8 @@ deploy:
   provider: releases
   api_key: $GITHUB_OAUTH_TOKEN
   file:
-    - ../EasyVoiceCall.dmg
-    - ../EasyVoiceCall.Server-x86_64.AppImage
+    - ../EasyVoiceCall.Client.macOS.dmg
+    - ../EasyVoiceCall.Server.Linux-x86_64.AppImage
   skip_cleanup: true
   on:
     tags: true

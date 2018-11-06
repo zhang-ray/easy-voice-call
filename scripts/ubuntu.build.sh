@@ -23,9 +23,9 @@ mkdir AppDir
 mkdir AppDir/usr/
 mkdir AppDir/usr/bin/
 cp ../AppRun-x86_64 AppDir/AppRun
-cp ./server AppDir/usr/bin/EasyVoiceCall.Server
-echo -e "[Desktop Entry]\nName=EasyVoiceCall.Server\nExec=EasyVoiceCall.Server\nIcon=EasyVoiceCall.Server\nType=Application\nCategories=AudioVideo;Audio;" > AppDir/EasyVoiceCall.Server.desktop
-convert -size 256x256 xc:transparent AppDir/EasyVoiceCall.Server.png
+cp ./server AppDir/usr/bin/EasyVoiceCall.Server.Linux
+echo -e "[Desktop Entry]\nName=EasyVoiceCall.Server.Linux\nExec=EasyVoiceCall.Server.Linux\nIcon=EasyVoiceCall.Server.Linux\nType=Application\nCategories=AudioVideo;Audio;" > AppDir/EasyVoiceCall.Server.Linux.desktop
+convert -size 256x256 xc:transparent AppDir/EasyVoiceCall.Server.Linux.png
 ../linuxdeploy-x86_64.AppImage --appdir=AppDir
 ../appimagetool-x86_64.AppImage AppDir
-mv EasyVoiceCall.Server-x86_64.AppImage ../../
+mv EasyVoiceCall.Server.Linux-x86_64.AppImage ../../

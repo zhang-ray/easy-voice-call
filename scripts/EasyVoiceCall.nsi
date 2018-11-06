@@ -11,7 +11,7 @@
 Name "EasyVoiceCall"
 
 ; The file to write
-OutFile "EasyVoiceCall.installer.exe"
+OutFile "EasyVoiceCall.Client.Windows.Installer.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\EasyVoiceCall
