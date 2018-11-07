@@ -22,6 +22,7 @@ QEvent::Type AudioVolumeEvent::sType = (QEvent::Type)QEvent::registerEventType()
 QEvent::Type VadEvent::sType = (QEvent::Type)QEvent::registerEventType();
 QEvent::Type NetworkStateEvent::sType = (QEvent::Type)QEvent::registerEventType();
 QEvent::Type ShowTextMessageEvent::sType = (QEvent::Type)QEvent::registerEventType();
+QEvent::Type SetDurationEvent::sType = (QEvent::Type)QEvent::registerEventType();
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -249,7 +250,7 @@ void MainWindow::onNetworkChanged(const NetworkState networkState){
             ui->pushButton_connecting->setEnabled(true);
             ui->pushButton_connecting->setText("Connect!");
             ui->pushButton_connecting->setIcon(QPixmap(":/call_up.png"));
-            //showMessage("");
+            QCoreApplication::postEvent(this, new SetDurationEvent(0));
             break;
         }
         case NetworkState::Connecting:{
@@ -323,6 +324,8 @@ void MainWindow::gotoWork(){
         if (!worker_->initCodec()){
             throw "worker_.initCodec failed";
         }
+
+        worker_->setDurationReporter([this](const uint32_t s) {QCoreApplication::postEvent(this, new SetDurationEvent(s));});
 
         if (!worker_->initDevice(
                     std::bind(&MainWindow::onDeviceNameChanged, this, std::placeholders::_1,std::placeholders::_2),
@@ -411,7 +414,27 @@ bool MainWindow::event(QEvent *event)
         showMessage(myEvent->message_);
         return true;
     }
+    else  if (event->type() == SetDurationEvent::sType) {
+        auto myEvent = static_cast<SetDurationEvent*> (event);
+        if (myEvent->duation_ == 0) {
+            ui->label_duration->setText("");
+        }
+        else {
+            auto _s = myEvent->duation_ % 60;
+            auto _m = (myEvent->duation_ / 60) % 60;
+            auto _h = myEvent->duation_ / 3600;
 
+            auto getter = [](decltype(_s) _value) -> std::string {
+                std::ostringstream sout;
+                sout << std::setfill('0') << std::setw(2) << std::to_string(_value);
+                return sout.str();
+            };
+
+            std::string s = "[" + getter(_h) + ":" + getter(_m) + ":" + getter(_s) + "]";
+            ui->label_duration->setText(s.c_str());
+        }
+        return true;
+    }
 
     return QWidget::event(event);
 }

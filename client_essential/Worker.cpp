@@ -159,7 +159,20 @@ void Worker::syncStart(const std::string &host, const std::string &port,
 
     try{
         gotoStop_ = false;
+        gotoStopTimer_ = false;
         bool isLogin = false;
+
+        
+        if (durationReporter_){
+            //start Timer
+            durationTimer_ = std::make_shared<std::thread>([this]() {
+                for (uint32_t s = 0u;!gotoStopTimer_; s++) {
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    durationReporter_(s);
+                }
+            });
+        }
+
         TcpClient client(
                     host.c_str(),
                     port.c_str(),
@@ -225,6 +238,10 @@ void Worker::syncStart(const std::string &host, const std::string &port,
             }
             if (!isOK) {
                 toggleState(NetworkState::Disconnected, "Could not connect to Server...");
+                if (durationReporter_) {
+                    durationReporter_(0);
+                }
+                stopTimer();
                 return;
             }
         }
@@ -270,6 +287,9 @@ void Worker::syncStart(const std::string &host, const std::string &port,
                         }
                         std::memcpy(micBuffer.data(), &(fakeAudioIn[fakeAudioInOffset]), blockSize * sizeof(int16_t));
                         fakeAudioInOffset += blockSize;
+                        /// TODO , maybe using Callback Function like PortAudio is better...
+                        ///   it's hard to determine sleep_for duration
+                        std::this_thread::sleep_for(std::chrono::milliseconds(10-3));
                     }
                     else {
                         auto ret = device_->read(micBuffer);

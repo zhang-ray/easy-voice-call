@@ -8,6 +8,7 @@
 #include <QEvent>
 #include <QTemporaryDir>
 #include <QFile>
+#include <QTimeLine>
 
 
 namespace Ui {
@@ -50,6 +51,12 @@ public:
     ShowTextMessageEvent(const std::string &m):message_(m), QEvent(sType){}
 };
 
+class SetDurationEvent : public QEvent {
+public:
+    static QEvent::Type sType;
+    uint32_t duation_;
+    SetDurationEvent(const uint32_t d) :duation_(d), QEvent(sType) {}
+};
 
 class MainWindow : public QMainWindow
 {

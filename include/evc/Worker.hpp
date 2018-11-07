@@ -60,9 +60,11 @@ private:
     AudioEncoder * encoder = nullptr;
     AudioDevice *  device_ = nullptr;
     bool gotoStop_ = false;
+    bool gotoStopTimer_ = false;
     std::shared_ptr<std::thread> netThread_ = nullptr;
     std::function<void(const AudioIoVolume)>  volumeReporter_ = nullptr;
     std::function<void(const bool)>  vadReporter_ = nullptr;
+    std::function<void(const uint32_t)> durationReporter_ = nullptr;
     bool needAec_ = false;
 
     uint8_t vadCounter_ = 0; // nbActivated
@@ -71,6 +73,7 @@ private:
     SuckAudioVolume sav;
 private:
     std::shared_ptr<std::thread> playbackThread_ = nullptr;
+    std::shared_ptr<std::thread> durationTimer_ = nullptr;
 #ifdef RINGBUFFER
     RingBuffer s2cPcmBuffer_;
 #endif // RINGBUFFER
@@ -78,6 +81,7 @@ public:
     Worker(bool needAec);
     ~Worker();
 
+    void setDurationReporter(decltype(durationReporter_) __) { durationReporter_ = __; }
     void setMute(bool mute){mute_ = mute;}
     bool initCodec();
     bool initDevice(std::function<void(const std::string &,const std::string &)> reportInfo,
@@ -97,6 +101,15 @@ public:
         std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
     );
 
+    void stopTimer() {
+        gotoStopTimer_ = true;
+        if (durationTimer_) {
+            if (durationTimer_->joinable()) {
+                durationTimer_->join();
+            }
+            durationTimer_ = nullptr;
+        }
+    }
 
     ///// TODO: blocked when server down?
     void syncStop(){
@@ -113,5 +126,7 @@ public:
             }
             playbackThread_=nullptr;
         }
+
+        stopTimer();
     }
 };
