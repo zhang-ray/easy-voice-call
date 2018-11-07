@@ -145,13 +145,15 @@ bool Worker::initDevice(std::function<void(const std::string &, const std::strin
 
 void Worker::asyncStart(const std::string &host, const std::string &port,
     const std::vector<int16_t> fakeAudioIn,
+    std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
     std::function<void(const NetworkState &, const std::string &)> toggleState) {
-    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, host, port, fakeAudioIn, toggleState));
+    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, host, port, fakeAudioIn, dumpMono16le16kHzPcmFile, toggleState));
 }
 
 
 void Worker::syncStart(const std::string &host, const std::string &port,
     const std::vector<int16_t> fakeAudioIn,
+    std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
     std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
 ) {
 
@@ -199,6 +201,9 @@ void Worker::syncStart(const std::string &host, const std::string &port,
                 }
 #else //RINGBUFFER
                 device_->write(decodedPcm);
+                if (dumpMono16le16kHzPcmFile) {
+                    dumpMono16le16kHzPcmFile->write((char*)(decodedPcm.data()), decodedPcm.size() * sizeof(short));
+                }
 #endif
                 break;
             }

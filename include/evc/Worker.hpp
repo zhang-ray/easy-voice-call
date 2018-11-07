@@ -3,6 +3,7 @@
 #include <memory>
 #include <thread>
 #include <string>
+#include <fstream>
 #include "Logger.hpp"
 #ifdef RINGBUFFER
 #include "evc/RingBuffer.hpp"
@@ -86,11 +87,13 @@ public:
 
     void asyncStart(const std::string &host, const std::string &port,
         const std::vector<int16_t> fakeAudioIn,
+        std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
         std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
     );
 
     void syncStart(const std::string &host, const std::string &port,
         const std::vector<int16_t> fakeAudioIn,
+        std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
         std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
     );
 

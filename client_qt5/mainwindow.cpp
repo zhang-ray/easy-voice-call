@@ -42,14 +42,24 @@ MainWindow::MainWindow(QWidget *parent)
             boost::property_tree::read_json(file.fileName().toStdString(), root);
             ui->lineEdit_serverHost->setText(root.get<std::string>("server.host").c_str());
             ui->lineEdit_serverPort->setText(root.get<std::string>("server.port").c_str());
-            auto audioInMock = root.get<std::string>("audio.fakeInPcmFilePath");
-            if (audioInMock.length() > 0) {
-                std::ifstream ifs(audioInMock.c_str(), std::ios::binary | std::ios::ate);
+            auto fakeMicInPcmFilePath = root.get<std::string>("audio.in.fakeMicInPcmFilePath");
+            if (fakeMicInPcmFilePath.length() > 0) {
+                std::ifstream ifs(fakeMicInPcmFilePath.c_str(), std::ios::binary | std::ios::ate);
                 if (ifs.is_open()) {
                     auto theSize = ifs.tellg();
                     fakeAudioIn_.resize(theSize / sizeof(int16_t));
                     ifs.seekg(0, std::ios::beg);
                     ifs.read((char *)(fakeAudioIn_.data()), theSize);
+                }
+            }
+
+            auto dumpMono16le16kHzPcmFileBaseName = root.get<std::string>("audio.out.dumpMono16le16kHzPcmFileBaseName");
+            if (dumpMono16le16kHzPcmFileBaseName.length() > 0) {
+                QFile dumpFile(dir.filePath(dumpMono16le16kHzPcmFileBaseName.c_str()));
+                dumpMono16le16kHzPcmFile_ = std::make_shared<std::ofstream>(dumpFile.fileName().toStdString(), std::ios::binary);
+                if (!dumpMono16le16kHzPcmFile_->is_open()){
+                    BOOST_LOG_TRIVIAL(error) << "could not open " << dumpMono16le16kHzPcmFileBaseName << " for writing";
+                    dumpMono16le16kHzPcmFile_ = nullptr;
                 }
             }
         }
@@ -196,12 +206,16 @@ MainWindow::~MainWindow()
             root.put("server.port", ui->lineEdit_serverPort->text().toStdString().c_str());
             boost::property_tree::write_json(file.fileName().toStdString(), root);
         }
-    }
-    catch (std::exception &e){
-        std::cerr << "Exception: " << e.what() << "\n";
-    }
 
-    BOOST_LOG_TRIVIAL(trace) << __FUNCTION__;
+        if (dumpMono16le16kHzPcmFile_) {
+            if (dumpMono16le16kHzPcmFile_->is_open()) {
+                dumpMono16le16kHzPcmFile_->close();
+            }
+        }
+    }
+    catch (std::exception &e) {
+        BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
+    }
 
     delete ui;
 }
@@ -329,6 +343,7 @@ void MainWindow::gotoWork(){
             ui->lineEdit_serverHost->text().toStdString(),
             ui->lineEdit_serverPort->text().toStdString(),
             fakeAudioIn_,
+            dumpMono16le16kHzPcmFile_,
             [this](
                 const NetworkState newState,
                 const std::string extraMessage
