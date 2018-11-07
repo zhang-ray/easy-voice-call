@@ -41,27 +41,61 @@ MainWindow::MainWindow(QWidget *parent)
         if (file.open(QIODevice::ReadOnly)) {
             boost::property_tree::ptree root;
             boost::property_tree::read_json(file.fileName().toStdString(), root);
-            ui->lineEdit_serverHost->setText(root.get<std::string>("server.host").c_str());
-            ui->lineEdit_serverPort->setText(root.get<std::string>("server.port").c_str());
-            auto fakeMicInPcmFilePath = root.get<std::string>("audio.in.fakeMicInPcmFilePath");
-            if (fakeMicInPcmFilePath.length() > 0) {
-                std::ifstream ifs(fakeMicInPcmFilePath.c_str(), std::ios::binary | std::ios::ate);
-                if (ifs.is_open()) {
-                    auto theSize = ifs.tellg();
-                    fakeAudioIn_.resize(theSize / sizeof(int16_t));
-                    ifs.seekg(0, std::ios::beg);
-                    ifs.read((char *)(fakeAudioIn_.data()), theSize);
-                }
+
+            try {
+                ui->lineEdit_serverHost->setText(root.get<std::string>("server.host").c_str());
+            }
+            catch (std::exception &e) {
+                BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
             }
 
-            auto dumpMono16le16kHzPcmFileBaseName = root.get<std::string>("audio.out.dumpMono16le16kHzPcmFileBaseName");
-            if (dumpMono16le16kHzPcmFileBaseName.length() > 0) {
-                QFile dumpFile(dir.filePath(dumpMono16le16kHzPcmFileBaseName.c_str()));
-                dumpMono16le16kHzPcmFile_ = std::make_shared<std::ofstream>(dumpFile.fileName().toStdString(), std::ios::binary);
-                if (!dumpMono16le16kHzPcmFile_->is_open()){
-                    BOOST_LOG_TRIVIAL(error) << "could not open " << dumpMono16le16kHzPcmFileBaseName << " for writing";
-                    dumpMono16le16kHzPcmFile_ = nullptr;
+            try {
+                ui->lineEdit_serverPort->setText(root.get<std::string>("server.port").c_str());
+            }
+            catch (std::exception &e) {
+                BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
+            }
+
+
+
+            try {
+                auto fakeMicInPcmFilePath = root.get<std::string>("audio.in.fakeMicInPcmFilePath");
+                if (fakeMicInPcmFilePath.length() > 0) {
+                    std::ifstream ifs(fakeMicInPcmFilePath.c_str(), std::ios::binary | std::ios::ate);
+                    if (ifs.is_open()) {
+                        auto theSize = ifs.tellg();
+                        fakeAudioIn_.resize(theSize / sizeof(int16_t));
+                        ifs.seekg(0, std::ios::beg);
+                        ifs.read((char *)(fakeAudioIn_.data()), theSize);
+                        {
+                            BOOST_LOG_TRIVIAL(info) << "fakeMicInPcmFilePath = " << fakeMicInPcmFilePath.c_str();
+                            BOOST_LOG_TRIVIAL(info) << "file size = " << theSize;
+                        }
+                    }
                 }
+            }
+            catch (std::exception &e) {
+                BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
+            }
+
+
+
+            try {
+                auto dumpMono16le16kHzPcmFileBaseName = root.get<std::string>("audio.out.dumpMono16le16kHzPcmFileBaseName");
+                if (dumpMono16le16kHzPcmFileBaseName.length() > 0) {
+                    QFile dumpFile(dir.filePath(dumpMono16le16kHzPcmFileBaseName.c_str()));
+                    dumpMono16le16kHzPcmFile_ = std::make_shared<std::ofstream>(dumpFile.fileName().toStdString(), std::ios::binary);
+                    if (!dumpMono16le16kHzPcmFile_->is_open()) {
+                        BOOST_LOG_TRIVIAL(error) << "could not open " << dumpMono16le16kHzPcmFileBaseName << " for writing";
+                        dumpMono16le16kHzPcmFile_ = nullptr;
+                    }
+                    else {
+                        BOOST_LOG_TRIVIAL(info) << "dumpMono16le16kHzPcmFile = " << dumpFile.fileName().toStdString();
+                    }
+                }
+            }
+            catch (std::exception &e) {
+                BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
             }
         }
     }
