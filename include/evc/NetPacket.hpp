@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "ProcessTime.hpp"
+#include "git_info.hpp"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief The NetPacket class
@@ -60,6 +61,7 @@ public:
 
 private:
     const std::string headMarker_ = "evc ";
+    const std::string version_ = GIT_TAG; // TODO re-format
     std::vector<char> wholePacket_;
     void init(
         const PayloadType payloadType, 
@@ -71,6 +73,7 @@ private:
                     );
 
         memcpy(wholePacket_.data() + 0,       headMarker_.data(), 4);
+        std::memcpy(wholePacket_.data() + 4 * 1, version_.data(), 4);
         std::memcpy(wholePacket_.data() + 4 * 2, &upTime, 4);
         memcpy(wholePacket_.data() + 4*3,     &payloadType,   sizeof(decltype(payloadType)));
         memcpy(wholePacket_.data() + 4*3+2,   &payloadSize,   sizeof(decltype(payloadSize)));
@@ -130,4 +133,25 @@ public:
 
     uint32_t timestamp() const { return *(uint32_t *)(wholePacket_.data() + (4 * 2)); }
 
+
+
+    std::string info() const {
+        std::string ret;
+        ret.append("[version=");
+        ret += wholePacket_[4 + 0];
+        ret += wholePacket_[4 + 1];
+        ret += wholePacket_[4 + 2];
+        ret += wholePacket_[4 + 3];
+        ret.append("] ");
+        ret.append("[type=");
+        ret.append(NetPacket::getDescription(payloadType()));
+        ret.append("] ");
+        ret.append("[wholePackLength(byte)=");
+        ret.append(std::to_string(wholePackLength()));
+        ret.append("] ");
+        ret.append("[timestamp(s)=");
+        ret.append(std::to_string(timestamp() / 1000.0));
+        ret.append("] ");
+        return ret;
+    }
 };

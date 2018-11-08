@@ -143,7 +143,7 @@ public:
     ReturnType send(const NetPacket &msg){
         pClient->write(msg);
 #ifdef _DEBUG
-        BOOST_LOG_TRIVIAL(trace) << "uptime(s)=" << msg.timestamp()/1000.0;
+        LOGV << msg.info();
 #endif // _DEBUG
 
         return 0;

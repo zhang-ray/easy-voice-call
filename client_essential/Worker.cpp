@@ -178,6 +178,10 @@ void Worker::syncStart(const std::string &host, const std::string &port,
                     port.c_str(),
                     [&](TcpClient *_TcpClient, const NetPacket& netPacket){
             // on Received Data
+#ifdef _DEBUG
+            LOGV << netPacket.info();
+#endif // _DEBUG
+
             switch (netPacket.payloadType()){
             case NetPacket::PayloadType::HeartBeatRequest:{
                 _TcpClient->send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));

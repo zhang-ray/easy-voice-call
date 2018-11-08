@@ -8,3 +8,4 @@
 #include <exception>
 
 inline void dumpException(const std::exception &e) { BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what(); }
+#define LOGV BOOST_LOG_TRIVIAL(trace) << __FUNCTION__ << ":\t"
