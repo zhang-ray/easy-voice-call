@@ -30,48 +30,57 @@ if(WIN32)
         "C:/Libraries/boost_1_67_0/"
         )
 	add_definitions(-D_WIN32_WINNT=0x0A00)
-endif(WIN32)
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    # macOS
+    add_definitions(-DEVC_API=EVC_EXPORT)
+    link_directories(
+        "C:/projects/VS2010/Win32/Release/"
+        "C:/projects/build/Release/"
+        "C:/Libraries/boost_1_67_0/lib32-msvc-14.0/"
+        )
+else(WIN32)
 	add_definitions(-DBOOST_LOG_DYN_LINK)
-endif()
+	link_directories(/usr/local/lib/)
+endif(WIN32)
 
 
 file(GLOB_RECURSE FILES_SOURCES *.cpp *.c)
 file(GLOB_RECURSE FILES_INCLUDE *.hpp *.h ../include/*.hpp ../include/*.h)
 
 
-if(WIN32)
-    link_directories(
-        "C:/projects/VS2010/Win32/Release/"
-        "C:/projects/build/Release/"
-        "C:/Libraries/boost_1_67_0/lib32-msvc-14.0/"
-        )
-endif(WIN32)
 
 
+add_library(${PROJECT_NAME} SHARED ${FILES_INCLUDE} ${FILES_SOURCES} )
 
-add_library(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} opus celt silk_common silk_fixed silk_float portaudio_static_x86)
+    target_link_libraries(${PROJECT_NAME}
+		vad aec ns
+		opus celt silk_common silk_fixed silk_float 
+		portaudio_static_x86
+	)
 else(WIN32)
-    if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-        target_link_libraries(${PROJECT_NAME} opus pthread
+	if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+		# macOS
+	    target_link_libraries(${PROJECT_NAME} 
+			vad aec ns
+			boost_system boost_system-mt 
+			boost_log_setup boost_log_setup-mt 
+			boost_log boost_log-mt 
+			boost_thread-mt
+			portaudio opus
+			pthread 
+		)
+    else()
+		# Linux
+        target_link_libraries(${PROJECT_NAME}
+			vad aec ns
+			portaudio opus
+			opus pthread
             boost_system
+			boost_thread
+			boost_log_setup
+			boost_log
             pthread
             asound
         )
-    else(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-        # macOS
-        target_link_libraries(${PROJECT_NAME} portaudio opus pthread
-            boost_system boost_system-mt 
-            boost_log_setup boost_log_setup-mt 
-            boost_log boost_log-mt 
-            boost_thread-mt
-            pthread
-        )
-endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-
+    endif()
 endif(WIN32)

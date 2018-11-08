@@ -12,10 +12,12 @@ project(easy-voice-call)
 #endif(CMAKE_COMPILER_IS_GNUCXX)
 
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 add_subdirectory(audio-processing-module)
 
 add_subdirectory(client_essential)
-#add_subdirectory(client_cli) # shorten building time
+add_subdirectory(client_cli)
 
 # Ubuntu 14.04's Qt is to old...
 if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")

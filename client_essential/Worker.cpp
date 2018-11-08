@@ -74,6 +74,16 @@ Worker::~Worker(){
     }
 }
 
+void Worker::setDurationReporter(decltype(durationReporter_) __)
+{
+    durationReporter_ = __;
+}
+
+void Worker::setMute(bool mute)
+{
+    mute_ = mute;
+}
+
 bool Worker::initCodec(){
     decoder = &(Factory::get().createAudioDecoder());
     encoder = &(Factory::get().createAudioEncoder());
@@ -433,4 +443,34 @@ void Worker::syncStart(const std::string &host, const std::string &port,
     /* ... here is the expensive or blocking operation ... */
     //        emit resultReady(result);
 
+}
+
+void Worker::stopTimer()
+{
+    gotoStopTimer_ = true;
+    if (durationTimer_) {
+        if (durationTimer_->joinable()) {
+            durationTimer_->join();
+        }
+        durationTimer_ = nullptr;
+    }
+}
+
+void Worker::syncStop()
+{
+    gotoStop_ = true;
+    if (netThread_) {
+        if (netThread_->joinable()) {
+            netThread_->join();
+        }
+        netThread_ = nullptr;
+    }
+    if (playbackThread_) {
+        if (playbackThread_->joinable()) {
+            playbackThread_->join();
+        }
+        playbackThread_ = nullptr;
+    }
+
+    stopTimer();
 }

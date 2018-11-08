@@ -4,7 +4,10 @@
 #include <thread>
 #include <string>
 #include <fstream>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include "Logger.hpp"
+#include "Lib.hpp"
 #ifdef RINGBUFFER
 #include "evc/RingBuffer.hpp"
 #endif // RINGBUFFER
@@ -78,55 +81,31 @@ private:
     RingBuffer s2cPcmBuffer_;
 #endif // RINGBUFFER
 public:
-    Worker(bool needAec);
-    ~Worker();
+    EVC_API Worker(bool needAec);
+    EVC_API ~Worker();
 
-    void setDurationReporter(decltype(durationReporter_) __) { durationReporter_ = __; }
-    void setMute(bool mute){mute_ = mute;}
-    bool initCodec();
-    bool initDevice(std::function<void(const std::string &,const std::string &)> reportInfo,
+    EVC_API void setDurationReporter(decltype(durationReporter_) __);
+    EVC_API void setMute(bool mute);
+    EVC_API bool initCodec();
+    EVC_API bool initDevice(std::function<void(const std::string &,const std::string &)> reportInfo,
                     std::function<void(const AudioIoVolume)> reportVolume,
                     std::function<void(const bool)> vadReporter
                     );
 
-    void asyncStart(const std::string &host, const std::string &port,
+    EVC_API void asyncStart(const std::string &host, const std::string &port,
         const std::vector<int16_t> fakeAudioIn,
         std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
         std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
     );
 
-    void syncStart(const std::string &host, const std::string &port,
+    EVC_API void syncStart(const std::string &host, const std::string &port,
         const std::vector<int16_t> fakeAudioIn,
         std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
         std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
     );
 
-    void stopTimer() {
-        gotoStopTimer_ = true;
-        if (durationTimer_) {
-            if (durationTimer_->joinable()) {
-                durationTimer_->join();
-            }
-            durationTimer_ = nullptr;
-        }
-    }
+    EVC_API void stopTimer();
 
     ///// TODO: blocked when server down?
-    void syncStop(){
-        gotoStop_  = true;
-        if (netThread_){
-            if(netThread_->joinable()){
-                netThread_->join();
-            }
-            netThread_ = nullptr;
-        }
-        if (playbackThread_){
-            if (playbackThread_->joinable()){
-                playbackThread_->join();
-            }
-            playbackThread_=nullptr;
-        }
-
-        stopTimer();
-    }
+    EVC_API void syncStop();
 };

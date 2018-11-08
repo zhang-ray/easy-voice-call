@@ -41,7 +41,7 @@ Section "EasyVoiceCall (required)"
   SetOutPath $INSTDIR
   
   ; Put file there
-  File /r EasyVoiceCall.win32\*.*
+  File /r artifacts\*.*
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\EasyVoiceCall "Install_Dir" "$INSTDIR"

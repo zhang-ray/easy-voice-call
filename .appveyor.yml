@@ -20,15 +20,16 @@ build:
   verbosity: quiet
 
 after_build:
-- cd client_qt5
-- mkdir EasyVoiceCall.win32
-- copy Release\client_qt5.exe EasyVoiceCall.win32\EasyVoiceCall.exe
-- C:\Qt\5.11.1\msvc2015\bin\windeployqt.exe EasyVoiceCall.win32\EasyVoiceCall.exe
-- copy ..\..\easy-voice-call\scripts\EasyVoiceCall.nsi .
+- mkdir artifacts
+- copy .\client_essential\Release\client_essential.dll  artifacts\
+- copy .\client_cli\Release\client_cli.exe              artifacts\EasyVoiceCall.Client.Cli.exe
+- copy .\client_qt5\Release\client_qt5.exe              artifacts\EasyVoiceCall.exe
+- copy .\server\Release\server.exe                      artifacts\EasyVoiceCall.Server.Windows.exe
+- C:\Qt\5.11.1\msvc2015\bin\windeployqt.exe             artifacts\EasyVoiceCall.exe
+- copy ..\easy-voice-call\scripts\EasyVoiceCall.nsi .
 - makensis EasyVoiceCall.nsi
-- move EasyVoiceCall.Client.Windows.Installer.exe ..\..\easy-voice-call\
-- cd ..\server\
-- move Release\server.exe ..\..\easy-voice-call\EasyVoiceCall.Server.Windows.exe
+- move EasyVoiceCall.Client.Windows.Installer.exe ..\easy-voice-call\
+- move .\server\Release\server.exe ..\easy-voice-call\EasyVoiceCall.Server.Windows.exe
 
 
 artifacts:
@@ -45,11 +46,3 @@ deploy:
   on:
     branch: master                 # release from master branch only
     appveyor_repo_tag: true        # deploy on tag push only
-
-#image: ubuntu
-#build_script:
-#- ./scripts/ubuntu.build.sh
-
-#test_script:
-#- pwd
-#- ../easy-voice-call-build/tests/unit_tests/Opus

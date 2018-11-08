@@ -13,8 +13,6 @@
 #include <memory>
 #include <QKeyEvent>
 #include <QDesktopServices>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 #include <fstream>
 #include "git_info.hpp"
 
