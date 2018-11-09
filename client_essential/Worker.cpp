@@ -233,6 +233,22 @@ void Worker::syncStart(const std::string &host, const std::string &port,
                     }
                 }
 
+
+                {
+                    /// RUNTIME VERIFICATION
+                    auto currentTS = netPacket.timestamp();
+                    if (currentTS < largestReceivedMediaDataTimestamp_) {
+                        // unexpected data order!!!!
+                        LOGE << "currentTS < largestReceivedMediaDataTimestamp_";
+                        // TODO: AND THEN? THROW?
+                        throw;
+                    }
+                    else {
+                        largestReceivedMediaDataTimestamp_ = currentTS;
+                    }
+                }
+
+
 #ifdef RINGBUFFER
                 auto bRet = s2cPcmBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1);
                 if (!bRet){

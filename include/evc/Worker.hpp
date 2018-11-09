@@ -56,6 +56,16 @@ enum class NetworkState : unsigned char{
 
 class Worker {
 private:
+    /* TODO
+    statistics media data
+      - packet order
+      - arrival time's Evenness 
+      - 
+    */
+    class Statistician {
+
+    };
+private:
     AudioDecoder * decoder = nullptr;
     AudioEncoder * encoder = nullptr;
     AudioDevice *  device_ = nullptr;
@@ -74,6 +84,7 @@ private:
 private:
     std::shared_ptr<std::thread> playbackThread_ = nullptr;
     std::shared_ptr<std::thread> durationTimer_ = nullptr;
+    uint32_t largestReceivedMediaDataTimestamp_ = 0;
 #ifdef RINGBUFFER
     RingBuffer s2cPcmBuffer_;
 #endif // RINGBUFFER
