@@ -13,6 +13,7 @@
 #include "../audio-processing-module/independent_vad/src/webrtc_vad.hpp"
 #include "../audio-processing-module/independent_aec/src/echo_cancellation.h"
 #include "../audio-processing-module/independent_ns/src/noise_suppression_x.hpp"
+#include "evc/NetClientStub_EchoMediaData.hpp"
 
 namespace {
 VadInst* vad;
@@ -183,10 +184,21 @@ void Worker::syncStart(const std::string &host, const std::string &port,
             });
         }
 
-        TcpClient client(
+        //TcpClient 
+        auto needNetworkStub = true;
+        std::shared_ptr<NetClient> pClient = nullptr;
+        
+        if (needNetworkStub) {
+            pClient = std::make_shared<NetClientStub_EchoMediaData>();
+        }
+        else {
+            pClient = std::make_shared<TcpClient>();
+        }
+
+        pClient->init(
                     host.c_str(),
                     port.c_str(),
-                    [&](TcpClient *_TcpClient, const NetPacket& netPacket){
+                    [&](const NetClient & myClient, const NetPacket& netPacket){
             // on Received Data
 #ifdef _DEBUG
             LOGV << netPacket.info();
@@ -194,7 +206,7 @@ void Worker::syncStart(const std::string &host, const std::string &port,
 
             switch (netPacket.payloadType()){
             case NetPacket::PayloadType::HeartBeatRequest:{
-                _TcpClient->send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
+                myClient.send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
                 break;
             }
             case NetPacket::PayloadType::LoginResponse: {
@@ -244,7 +256,7 @@ void Worker::syncStart(const std::string &host, const std::string &port,
             //
             bool isOK = false;
             for (int i = 0; i < 10; i++){
-                if (client.isConnected()){
+                if (pClient->isConnected()){
                     isOK = true;
                     break;
                 }
@@ -264,7 +276,7 @@ void Worker::syncStart(const std::string &host, const std::string &port,
         /// App Login phase
         /// timeout: 300ms
         {
-            client.send(NetPacket(NetPacket::PayloadType::LoginRequest));
+            pClient->send(NetPacket(NetPacket::PayloadType::LoginRequest));
             for (int i = 0; i < 10; i++){
                 if (isLogin){
                     break;
@@ -411,7 +423,7 @@ void Worker::syncStart(const std::string &host, const std::string &port,
                         break;
                     }
 
-                    client.send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
+                    pClient->send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
                 }
             }
 
@@ -422,7 +434,7 @@ void Worker::syncStart(const std::string &host, const std::string &port,
                 auto now = std::chrono::system_clock::now();
                 auto elapsed = now - lastTimeStamp;
                 if (elapsed > std::chrono::seconds(10)){
-                    client.send(NetPacket(NetPacket::PayloadType::HeartBeatRequest));
+                    pClient->send(NetPacket(NetPacket::PayloadType::HeartBeatRequest));
                     lastTimeStamp = std::chrono::system_clock::now();
                 }
             }
@@ -430,7 +442,7 @@ void Worker::syncStart(const std::string &host, const std::string &port,
 
 
         /// App logout
-        client.send(NetPacket(NetPacket::PayloadType::LogoutRequest));
+        pClient->send(NetPacket(NetPacket::PayloadType::LogoutRequest));
 
 
     }

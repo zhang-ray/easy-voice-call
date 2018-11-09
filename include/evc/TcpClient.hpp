@@ -36,7 +36,7 @@ class TcpClient;
 class BoostAsioTcpClient{
     friend class TcpClient;
 private:
-    std::function<void(TcpClient *TcpClient_, const NetPacket&)> onDataReceived_;
+    std::function<void(const NetClient &myClient, const NetPacket&)> onDataReceived_;
     TcpClient *pTcpClient_ = nullptr;
 public:
     BoostAsioTcpClient(
@@ -117,12 +117,17 @@ private:
     std::shared_ptr<std::thread> pThread = nullptr;
     bool isConnected_ = false;
 public:
-    TcpClient(const char *host, const char *ip,
-              decltype(BoostAsioTcpClient::onDataReceived_) onDataReceived_,
-              const std::string &id="") : id_(id){
+    TcpClient() {}
+
+    virtual ReturnType init(
+        const std::string &serverHost,
+        const std::string &serverPort,
+        std::function<void(const NetClient & myClient, const NetPacket & netPacket) > onDataReceived
+    ) override {
         boost::asio::ip::tcp::resolver resolver(io_service);
-        pClient = std::make_shared<BoostAsioTcpClient>(io_service, resolver.resolve({ host, ip }), onDataReceived_, this);
+        pClient = std::make_shared<BoostAsioTcpClient>(io_service, resolver.resolve({ serverHost, serverPort }), onDataReceived, this);
         pThread = std::make_shared<std::thread>([this](){ io_service.run(); });
+        return 0;
     }
 
 
@@ -136,18 +141,19 @@ public:
         }
     }
 
-    bool isConnected() const {return isConnected_;}
+    virtual bool isConnected() const override {return isConnected_;}
 
     std::string id(){return id_;}
 
-    ReturnType send(const NetPacket &msg){
-        pClient->write(msg);
+    ReturnType send(const NetPacket &netPacket) const override {
+        pClient->write(netPacket);
 #ifdef _DEBUG
-        LOGV << msg.info();
+        LOGV << netPacket.info();
 #endif // _DEBUG
 
         return 0;
     }
+
 
 
 };
@@ -205,7 +211,7 @@ void BoostAsioTcpClient::readPayload(){
         ////////////////////////////////
         ////////////////////////////////
         ////////////////////////////////
-        onDataReceived_(pTcpClient_, read_msg_);
+        onDataReceived_(*pTcpClient_, read_msg_);
         readHeader();
     });
 }
