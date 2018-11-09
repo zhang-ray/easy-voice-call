@@ -25,46 +25,6 @@ using namespace webrtc;
 
 //const char *constPort ="80";
 
-Worker::Worker(bool needAec)
-    :needAec_(needAec)
-#ifdef RINGBUFFER
-    , s2cPcmBuffer_(sizeof(short)*160,100)
-#endif
-{
-    if (needAec_){
-        aec = WebRtcAec_Create();
-        if (auto ret = WebRtcAec_Init(aec, sampleRate, sampleRate)){
-            throw "WebRtcAec_Init failed";
-        }
-    }
-
-
-
-    {
-        vad = WebRtcVad_Create();
-        if (WebRtcVad_Init(vad)){
-            std::cerr << "WebRtcVad_Init failed" << std::endl;
-            throw;
-        }
-
-        if (WebRtcVad_set_mode(vad, 3)){
-            std::cerr << "WebRtcVad_set_mode failed" << std::endl;
-            throw;
-        }
-    }
-
-    {
-        ns_ = WebRtcNsx_Create();
-        if (WebRtcNsx_Init(ns_, sampleRate)){
-            throw;
-        }
-
-        if (WebRtcNsx_set_policy(ns_, 3)){
-            throw;
-        }
-    }
-}
-
 
 Worker::~Worker(){
     try{
@@ -73,6 +33,67 @@ Worker::~Worker(){
     catch(std::exception &e){
         BOOST_LOG_TRIVIAL(error) << e.what();
     }
+}
+
+ReturnType Worker::init(
+    const boost::property_tree::ptree &configRoot,
+    std::function<void(const std::string &, const std::string &)> reportInfo,
+    std::function<void(const AudioIoVolume)> reportVolume,
+    std::function<void(const bool)> vadReporter
+) {
+    try {
+        needAec_ = configRoot.get<bool>("needAec");
+
+        if (needAec_) {
+            aec = WebRtcAec_Create();
+            if (auto ret = WebRtcAec_Init(aec, sampleRate, sampleRate)) {
+                throw "WebRtcAec_Init failed";
+            }
+        }
+
+
+
+        {
+            vad = WebRtcVad_Create();
+            if (WebRtcVad_Init(vad)) {
+                std::cerr << "WebRtcVad_Init failed" << std::endl;
+                throw;
+            }
+
+            if (WebRtcVad_set_mode(vad, 3)) {
+                std::cerr << "WebRtcVad_set_mode failed" << std::endl;
+                throw;
+            }
+        }
+
+        {
+            ns_ = WebRtcNsx_Create();
+            if (WebRtcNsx_Init(ns_, sampleRate)) {
+                throw;
+            }
+
+            if (WebRtcNsx_set_policy(ns_, 3)) {
+                throw;
+            }
+        }
+
+
+        if (!initCodec()) {
+            return "initCodec fail";
+        }
+
+
+        if (!initDevice(reportInfo, reportVolume, vadReporter)) {
+            return "initDevice failed";
+        }
+
+    }
+    catch (const std::exception &e) {
+        dumpException(e);
+        return e.what();
+    }
+
+    return 0;
 }
 
 void Worker::setDurationReporter(decltype(durationReporter_) __)

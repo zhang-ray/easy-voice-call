@@ -37,18 +37,17 @@ MainWindow::MainWindow(QWidget *parent)
         QDir dir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
         QFile file(dir.filePath(configFileBaseName_));
         if (file.open(QIODevice::ReadOnly)) {
-            boost::property_tree::ptree root;
-            boost::property_tree::read_json(file.fileName().toStdString(), root);
+            boost::property_tree::read_json(file.fileName().toStdString(), root_);
 
             try {
-                ui->lineEdit_serverHost->setText(root.get<std::string>("server.host").c_str());
+                ui->lineEdit_serverHost->setText(root_.get<std::string>("server.host").c_str());
             }
             catch (std::exception &e) {
                 BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
             }
 
             try {
-                ui->lineEdit_serverPort->setText(root.get<std::string>("server.port").c_str());
+                ui->lineEdit_serverPort->setText(root_.get<std::string>("server.port").c_str());
             }
             catch (std::exception &e) {
                 BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
@@ -57,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
             try {
-                auto fakeMicInPcmFilePath = root.get<std::string>("audio.in.fakeMicInPcmFilePath");
+                auto fakeMicInPcmFilePath = root_.get<std::string>("audio.in.fakeMicInPcmFilePath");
                 if (fakeMicInPcmFilePath.length() > 0) {
                     std::ifstream ifs(fakeMicInPcmFilePath.c_str(), std::ios::binary | std::ios::ate);
                     if (ifs.is_open()) {
@@ -79,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
             try {
-                auto dumpMono16le16kHzPcmFileBaseName = root.get<std::string>("audio.out.dumpMono16le16kHzPcmFileBaseName");
+                auto dumpMono16le16kHzPcmFileBaseName = root_.get<std::string>("audio.out.dumpMono16le16kHzPcmFileBaseName");
                 if (dumpMono16le16kHzPcmFileBaseName.length() > 0) {
                     QFile dumpFile(dir.filePath(dumpMono16le16kHzPcmFileBaseName.c_str()));
                     dumpMono16le16kHzPcmFile_ = std::make_shared<std::ofstream>(dumpFile.fileName().toStdString(), std::ios::binary);
@@ -227,17 +226,16 @@ MainWindow::~MainWindow()
 
         QFile file(dir.filePath(configFileBaseName_));
         if (file.open(QIODevice::ReadWrite)) {
-            boost::property_tree::ptree root;
             try {
-                boost::property_tree::read_json(file.fileName().toStdString(), root);
+                boost::property_tree::read_json(file.fileName().toStdString(), root_);
             }
             catch (std::exception &e) {
                 /// maybe load fail
                 BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
             }
-            root.put("server.host", ui->lineEdit_serverHost->text().toStdString().c_str());
-            root.put("server.port", ui->lineEdit_serverPort->text().toStdString().c_str());
-            boost::property_tree::write_json(file.fileName().toStdString(), root);
+            root_.put("server.host", ui->lineEdit_serverHost->text().toStdString().c_str());
+            root_.put("server.port", ui->lineEdit_serverPort->text().toStdString().c_str());
+            boost::property_tree::write_json(file.fileName().toStdString(), root_);
         }
 
         if (dumpMono16le16kHzPcmFile_) {
@@ -351,21 +349,21 @@ void MainWindow::gotoWork(){
         onNetworkChanged(NetworkState::Connecting);
 
 
-        worker_ = std::make_shared<Worker>(ui->checkBox_needAec->checkState()==Qt::CheckState::Checked);
-
-        if (!worker_->initCodec()){
-            throw "worker_.initCodec failed";
+        worker_ = std::make_shared<Worker>();
+        root_.put("needAec", ui->checkBox_needAec->checkState() == Qt::CheckState::Checked);
+        auto ret = worker_->init(
+            root_,
+            std::bind(&MainWindow::onDeviceNameChanged, this, std::placeholders::_1, std::placeholders::_2),
+            std::bind(&MainWindow::onVolumeChanged, this, std::placeholders::_1),
+            std::bind(&MainWindow::onVad, this, std::placeholders::_1)
+        );
+        if (!ret){
+            LOGE << ret.message();
+            throw ret.message();
         }
 
         worker_->setDurationReporter([this](const uint32_t s) {QCoreApplication::postEvent(this, new SetDurationEvent(s));});
 
-        if (!worker_->initDevice(
-                    std::bind(&MainWindow::onDeviceNameChanged, this, std::placeholders::_1,std::placeholders::_2),
-                    std::bind(&MainWindow::onVolumeChanged, this, std::placeholders::_1),
-                    std::bind(&MainWindow::onVad, this, std::placeholders::_1)
-                    )){
-            throw "worker_.initDevice failed";
-        }
 
 
         ui->lineEdit_serverHost->setText(

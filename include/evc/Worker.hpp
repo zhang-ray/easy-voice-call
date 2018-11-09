@@ -13,6 +13,7 @@
 #endif // RINGBUFFER
 #include "evc/AudioVolume.hpp"
 #include "evc/CallbackStyleAudioEndpoint.hpp"
+#include "ReturnType.hpp"
 
 class AudioDecoder;
 class AudioEncoder;
@@ -54,7 +55,18 @@ enum class NetworkState : unsigned char{
 ///    - display build date and git commit version in GUI and server side
 
 
-class Worker {
+class IWorker {
+public:
+    virtual ~IWorker() {}
+    virtual ReturnType init(
+        const boost::property_tree::ptree &configRoot,
+        std::function<void(const std::string &, const std::string &)> reportInfo,
+        std::function<void(const AudioIoVolume)> reportVolume,
+        std::function<void(const bool)> vadReporter
+    ) = 0;
+};
+
+class Worker : public IWorker {
 private:
     /* TODO
     statistics media data
@@ -85,20 +97,28 @@ private:
     std::shared_ptr<std::thread> playbackThread_ = nullptr;
     std::shared_ptr<std::thread> durationTimer_ = nullptr;
     uint32_t largestReceivedMediaDataTimestamp_ = 0;
+private:
+    bool initCodec();
+    bool initDevice(std::function<void(const std::string &, const std::string &)> reportInfo,
+        std::function<void(const AudioIoVolume)> reportVolume,
+        std::function<void(const bool)> vadReporter
+    );
+    void stopTimer();
+
 #ifdef RINGBUFFER
     RingBuffer s2cPcmBuffer_;
 #endif // RINGBUFFER
 public:
-    EVC_API Worker(bool needAec);
     EVC_API ~Worker();
-
+    EVC_API virtual ReturnType init(
+        const boost::property_tree::ptree &configRoot,
+        std::function<void(const std::string &, const std::string &)> reportInfo,
+        std::function<void(const AudioIoVolume)> reportVolume,
+        std::function<void(const bool)> vadReporter
+    ) override;
+    
     EVC_API void setDurationReporter(decltype(durationReporter_) __);
     EVC_API void setMute(bool mute);
-    EVC_API bool initCodec();
-    EVC_API bool initDevice(std::function<void(const std::string &,const std::string &)> reportInfo,
-                    std::function<void(const AudioIoVolume)> reportVolume,
-                    std::function<void(const bool)> vadReporter
-                    );
 
     EVC_API void asyncStart(const std::string &host, const std::string &port,
         const std::vector<int16_t> fakeAudioIn,
@@ -112,7 +132,6 @@ public:
         std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
     );
 
-    EVC_API void stopTimer();
 
     ///// TODO: blocked when server down?
     EVC_API void syncStop();
