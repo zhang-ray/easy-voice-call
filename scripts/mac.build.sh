@@ -1,13 +1,13 @@
 
-brew install portaudio
-brew install qt
-brew install wget
+brew install portaudio || exit 1 
+brew install qt        || exit 1 
+brew install wget      || exit 1 
 
 # opus-1.1.2, same as Ubuntu 16.04
-wget https://github.com/zhang-ray/opus/releases/download/macOS-v0.0.5/opus.macOS.tar.gz
+wget https://github.com/zhang-ray/opus/releases/download/macOS-v0.0.5/opus.macOS.tar.gz || exit 1 
 tar -zxf opus.macOS.tar.gz
 cd opus
-make install
+make install || exit 1 
 cd ..
 
 
@@ -23,7 +23,7 @@ make -j3 || exit 1
 
 ####### make artifact
 # TODO: try to auto find the macdeployqt path?
-/usr/local/Cellar/qt/5.11.2/bin/macdeployqt client_qt5
+/usr/local/Cellar/qt/5.11.2/bin/macdeployqt client_qt5 || exit 1 
 cd client_qt5
 mkdir Contents/MacOS
 mv client_qt5 Contents/MacOS/EasyVoiceCall
@@ -52,6 +52,6 @@ mv ../../../easy-voice-call-build/client_qt5 EasyVoiceCall.app
 cp Info.plist  EasyVoiceCall.app/Contents/
 cp PkgInfo     EasyVoiceCall.app/Contents/
 cp MyIcon.icns EasyVoiceCall.app/Contents/Resources/
-npm install -g appdmg
-appdmg spec.json EasyVoiceCall.dmg
-mv EasyVoiceCall.dmg ../../../EasyVoiceCall.Client.macOS.dmg
+npm install -g appdmg || exit 1 
+appdmg spec.json EasyVoiceCall.dmg || exit 1 
+mv EasyVoiceCall.dmg ../../../EasyVoiceCall.Client.macOS.dmg || exit 1 

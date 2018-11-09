@@ -1,5 +1,5 @@
-sudo apt-get update
-sudo apt --quiet -y install libopus-dev portaudio19-dev libboost-all-dev qtbase5-dev
+sudo apt-get update || exit 1 
+sudo apt --quiet -y install libopus-dev portaudio19-dev libboost-all-dev qtbase5-dev || exit 1 
 
 mkdir ../easy-voice-call-build
 cd ../easy-voice-call-build
@@ -8,9 +8,9 @@ make -j3 || exit 1
 
 
 ###################### prepare AppImage ###################### 
-wget "https://github.com/AppImage/AppImageKit/releases/download/10/AppRun-x86_64" #  -O AppDir/AppRun 
-wget "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
-wget "https://github.com/AppImage/AppImageKit/releases/download/10/appimagetool-x86_64.AppImage"
+wget "https://github.com/AppImage/AppImageKit/releases/download/10/AppRun-x86_64" || exit 1 
+wget "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage" || exit 1 
+wget "https://github.com/AppImage/AppImageKit/releases/download/10/appimagetool-x86_64.AppImage" || exit 1 
 chmod a+x AppRun-x86_64
 chmod a+x linuxdeploy-x86_64.AppImage
 chmod a+x appimagetool-x86_64.AppImage
@@ -26,6 +26,6 @@ cp ../AppRun-x86_64 AppDir/AppRun
 cp ./server AppDir/usr/bin/EasyVoiceCall.Server.Linux
 echo -e "[Desktop Entry]\nName=EasyVoiceCall.Server.Linux\nExec=EasyVoiceCall.Server.Linux\nIcon=EasyVoiceCall.Server.Linux\nType=Application\nCategories=AudioVideo;Audio;" > AppDir/EasyVoiceCall.Server.Linux.desktop
 convert -size 256x256 xc:transparent AppDir/EasyVoiceCall.Server.Linux.png
-../linuxdeploy-x86_64.AppImage --appdir=AppDir
-../appimagetool-x86_64.AppImage AppDir
+../linuxdeploy-x86_64.AppImage --appdir=AppDir || exit 1 
+../appimagetool-x86_64.AppImage AppDir || exit 1 
 mv EasyVoiceCall.Server.Linux-x86_64.AppImage ../../
