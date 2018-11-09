@@ -12,16 +12,13 @@
 #include "evc/RingBuffer.hpp"
 #endif // RINGBUFFER
 #include "evc/AudioVolume.hpp"
+#include "evc/CallbackStyleAudioEndpoint.hpp"
 
 class AudioDecoder;
 class AudioEncoder;
 class AudioDevice;
 
 
-enum class AudioInOut : uint8_t{
-    In,
-    Out
-};
 
 
 class AudioIoVolume {

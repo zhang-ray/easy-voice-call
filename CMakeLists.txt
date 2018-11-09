@@ -14,14 +14,16 @@ project(easy-voice-call)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_subdirectory(audio-processing-module)
 
-add_subdirectory(client_essential)
-add_subdirectory(client_cli)
-
-# Ubuntu 14.04's Qt is to old...
+# Ubuntu 14.04 is to old...
 if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    add_subdirectory(audio-processing-module)
+    add_subdirectory(client_essential)
+    add_subdirectory(client_cli)
     add_subdirectory(client_qt5)
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+        add_subdirectory(tests/unit_tests)
+    endif()
 endif()
 
 add_subdirectory(server)

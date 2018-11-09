@@ -47,23 +47,19 @@ endif(WIN32)
 
 
 add_executable(PortaudioLoopback PortaudioLoopback.cpp)
+add_executable(CallbackStylePortaudioEndpointLoopback CallbackStylePortaudioEndpointLoopback.cpp)
 if(WIN32)
     target_link_libraries(PortaudioLoopback
         portaudio_static_x86
         boost_system-vc140-mt-x32-1_67
     )
+    target_link_libraries(CallbackStylePortaudioEndpointLoopback
+        portaudio_static_x86
+        boost_system-vc140-mt-x32-1_67
+    )
 else(WIN32)
-    if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-        target_link_libraries(PortaudioLoopback portaudio 
-            boost_system
-            pthread
-        )
-    else(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-        target_link_libraries(PortaudioLoopback portaudio 
-            boost_system
-            pthread
-        )
-    endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    target_link_libraries(PortaudioLoopback portaudio boost_system pthread)
+    target_link_libraries(CallbackStylePortaudioEndpointLoopback portaudio boost_system pthread)
 endif(WIN32)
 
 

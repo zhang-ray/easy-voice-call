@@ -1,17 +1,19 @@
 #pragma once
 
 #include "ReturnType.hpp"
-
+#include "AudioCommon.hpp"
 #include <vector>
 
-/// for mic and speaker
-enum {sampleRate = 16000};
-enum {blockSize = sampleRate/100};
 
 ///
 /// \brief The AudioDevice class
 /// TODO:
 ///    - a mechanism to monitor and avoid overrun and underrun?
+
+//////////////////////////////////////////////////////////////////////////
+/////    DEPRECATED               ////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 class AudioDevice {
 public:
     virtual ReturnType init(std::string &micInfo, std::string &spkInfo) = 0;
