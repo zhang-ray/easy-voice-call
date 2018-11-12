@@ -227,42 +227,7 @@ void Worker::syncStart(const std::string &host, const std::string &port,
                 break;
             }
             case NetPacket::PayloadType::AudioMessage: {
-                std::vector<char> netBuff;
-                netBuff.resize(netPacket.payloadLength());
-                memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
-                std::vector<short> decodedPcm;
-                decoder->decode(netBuff, decodedPcm);
-
-                if (needAec_) {
-                    std::vector<float> floatFarend(decodedPcm.size());
-                    for (auto i=0u;i<decodedPcm.size(); i++){
-                        floatFarend[i] = ((float)decodedPcm[i])/(1<<15);
-                    }
-                    for (int i = 0; i < blockSize; i+=160){
-                        auto ret = WebRtcAec_BufferFarend(aec, &(floatFarend[i]), 160);
-                        if (ret){
-                            throw;
-                        }
-                    }
-                }
-
-
-                {
-                    /// RUNTIME VERIFICATION
-                    auto currentTS = netPacket.timestamp();
-                    if (currentTS < largestReceivedMediaDataTimestamp_) {
-                        // unexpected data order!!!!
-                        LOGE << "currentTS < largestReceivedMediaDataTimestamp_";
-                        // TODO: AND THEN? THROW?
-                        throw;
-                    }
-                    else {
-                        largestReceivedMediaDataTimestamp_ = currentTS;
-                    }
-                }
-
-                //device_->write(decodedPcm);
-                spkBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1);
+                decodeOpusAndAecBufferFarend(netPacket);
                 break;
             }
             }
@@ -450,6 +415,47 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
 
         pClient->send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
     }
+}
+
+void Worker::decodeOpusAndAecBufferFarend(const NetPacket& netPacket){
+    Timer _timer(&(profiler_.decodeOpusAndAecBufferFarend_));
+
+    std::vector<char> netBuff;
+    netBuff.resize(netPacket.payloadLength());
+    memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
+    std::vector<short> decodedPcm;
+    decoder->decode(netBuff, decodedPcm);
+
+    if (needAec_) {
+        std::vector<float> floatFarend(decodedPcm.size());
+        for (auto i = 0u; i < decodedPcm.size(); i++) {
+            floatFarend[i] = ((float)decodedPcm[i]) / (1 << 15);
+        }
+        for (int i = 0; i < blockSize; i += 160) {
+            auto ret = WebRtcAec_BufferFarend(aec, &(floatFarend[i]), 160);
+            if (ret) {
+                throw;
+            }
+        }
+    }
+
+
+    {
+        /// RUNTIME VERIFICATION
+        auto currentTS = netPacket.timestamp();
+        if (currentTS < largestReceivedMediaDataTimestamp_) {
+            // unexpected data order!!!!
+            LOGE << "currentTS < largestReceivedMediaDataTimestamp_";
+            // TODO: AND THEN? THROW?
+            throw;
+        }
+        else {
+            largestReceivedMediaDataTimestamp_ = currentTS;
+        }
+    }
+
+    //device_->write(decodedPcm);
+    spkBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1);
 }
 
 void Worker::sendHeartbeat(){

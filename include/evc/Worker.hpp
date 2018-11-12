@@ -95,6 +95,7 @@ private:
 private:
     bool initCodec();
     void nsAecVolumeVadSend(const short *buffer);
+    void decodeOpusAndAecBufferFarend(const NetPacket& netPacket);
     void sendHeartbeat();
 public:
     EVC_API Worker();

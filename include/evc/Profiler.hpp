@@ -62,14 +62,17 @@ class Profiler {
 public:
     Statistician durationAudioCallback_;
     Statistician nsAecVolumeVadSend_;
+    Statistician decodeOpusAndAecBufferFarend_;
 public:
     Profiler()
         : durationAudioCallback_("durationAudioCallback_")
         , nsAecVolumeVadSend_("nsAecVolumeVadSend")
+        , decodeOpusAndAecBufferFarend_("decodeOpusAndPreAec")
     { }
 
     void dumpOut() {
         LOGI << durationAudioCallback_.calc();
         LOGI << nsAecVolumeVadSend_.calc();
+        LOGI << decodeOpusAndAecBufferFarend_.calc();
     }
 };
