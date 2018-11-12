@@ -355,7 +355,6 @@ void MainWindow::gotoWork(){
         worker_->asyncStart(
             ui->lineEdit_serverHost->text().toStdString(),
             ui->lineEdit_serverPort->text().toStdString(),
-            dumpMono16le16kHzPcmFile_,
             [this](
                 const NetworkState newState,
                 const std::string extraMessage

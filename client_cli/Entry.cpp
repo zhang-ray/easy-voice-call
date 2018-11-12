@@ -22,7 +22,6 @@ int main(int argc, char* argv[]) {
     )) {
         worker.syncStart(
             host, port,
-            nullptr,
             [](
                 const NetworkState newState,
                 const std::string extraMessage

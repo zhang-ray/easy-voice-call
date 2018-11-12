@@ -132,6 +132,7 @@ ReturnType Worker::init(
                 int16_t *outputBuffer,
                 const uint32_t framesPerBuffer
                 ) {
+            Timer timer(&profiler_.durationAudioCallback_);
             if (bypassLocalAudioEndpoing_) {
                 std::memcpy(outputBuffer, inputBuffer, framesPerBuffer * sizeof(int16_t));
             }
@@ -177,26 +178,23 @@ bool Worker::initCodec(){
 }
 
 void Worker::asyncStart(const std::string &host, const std::string &port,
-    std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
     std::function<void(const NetworkState &, const std::string &)> toggleState) {
-    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, host, port, dumpMono16le16kHzPcmFile, toggleState));
+    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, host, port, toggleState));
 }
 
 
 void Worker::syncStart(const std::string &host, const std::string &port,
-    std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
     std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
 ) {
 
     try{
         gotoStop_ = false;
-        gotoStopTimer_ = false;
         bool isLogin = false;
                 
         if (durationReporter_){
             //start Timer
             durationTimer_ = std::make_shared<std::thread>([this]() {
-                for (uint32_t s = 0u;!gotoStopTimer_; s++) {
+                for (uint32_t s = 0u;!gotoStop_; s++) {
                     std::this_thread::sleep_for(std::chrono::seconds(1));
                     durationReporter_(s);
                 }
@@ -265,9 +263,6 @@ void Worker::syncStart(const std::string &host, const std::string &port,
 
                 //device_->write(decodedPcm);
                 spkBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1);
-                if (dumpMono16le16kHzPcmFile) {
-                    dumpMono16le16kHzPcmFile->write((char*)(decodedPcm.data()), decodedPcm.size() * sizeof(short));
-                }
                 break;
             }
             }
@@ -291,7 +286,6 @@ void Worker::syncStart(const std::string &host, const std::string &port,
                 if (durationReporter_) {
                     durationReporter_(0);
                 }
-                stopTimer();
                 return;
             }
         }
@@ -339,18 +333,6 @@ void Worker::syncStart(const std::string &host, const std::string &port,
 
     /* ... here is the expensive or blocking operation ... */
     //        emit resultReady(result);
-
-}
-
-void Worker::stopTimer()
-{
-    gotoStopTimer_ = true;
-    if (durationTimer_) {
-        if (durationTimer_->joinable()) {
-            durationTimer_->join();
-        }
-        durationTimer_ = nullptr;
-    }
 }
 
 void Worker::nsAecVolumeVadSend(const short *buffer){
@@ -359,7 +341,7 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
         return; 
     }
 
-    Timer _timer(&(profiler_.__1));
+    Timer _timer(&(profiler_.nsAecVolumeVadSend_));
 
     std::vector<short> denoisedBuffer(blockSize);
     std::vector<short> tobeSend(blockSize);
@@ -496,6 +478,12 @@ void Worker::syncStop()
     }
 
 
+    if (durationTimer_) {
+        if (durationTimer_->joinable()) {
+            durationTimer_->join();
+        }
+        durationTimer_ = nullptr;
+    }
 
-    stopTimer();
+    profiler_.dumpOut();
 }

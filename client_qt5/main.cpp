@@ -56,7 +56,8 @@ int main(int argc, char *argv[]) {
 
     w.show();
 
-    //// TODO: how to guarantee flush successfully in any case?
+    auto ret = a.exec();
+    LOGI << "bye";
     myFileSink->flush();
-    return a.exec();
+    return ret;
 }
