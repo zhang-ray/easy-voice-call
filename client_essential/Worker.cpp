@@ -24,7 +24,7 @@ decltype(WebRtcNsx_Create()) ns_ = nullptr;
 using namespace webrtc;
 
 Worker::Worker()
-    :spkBuffer_(blockSize*sizeof(int16_t), 10)
+    :spkBuffer_(blockSize*sizeof(int16_t), 100)
 {
 
 }
@@ -138,7 +138,9 @@ ReturnType Worker::init(
             }
             else {
                 nsAecVolumeVadSend(inputBuffer);
-                spkBuffer_.popElements((uint8_t*)outputBuffer, 1);
+                if (!spkBuffer_.popElements((uint8_t*)outputBuffer, 1)) {
+                    LOGD << " could not popElements from spkBuffer_";
+                }
             }
             //sav.calculate()
         });
@@ -455,7 +457,9 @@ void Worker::decodeOpusAndAecBufferFarend(const NetPacket& netPacket){
     }
 
     //device_->write(decodedPcm);
-    spkBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1);
+    if (!spkBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1)) {
+        LOGD << " could not pushElements from spkBuffer_";
+    }
 }
 
 void Worker::sendHeartbeat(){
