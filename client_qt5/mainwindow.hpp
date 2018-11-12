@@ -95,7 +95,6 @@ private:
     QLabel* label_img_[2][AudioIoVolume::MAX_VOLUME_LEVEL];
     QString configFileBaseName_ = "config.json";
     bool advancedMode_ = true;
-    std::vector<int16_t> fakeAudioIn_;
 
     std::thread::id mainThreadId_ = std::this_thread::get_id();
 

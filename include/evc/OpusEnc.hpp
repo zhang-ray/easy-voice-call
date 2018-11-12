@@ -1,7 +1,6 @@
 #pragma once 
 
 #include "AudioEncoder.hpp"
-#include "AudioDevice.hpp"
 #include "Singleton.hpp"
 #include <cstring>
 #include <set>

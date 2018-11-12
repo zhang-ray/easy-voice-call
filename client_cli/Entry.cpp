@@ -11,7 +11,6 @@
 int main(int argc, char* argv[]) {
     std::string host = "127.0.0.1";
     std::string port = "1222";
-    std::vector<int16_t> fakeAudioIn;
     Worker worker;
 
     boost::property_tree::ptree root;
@@ -23,7 +22,6 @@ int main(int argc, char* argv[]) {
     )) {
         worker.syncStart(
             host, port,
-            fakeAudioIn,
             nullptr,
             [](
                 const NetworkState newState,

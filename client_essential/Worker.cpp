@@ -23,8 +23,11 @@ decltype(WebRtcNsx_Create()) ns_ = nullptr;
 
 using namespace webrtc;
 
-//const char *constPort ="80";
+Worker::Worker()
+    :spkBuffer_(blockSize*sizeof(int16_t), 10)
+{
 
+}
 
 Worker::~Worker(){
     try{
@@ -43,16 +46,32 @@ ReturnType Worker::init(
 ) {
     try {
         needAec_ = configRoot.get<bool>("needAec");
-
         if (needAec_) {
             aec = WebRtcAec_Create();
             if (auto ret = WebRtcAec_Init(aec, sampleRate, sampleRate)) {
                 throw "WebRtcAec_Init failed";
             }
         }
+    }
+    catch (const std::exception &e) {
+        dumpException(e);
+    }
 
+    try {
+        needNetworkStub_ = configRoot.get<bool>("needNetworkStub");
+    }
+    catch (const std::exception &e) {
+        dumpException(e);
+    }
 
+    try {
+        bypassLocalAudioEndpoing_ = configRoot.get<bool>("bypassLocalAudioEndpoing");
+    }
+    catch (const std::exception &e) {
+        dumpException(e);
+    }
 
+    try{
         {
             vad = WebRtcVad_Create();
             if (WebRtcVad_Init(vad)) {
@@ -77,14 +96,53 @@ ReturnType Worker::init(
             }
         }
 
-
+        
         if (!initCodec()) {
             return "initCodec fail";
         }
 
+        std::shared_ptr<std::vector<int16_t>> stubMic = nullptr;
+        try {
+            auto fakeMicInPcmFilePath = configRoot.get<std::string>("audio.in.fakeMicInPcmFilePath");
+            if (fakeMicInPcmFilePath.length() > 0) {
+                std::ifstream ifs(fakeMicInPcmFilePath.c_str(), std::ios::binary | std::ios::ate);
+                if (ifs.is_open()) {
+                    auto theSize = ifs.tellg();
+                    stubMic = std::make_shared<std::vector<int16_t>>();
+                    stubMic->resize(theSize / sizeof(int16_t));
+                    ifs.seekg(0, std::ios::beg);
+                    ifs.read((char *)(stubMic->data()), theSize);
+                    {
+                        BOOST_LOG_TRIVIAL(info) << "fakeMicInPcmFilePath = " << fakeMicInPcmFilePath.c_str();
+                        BOOST_LOG_TRIVIAL(info) << "file size = " << theSize;
+                    }
+                }
+            }
+        }
+        catch (const std::exception &e) {
+            dumpException(e);
+        }
 
-        if (!initDevice(reportInfo, reportVolume, vadReporter)) {
-            return "initDevice failed";
+
+        endpoint_ = &Factory::get().createCallbackStyleAudioEndpoint();
+        auto ret = endpoint_->init(
+            stubMic,
+            [this](
+                const int16_t *inputBuffer,
+                int16_t *outputBuffer,
+                const uint32_t framesPerBuffer
+                ) {
+            if (bypassLocalAudioEndpoing_) {
+                std::memcpy(outputBuffer, inputBuffer, framesPerBuffer * sizeof(int16_t));
+            }
+            else {
+                nsAecVolumeVadSend(inputBuffer);
+                spkBuffer_.popElements((uint8_t*)outputBuffer, 1);
+            }
+            //sav.calculate()
+        });
+        if (!ret) {
+            return ret;
         }
 
     }
@@ -118,73 +176,14 @@ bool Worker::initCodec(){
     return false;
 }
 
-bool Worker::initDevice(std::function<void(const std::string &, const std::string &)> reportInfo,
-                        std::function<void(const AudioIoVolume)> reportVolume,
-                        std::function<void(const bool)> vadReporter){
-    device_ = &(Factory::get().create());
-
-    std::string micInfo;
-    std::string spkInfo;
-    if (device_->init(micInfo, spkInfo)){
-        reportInfo(micInfo, spkInfo);
-        volumeReporter_ = reportVolume;
-        vadReporter_ = vadReporter;
-
-        /// TODO: LPC
-#ifdef RINGBUFFER
-        playbackThread_ = std::make_shared<std::thread>([this]() {
-            std::vector<short> pcmLPC(s2cPcmBuffer_.bytePerElement(), 0);
-            std::vector<short> tmp(s2cPcmBuffer_.bytePerElement());
-
-            for (;!gotoStop_;){
-                auto pcm = &pcmLPC;
-                if (s2cPcmBuffer_.popElements((uint8_t*)tmp.data(), 1)){
-                    pcm = &tmp;
-                }
-
-                device_->write(*pcm);
-
-                if (volumeReporter_){
-                    auto currentLevel = sav.calculate(*pcm, AudioIoVolume::MAX_VOLUME_LEVEL);
-                    static auto recentMaxLevel = currentLevel;
-
-                    static auto lastTimeStamp = std::chrono::system_clock::now();
-                    auto now = std::chrono::system_clock::now();
-                    auto elapsed = now - lastTimeStamp;
-
-                    // hold on 1s
-                    if (elapsed > std::chrono::seconds(1)){
-                        recentMaxLevel=0;
-                        lastTimeStamp = std::chrono::system_clock::now();
-                    }
-
-
-                    if (currentLevel>recentMaxLevel){
-                        recentMaxLevel=currentLevel;
-                        // re calculate hold-on time
-                        lastTimeStamp = std::chrono::system_clock::now();
-                    }
-
-                    volumeReporter_({AudioInOut::Out, currentLevel, recentMaxLevel});
-                }
-            }
-        });
-#endif // RINGBUFFER
-        return true;
-    }
-    return false;
-}
-
 void Worker::asyncStart(const std::string &host, const std::string &port,
-    const std::vector<int16_t> fakeAudioIn,
     std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
     std::function<void(const NetworkState &, const std::string &)> toggleState) {
-    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, host, port, fakeAudioIn, dumpMono16le16kHzPcmFile, toggleState));
+    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, host, port, dumpMono16le16kHzPcmFile, toggleState));
 }
 
 
 void Worker::syncStart(const std::string &host, const std::string &port,
-    const std::vector<int16_t> fakeAudioIn,
     std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
     std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
 ) {
@@ -193,8 +192,7 @@ void Worker::syncStart(const std::string &host, const std::string &port,
         gotoStop_ = false;
         gotoStopTimer_ = false;
         bool isLogin = false;
-
-        
+                
         if (durationReporter_){
             //start Timer
             durationTimer_ = std::make_shared<std::thread>([this]() {
@@ -204,12 +202,8 @@ void Worker::syncStart(const std::string &host, const std::string &port,
                 }
             });
         }
-
-        //TcpClient 
-        auto needNetworkStub = true;
-        std::shared_ptr<NetClient> pClient = nullptr;
         
-        if (needNetworkStub) {
+        if (needNetworkStub_) {
             pClient = std::make_shared<NetClientStub_EchoMediaData>();
         }
         else {
@@ -269,18 +263,11 @@ void Worker::syncStart(const std::string &host, const std::string &port,
                     }
                 }
 
-
-#ifdef RINGBUFFER
-                auto bRet = s2cPcmBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1);
-                if (!bRet){
-
-                }
-#else //RINGBUFFER
-                device_->write(decodedPcm);
+                //device_->write(decodedPcm);
+                spkBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1);
                 if (dumpMono16le16kHzPcmFile) {
                     dumpMono16le16kHzPcmFile->write((char*)(decodedPcm.data()), decodedPcm.size() * sizeof(short));
                 }
-#endif
                 break;
             }
             }
@@ -328,153 +315,14 @@ void Worker::syncStart(const std::string &host, const std::string &port,
         }
 
         toggleState(NetworkState::Connected, "");
-        
-        auto fakeAudioInOffset = 0u;
+
+        endpoint_->asyncStart();
+
         // sending work
         for (;!gotoStop_;){
-            std::vector<short> denoisedBuffer(blockSize);
-            std::vector<short> tobeSend(blockSize);
-            std::vector<float> out(blockSize);
-
-
-            /// TODO:
-            /// in practice, device_->read would be unblock in first several blocks
-            /// so let's clear microphone's buffer on first time???
-            if (!mute_){
-                {
-                    std::vector<short> micBuffer(blockSize);
-
-                    if (fakeAudioIn.size() > 0) {
-                        if (fakeAudioInOffset + blockSize > fakeAudioIn.size()) {
-                            fakeAudioInOffset = 0;
-                        }
-                        std::memcpy(micBuffer.data(), &(fakeAudioIn[fakeAudioInOffset]), blockSize * sizeof(int16_t));
-                        fakeAudioInOffset += blockSize;
-                        /// TODO , maybe using Callback Function like PortAudio is better...
-                        ///   it's hard to determine sleep_for duration
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10-3));
-                    }
-                    else {
-                        auto ret = device_->read(micBuffer);
-                        if (!ret) {
-                            break;
-                        }
-                    }
-                    auto temp = (short*)micBuffer.data();
-                    auto outTemp = denoisedBuffer.data();
-                    WebRtcNsx_Process(ns_, &temp, 1, &outTemp);
-                }
-
-
-
-                if (needAec_){
-                    std::vector<float> floatNearend(blockSize);
-                    for (int i=0;i<blockSize; i++){
-                        floatNearend[i] = (float)denoisedBuffer[i]/(1<<15);
-                    }
-                    for (int i = 0; i < blockSize; i+=160){
-                        auto temp = &(floatNearend[i]);
-                        auto temp2 = &(out[i]);
-
-                        auto ret =
-                                WebRtcAec_Process(aec,
-                                                  &temp,
-                                                  sampleRate / 16000,
-                                                  &temp2,
-                                                  blockSize,
-                                                  blockSize,
-                                                  0 );
-                        if (ret){
-                            throw;
-                        }
-
-                        for (int j = i; j< i+blockSize; j++){
-                            tobeSend[j]=(short)(out[j]*(1<<15));
-                        }
-                    }
-                }
-
-
-
-                if (volumeReporter_){
-                    auto currentLevel = sav.calculate(denoisedBuffer, AudioIoVolume::MAX_VOLUME_LEVEL);
-                    static auto recentMaxLevel = currentLevel;
-
-                    static auto lastTimeStamp = std::chrono::system_clock::now();
-                    auto now = std::chrono::system_clock::now();
-                    auto elapsed = now - lastTimeStamp;
-
-                    // hold on 1s
-                    if (elapsed > std::chrono::seconds(1)){
-                        recentMaxLevel=0;
-                        lastTimeStamp = std::chrono::system_clock::now();
-                    }
-
-
-                    if (currentLevel>recentMaxLevel){
-                        recentMaxLevel=currentLevel;
-                        // re calculate hold-on time
-                        lastTimeStamp = std::chrono::system_clock::now();
-                    }
-
-                    volumeReporter_({AudioInOut::In, currentLevel, recentMaxLevel});
-                }
-
-
-                auto haveVoice = (1==WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate/100));
-                if (vadReporter_){
-                    vadReporter_(haveVoice);
-                }
-
-
-                if (haveVoice){
-                    vadCounter_++;
-                    needSend_=true;
-                }
-
-
-                {
-                    static auto lastTimeStamp = std::chrono::system_clock::now();
-                    auto now = std::chrono::system_clock::now();
-                    auto elapsed = now - lastTimeStamp;
-
-                    if (elapsed > std::chrono::seconds(1)){
-                        if (vadCounter_==0){
-                            /// 100 section per one second
-                            /// in last one second, no voice found
-                            /// so that we predict there's no voice in future
-                            needSend_ = false;
-                        }
-                        lastTimeStamp = std::chrono::system_clock::now();
-
-                        vadCounter_=0;
-                    }
-                }
-
-
-                if (needSend_){
-                    std::vector<char> outData;
-                    auto retEncode = encoder->encode(needAec_? tobeSend: denoisedBuffer, outData);
-                    if (!retEncode){
-                        std::cout << retEncode.message() << std::endl;
-                        break;
-                    }
-
-                    pClient->send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
-                }
-            }
-
-
             // send heartbeat
-            {
-                static auto lastTimeStamp = std::chrono::system_clock::now();
-                auto now = std::chrono::system_clock::now();
-                auto elapsed = now - lastTimeStamp;
-                if (elapsed > std::chrono::seconds(10)){
-                    pClient->send(NetPacket(NetPacket::PayloadType::HeartBeatRequest));
-                    lastTimeStamp = std::chrono::system_clock::now();
-                }
-            }
+            sendHeartbeat();
+            std::this_thread::sleep_for(std::chrono::seconds(3));
         }
 
 
@@ -505,6 +353,133 @@ void Worker::stopTimer()
     }
 }
 
+void Worker::nsAecVolumeVadSend(const short *buffer){
+    if (mute_) {
+        /// nothing to do, just return!
+        return; 
+    }
+
+    Timer _timer(&(profiler_.__1));
+
+    std::vector<short> denoisedBuffer(blockSize);
+    std::vector<short> tobeSend(blockSize);
+    std::vector<float> out(blockSize);
+
+
+    {
+        auto outTemp = denoisedBuffer.data();
+        WebRtcNsx_Process(ns_, &buffer, 1, &outTemp);
+    }
+
+
+
+    if (needAec_) {
+        std::vector<float> floatNearend(blockSize);
+        for (int i = 0; i < blockSize; i++) {
+            floatNearend[i] = (float)denoisedBuffer[i] / (1 << 15);
+        }
+        for (int i = 0; i < blockSize; i += 160) {
+            auto temp = &(floatNearend[i]);
+            auto temp2 = &(out[i]);
+
+            auto ret =
+                WebRtcAec_Process(aec,
+                    &temp,
+                    sampleRate / 16000,
+                    &temp2,
+                    blockSize,
+                    blockSize,
+                    0);
+            if (ret) {
+                throw;
+            }
+
+            for (int j = i; j < i + blockSize; j++) {
+                tobeSend[j] = (short)(out[j] * (1 << 15));
+            }
+        }
+    }
+
+
+
+    if (volumeReporter_) {
+        auto currentLevel = sav.calculate(denoisedBuffer, AudioIoVolume::MAX_VOLUME_LEVEL);
+        static auto recentMaxLevel = currentLevel;
+
+        static auto lastTimeStamp = std::chrono::system_clock::now();
+        auto now = std::chrono::system_clock::now();
+        auto elapsed = now - lastTimeStamp;
+
+        // hold on 1s
+        if (elapsed > std::chrono::seconds(1)) {
+            recentMaxLevel = 0;
+            lastTimeStamp = std::chrono::system_clock::now();
+        }
+
+
+        if (currentLevel > recentMaxLevel) {
+            recentMaxLevel = currentLevel;
+            // re calculate hold-on time
+            lastTimeStamp = std::chrono::system_clock::now();
+        }
+
+        volumeReporter_({ AudioInOut::In, currentLevel, recentMaxLevel });
+    }
+
+
+    auto haveVoice = (1 == WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate / 100));
+    if (vadReporter_) {
+        vadReporter_(haveVoice);
+    }
+
+
+    if (haveVoice) {
+        vadCounter_++;
+        needSend_ = true;
+    }
+
+
+    {
+        static auto lastTimeStamp = std::chrono::system_clock::now();
+        auto now = std::chrono::system_clock::now();
+        auto elapsed = now - lastTimeStamp;
+
+        if (elapsed > std::chrono::seconds(1)) {
+            if (vadCounter_ == 0) {
+                /// 100 section per one second
+                /// in last one second, no voice found
+                /// so that we predict there's no voice in future
+                needSend_ = false;
+            }
+            lastTimeStamp = std::chrono::system_clock::now();
+
+            vadCounter_ = 0;
+        }
+    }
+
+    if (needSend_) {
+        std::vector<char> outData;
+        auto retEncode = encoder->encode(needAec_ ? tobeSend : denoisedBuffer, outData);
+        if (!retEncode) {
+            std::cout << retEncode.message() << std::endl;
+            //break;
+            throw;
+        }
+
+        pClient->send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
+    }
+}
+
+void Worker::sendHeartbeat(){
+    static auto lastTimeStamp = std::chrono::system_clock::now();
+    auto now = std::chrono::system_clock::now();
+    auto elapsed = now - lastTimeStamp;
+    if (elapsed > std::chrono::seconds(10)) {
+        pClient->send(NetPacket(NetPacket::PayloadType::HeartBeatRequest));
+        lastTimeStamp = std::chrono::system_clock::now();
+    }
+}
+
 void Worker::syncStop()
 {
     gotoStop_ = true;
@@ -514,12 +489,13 @@ void Worker::syncStop()
         }
         netThread_ = nullptr;
     }
-    if (playbackThread_) {
-        if (playbackThread_->joinable()) {
-            playbackThread_->join();
-        }
-        playbackThread_ = nullptr;
+
+    if (endpoint_) {
+        endpoint_->syncStop();
+        endpoint_ = nullptr;
     }
+
+
 
     stopTimer();
 }

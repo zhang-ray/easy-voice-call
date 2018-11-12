@@ -5,7 +5,6 @@
 #include <string>
 
 #include "Singleton.hpp"
-#include "AudioDevice.hpp"
 
 #include <portaudio.h>
 #include <iostream>

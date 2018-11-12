@@ -1,5 +1,4 @@
 #include "evc/RingBuffer.hpp"
-#include "evc/AudioDevice.hpp"
 #include <thread>
 #include <chrono>
 #include <cstdio>

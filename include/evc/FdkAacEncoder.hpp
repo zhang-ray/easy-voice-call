@@ -3,7 +3,6 @@
 #include "AudioEncoder.hpp"
 #include "evc/Singleton.hpp"
 #include <iostream>
-#include "AudioDevice.hpp"
 
 extern "C"{
 #include <fdk-aac/aacenc_lib.h>

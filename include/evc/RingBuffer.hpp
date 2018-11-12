@@ -4,6 +4,10 @@
 #include <vector>
 #include <cstring> // std::memory
 
+//////////////////////////////////////////////////////////////////////////
+// TODO: lock free impl
+//////////////////////////////////////////////////////////////////////////
+
 struct RingBuffer {
 private:
     std::size_t posStart_ = 0;
@@ -63,6 +67,7 @@ public:
     bool pushElements(uint8_t *data, std::size_t nbElement){
         std::lock_guard<std::mutex> guard(mutex_);
 
+        /// TODO, erase tail element
         if (isFull()) {
             return false;
         }

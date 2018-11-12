@@ -1,14 +1,14 @@
 #pragma once
 
 #include "Singleton.hpp"
-#include "AudioDevice.hpp"
 #include "AudioDecoder.hpp"
 #include "AudioEncoder.hpp"
+#include "CallbackStyleAudioEndpoint.hpp"
 
 // TODO: naming misleading
 class Factory : public Singleton<Factory> {
 public:
-    AudioDevice &create();
+    CallbackStyleAudioEndpoint &createCallbackStyleAudioEndpoint();
     AudioEncoder &createAudioEncoder();
     AudioDecoder &createAudioDecoder();
 

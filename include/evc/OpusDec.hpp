@@ -4,13 +4,13 @@
 #include "Singleton.hpp"
 #include <vector>
 #include <cstring>
-#include "AudioDevice.hpp"
 
 #ifdef WIN32
 #include <opus.h>
 #else
 #include <opus/opus.h>
 #endif
+#include "AudioCommon.hpp"
 
 // libopus 1.2.1
 class OpusDec final : public AudioDecoder,public Singleton<OpusDec>{

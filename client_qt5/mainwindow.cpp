@@ -55,26 +55,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-            try {
-                auto fakeMicInPcmFilePath = root_.get<std::string>("audio.in.fakeMicInPcmFilePath");
-                if (fakeMicInPcmFilePath.length() > 0) {
-                    std::ifstream ifs(fakeMicInPcmFilePath.c_str(), std::ios::binary | std::ios::ate);
-                    if (ifs.is_open()) {
-                        auto theSize = ifs.tellg();
-                        fakeAudioIn_.resize(theSize / sizeof(int16_t));
-                        ifs.seekg(0, std::ios::beg);
-                        ifs.read((char *)(fakeAudioIn_.data()), theSize);
-                        {
-                            BOOST_LOG_TRIVIAL(info) << "fakeMicInPcmFilePath = " << fakeMicInPcmFilePath.c_str();
-                            BOOST_LOG_TRIVIAL(info) << "file size = " << theSize;
-                        }
-                    }
-                }
-            }
-            catch (std::exception &e) {
-                BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
-            }
-
 
 
             try {
@@ -375,7 +355,6 @@ void MainWindow::gotoWork(){
         worker_->asyncStart(
             ui->lineEdit_serverHost->text().toStdString(),
             ui->lineEdit_serverPort->text().toStdString(),
-            fakeAudioIn_,
             dumpMono16le16kHzPcmFile_,
             [this](
                 const NetworkState newState,

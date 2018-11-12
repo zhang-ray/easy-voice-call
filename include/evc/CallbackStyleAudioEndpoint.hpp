@@ -5,6 +5,7 @@
 #include <functional>
 #include "AudioCommon.hpp"
 #include "ReturnType.hpp"
+#include <memory>
 
 //////////////////////////////////////////////////////////////////////////
 ////  callback style AudioEndpoint  //////////////////////////////////////
@@ -13,7 +14,8 @@ class CallbackStyleAudioEndpoint {
 public:
     virtual ~CallbackStyleAudioEndpoint() { }
     virtual ReturnType init(
-        const std::function<void(int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer)> callbackFunc
+        std::shared_ptr<std::vector<int16_t>> stubMic,
+        const std::function<void(const int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer)> callbackFunc
     ) = 0;
     virtual ReturnType asyncStart() = 0;
     virtual ReturnType syncStop() = 0;

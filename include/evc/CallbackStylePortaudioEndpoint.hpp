@@ -4,12 +4,27 @@
 #include "Singleton.hpp"
 
 #include <portaudio.h>
+#include <memory>
+#include <vector>
 
 class CallbackStylePortaudioEndpoint : public CallbackStyleAudioEndpoint, public Singleton<CallbackStylePortaudioEndpoint>{
 private:
     PaStream *stream_ = nullptr;
-    std::function<void(int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer)> callbackFunc_ = nullptr;
+    std::shared_ptr<std::vector<int16_t>> stubMic_ = nullptr;
+    size_t fakeAudioInOffset = 0;
+    std::function<void(const int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer)> callbackFunc_ = nullptr;
     
+    int16_t * getStubMic() {
+        if (stubMic_ == nullptr) { return nullptr; }
+        int16_t *myMicPointer = nullptr;
+        if (fakeAudioInOffset + blockSize > stubMic_->size()) {
+            fakeAudioInOffset = 0;
+        }
+        myMicPointer = stubMic_->data()+fakeAudioInOffset;
+        fakeAudioInOffset += blockSize;
+        return myMicPointer;
+    }
+
     static int sFuncPaStreamCallback(
         const void *input, void *output,
         unsigned long frameCount,
@@ -18,8 +33,10 @@ private:
         void *userData) {
         auto instance = static_cast<CallbackStylePortaudioEndpoint*> (userData);
         if (instance->callbackFunc_) {
+            auto myMicPointer = instance->getStubMic();
+            if (myMicPointer == nullptr)myMicPointer =(decltype(myMicPointer))input;
             instance->callbackFunc_(
-                (int16_t *)input,
+                myMicPointer,
                 (int16_t *)output,
                 (uint32_t)frameCount
             );
@@ -28,7 +45,10 @@ private:
     }
 
 public:
-    virtual ReturnType init(const std::function<void(int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer)> callbackFunc) override {
+    virtual ReturnType init(
+        std::shared_ptr<std::vector<int16_t>> stubMic, 
+        const std::function<void(const int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer)> callbackFunc
+    ) override {
         auto err = Pa_Initialize();
         if (err != paNoError) {
             return Pa_GetErrorText(err);
@@ -37,7 +57,8 @@ public:
         /* Open an audio I/O stream. */
         err = Pa_OpenDefaultStream(
             &stream_,
-            1, 1,
+            1,
+            1,
             paInt16, sampleRate,
             blockSize,
             sFuncPaStreamCallback,
@@ -48,6 +69,7 @@ public:
         }
 
         callbackFunc_ = callbackFunc;
+        stubMic_ = stubMic;
         return 0;
     }
 

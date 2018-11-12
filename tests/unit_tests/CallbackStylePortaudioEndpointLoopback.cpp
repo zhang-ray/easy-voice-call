@@ -15,7 +15,9 @@ int main(int argc, char **argv) {
     try{
         auto device = CallbackStylePortaudioEndpoint::get();
 
-        if (auto ret = device.init([](int16_t * inputBuffer, int16_t * outputBuffer, const uint32_t framesPerBuffer) {
+        if (auto ret = device.init(
+            nullptr,
+            [](const int16_t * inputBuffer, int16_t * outputBuffer, const uint32_t framesPerBuffer) {
             std::memcpy(outputBuffer, inputBuffer, framesPerBuffer * sizeof(int16_t));
         })) {
             auto names = device.getEndpointName();

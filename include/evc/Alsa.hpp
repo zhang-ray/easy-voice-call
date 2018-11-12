@@ -5,7 +5,6 @@
 #include <alsa/asoundlib.h>
 
 #include "Singleton.hpp"
-#include "AudioDevice.hpp"
 
 
 class Alsa : public AudioDevice, public Singleton<Alsa>

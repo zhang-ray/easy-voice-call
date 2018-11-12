@@ -8,16 +8,18 @@
 #include <boost/property_tree/json_parser.hpp>
 #include "Logger.hpp"
 #include "Lib.hpp"
-#ifdef RINGBUFFER
 #include "evc/RingBuffer.hpp"
-#endif // RINGBUFFER
 #include "evc/AudioVolume.hpp"
-#include "evc/CallbackStyleAudioEndpoint.hpp"
+#include "evc/CallbackStylePortaudioEndpoint.hpp"
 #include "ReturnType.hpp"
+#include "NetClient.hpp"
+#include <vector>
+#include <cmath>
+#include <numeric>
 
 class AudioDecoder;
 class AudioEncoder;
-class AudioDevice;
+
 
 
 
@@ -75,12 +77,64 @@ private:
       - 
     */
     class Statistician {
+    private:
+        std::vector<uint32_t> durationList;
+    public:
+        Statistician() {}
+        Statistician(const Statistician&) = delete;
+        
+        void addDurationMs(const uint32_t dur) {
+            durationList.push_back(dur);
+        }
 
+        std::string calc(){
+            const auto &v = durationList;
+            double sum = std::accumulate(v.begin(), v.end(), 0.0);
+            double mean = sum / v.size();
+
+            double sq_sum = std::inner_product(v.begin(), v.end(), v.begin(), 0.0);
+            double stdev = std::sqrt(sq_sum / v.size() - mean * mean);
+
+            return "[" + std::to_string(mean) + "±"  + std::to_string(stdev) + "]";
+        }
+
+        ~Statistician() {
+            LOGI << calc();
+        }
     };
+
+
+    class Timer {
+    private:
+        Statistician *stat_ = nullptr;
+        decltype(std::chrono::system_clock::now()) startPoint_;
+    public:
+        Timer(Statistician *stat)
+            : stat_(stat)
+        {
+            startPoint_ = std::chrono::system_clock::now();
+        }
+
+        ~Timer() {
+            auto dur = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startPoint_).count());
+            if (stat_) {
+                stat_->addDurationMs(dur);
+            }
+        }
+    };
+
+
+    class Profiler {
+    public:
+        Statistician __1;
+        Statistician __2;
+    };
+
+
 private:
+    CallbackStyleAudioEndpoint *endpoint_ = nullptr;
     AudioDecoder * decoder = nullptr;
     AudioEncoder * encoder = nullptr;
-    AudioDevice *  device_ = nullptr;
     bool gotoStop_ = false;
     bool gotoStopTimer_ = false;
     std::shared_ptr<std::thread> netThread_ = nullptr;
@@ -92,23 +146,24 @@ private:
     uint8_t vadCounter_ = 0; // nbActivated
     bool mute_ = false;
     bool needSend_ = true;
+    bool needNetworkStub_ = false;
     SuckAudioVolume sav;
-private:
-    std::shared_ptr<std::thread> playbackThread_ = nullptr;
     std::shared_ptr<std::thread> durationTimer_ = nullptr;
+    std::shared_ptr<NetClient> pClient = nullptr;
     uint32_t largestReceivedMediaDataTimestamp_ = 0;
+    bool bypassLocalAudioEndpoing_ = false;
+    /*
+    RingBuffer micBuffer_;
+    */
+    RingBuffer spkBuffer_;
+    Profiler profiler_;
 private:
     bool initCodec();
-    bool initDevice(std::function<void(const std::string &, const std::string &)> reportInfo,
-        std::function<void(const AudioIoVolume)> reportVolume,
-        std::function<void(const bool)> vadReporter
-    );
     void stopTimer();
-
-#ifdef RINGBUFFER
-    RingBuffer s2cPcmBuffer_;
-#endif // RINGBUFFER
+    void nsAecVolumeVadSend(const short *buffer);
+    void sendHeartbeat();
 public:
+    EVC_API Worker();
     EVC_API ~Worker();
     EVC_API virtual ReturnType init(
         const boost::property_tree::ptree &configRoot,
@@ -121,13 +176,11 @@ public:
     EVC_API void setMute(bool mute);
 
     EVC_API void asyncStart(const std::string &host, const std::string &port,
-        const std::vector<int16_t> fakeAudioIn,
         std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
         std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
     );
 
     EVC_API void syncStart(const std::string &host, const std::string &port,
-        const std::vector<int16_t> fakeAudioIn,
         std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile,
         std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
     );
