@@ -14,6 +14,7 @@
 ///  4                           |   EVC version
 ///  4                           |   packet created timestamp (UNIX timestamp)
 ///  2                           |   packet type: heartBeat, userInfo, audioPacket
+///  4                           |   packet serial number of a specific type
 ///  2                           |   nbByte of packet payload
 ///  nbByte of packet payload    |   payload
 ///
@@ -25,7 +26,7 @@
 
 class NetPacket{
 public:
-    enum { FixHeaderLength = 4+4+4+2+2 };
+    enum { FixHeaderLength = 4+4+4+2+4+2 };
     enum { MaxPayloadLength = 1<<16 };
 
     enum class PayloadType : unsigned short {
@@ -66,7 +67,8 @@ private:
     void init(
         const PayloadType payloadType, 
         const unsigned short payloadSize, 
-        decltype(ProcessTime::get().getProcessUptime()) upTime = (ProcessTime::get().getProcessUptime())
+        const uint32_t upTime,
+        const uint32_t serialNumber
     ) {
         wholePacket_.resize(
                     FixHeaderLength+payloadSize
@@ -76,24 +78,21 @@ private:
         std::memcpy(wholePacket_.data() + 4 * 1, version_.data(), 4);
         std::memcpy(wholePacket_.data() + 4 * 2, &upTime, 4);
         memcpy(wholePacket_.data() + 4*3,     &payloadType,   sizeof(decltype(payloadType)));
-        memcpy(wholePacket_.data() + 4*3+2,   &payloadSize,   sizeof(decltype(payloadSize)));
+        memcpy(wholePacket_.data() + 4 * 3 + 2, &serialNumber, sizeof(decltype(serialNumber)));
+        memcpy(wholePacket_.data() + 4*3+2+4,   &payloadSize,   sizeof(decltype(payloadSize)));
     }
 
 public:
-    NetPacket(){
-        init(PayloadType::Undefined, 0);
+    NetPacket(const PayloadType payloadType= PayloadType::Undefined, const uint32_t serialNumber=0){
+        init(payloadType, 0, ProcessTime::get().getProcessUptime(), serialNumber);
     }
 
-    NetPacket(const PayloadType payloadType){
-        init(payloadType, 0);
-    }
-
-    NetPacket(const PayloadType payloadType, const std::vector<char> payload){
+    NetPacket(const PayloadType payloadType, const uint32_t serialNumber, const std::vector<char> payload){
         auto payloadSize = payload.size();
         if (payloadSize > (uint16_t)(-1)) {
             throw "payloadSize larger than max of uint16_t";
         }
-        init(payloadType, (uint16_t)payloadSize);
+        init(payloadType, (uint16_t)payloadSize, ProcessTime::get().getProcessUptime(), serialNumber);
 
         memcpy(wholePacket_.data() + FixHeaderLength, payload.data(), (uint16_t)payloadSize);
     }
@@ -101,7 +100,7 @@ public:
 
     bool checkHeader(){
         unsigned short payloadSize;
-        memcpy(&payloadSize, wholePacket_.data()+4*3+2, sizeof(decltype(payloadSize)));
+        memcpy(&payloadSize, wholePacket_.data()+4*3+2+4, sizeof(decltype(payloadSize)));
         wholePacket_.resize(FixHeaderLength + payloadSize);
 
         return true;
@@ -109,7 +108,7 @@ public:
 
 
     PayloadType payloadType() const {return *((PayloadType*)(wholePacket_.data()+ 4*3));}
-
+    uint32_t serialNumber() const { return *((uint32_t*)(wholePacket_.data() + 4 * 3 + 2)); }
 
 
 
@@ -145,6 +144,9 @@ public:
         ret.append("] ");
         ret.append("[type=");
         ret.append(NetPacket::getDescription(payloadType()));
+        ret.append("] ");
+        ret.append("[serialNumber=");
+        ret.append(std::to_string(serialNumber()));
         ret.append("] ");
         ret.append("[wholePackLength(byte)=");
         ret.append(std::to_string(wholePackLength()));

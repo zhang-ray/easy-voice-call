@@ -106,7 +106,7 @@ public:
         }
 
         if (traceDump || counterUserMessage_ % 100 == 0) {
-            BOOST_LOG_TRIVIAL(trace) << "[" << sender->info() << "] [" << NetPacket::getDescription(payloadType) << "] [" << msg.wholePackLength() << " B]";
+            BOOST_LOG_TRIVIAL(trace) << "[" << sender->info() << "] " << msg.info() ;
             if (counterUserMessage_ % 100 == 0) {
                 BOOST_LOG_TRIVIAL(trace) << "\t\tgot " << counterUserMessage_ << "\tUserMessage totally";
             }

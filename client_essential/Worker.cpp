@@ -415,7 +415,7 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
             throw;
         }
 
-        pClient->send(NetPacket(NetPacket::PayloadType::AudioMessage, outData));
+        pClient->send(NetPacket(NetPacket::PayloadType::AudioMessage, ++sn_sendingAudio_, outData));
     }
 }
 
@@ -454,6 +454,20 @@ void Worker::decodeOpusAndAecBufferFarend(const NetPacket& netPacket){
         else {
             largestReceivedMediaDataTimestamp_ = currentTS;
         }
+
+    }
+    {
+        /// RUNTIME VERIFICATION
+        /// SN 
+        auto currentSn = netPacket.serialNumber();
+        if (!lastReceivedAudioSn_) {
+            if (lastReceivedAudioSn_ + 1 != currentSn) {
+                LOGE << "lastReceivedAudioSn_ + 1 != currentSn";
+                LOGE << "lastReceivedAudioSn_=" << lastReceivedAudioSn_;
+                LOGE << "currentSn=" << currentSn;
+            }
+        }
+        lastReceivedAudioSn_ = currentSn;
     }
 
     //device_->write(decodedPcm);
@@ -467,7 +481,7 @@ void Worker::sendHeartbeat(){
     auto now = std::chrono::system_clock::now();
     auto elapsed = now - lastTimeStamp;
     if (elapsed > std::chrono::seconds(10)) {
-        pClient->send(NetPacket(NetPacket::PayloadType::HeartBeatRequest));
+        pClient->send(NetPacket(NetPacket::PayloadType::HeartBeatRequest, ++sn_sendingHeartBeat_));
         lastTimeStamp = std::chrono::system_clock::now();
     }
 }

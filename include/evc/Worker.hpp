@@ -92,6 +92,10 @@ private:
     */
     RingBuffer spkBuffer_;
     Profiler profiler_;
+
+    uint32_t sn_sendingAudio_ = 0;
+    uint32_t sn_sendingHeartBeat_ = 0;
+    uint32_t lastReceivedAudioSn_ = 0;
 private:
     bool initCodec();
     void nsAecVolumeVadSend(const short *buffer);
