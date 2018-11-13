@@ -6,9 +6,9 @@
 #include <fstream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/lockfree/queue.hpp>
 #include "Logger.hpp"
 #include "Lib.hpp"
-#include "evc/RingBuffer.hpp"
 #include "evc/AudioVolume.hpp"
 #include "evc/CallbackStylePortaudioEndpoint.hpp"
 #include "evc/Profiler.hpp"
@@ -47,6 +47,44 @@ enum class NetworkState : unsigned char{
     Connected,
 };
 
+
+
+/*
+TODO
+- Packet loss compensation
+- cross fading for PLC
+
+*/
+
+class AudioOutBuffer {
+private:
+    boost::lockfree::queue<std::array<int16_t, blockSize>> buffer_;
+    std::array<int16_t, blockSize> emptyBuffer_;
+public:
+    AudioOutBuffer()
+        : buffer_(100)
+    {
+        memset(emptyBuffer_.data(), 0, emptyBuffer_.size() * sizeof(int16_t));
+    }
+
+    void fetch(int16_t *outData) {
+        std::array<int16_t, blockSize> data;
+        if (buffer_.pop(data)) {
+            std::memcpy((void*)outData, (void*)data.data(), sizeof(int16_t)*blockSize);
+        }
+        else {
+            std::memcpy((char*)outData, (char*)emptyBuffer_.data(), emptyBuffer_.size() * sizeof(int16_t));
+        }
+    }
+
+    void insert(const int16_t *inData) {
+        std::array<int16_t, blockSize> data;
+        std::memcpy(data.data(), inData, sizeof(int16_t)*blockSize);
+        if (!buffer_.push(data)) {
+            LOGD << " could not pushElements from spkBuffer_";
+        }
+    }
+};
 
 /// TODO:
 ///    - make timestamp
@@ -90,7 +128,7 @@ private:
     /*
     RingBuffer micBuffer_;
     */
-    RingBuffer spkBuffer_;
+    AudioOutBuffer audioOutBuffer_;
     Profiler profiler_;
 
     uint32_t sn_sendingAudio_ = 0;

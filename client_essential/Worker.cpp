@@ -3,10 +3,7 @@
 
 #include "evc/Factory.hpp"
 #include "evc/TcpClient.hpp"
-#include "evc/RingBuffer.hpp"
 #include "evc/Logger.hpp"
-
-#include <mutex> // for std::once_flag
 
 //// TODO
 //// don't include WEBRTC directly...
@@ -24,7 +21,6 @@ decltype(WebRtcNsx_Create()) ns_ = nullptr;
 using namespace webrtc;
 
 Worker::Worker()
-    :spkBuffer_(blockSize*sizeof(int16_t), 100)
 {
 
 }
@@ -138,9 +134,7 @@ ReturnType Worker::init(
             }
             else {
                 nsAecVolumeVadSend(inputBuffer);
-                if (!spkBuffer_.popElements((uint8_t*)outputBuffer, 1)) {
-                    LOGD << " could not popElements from spkBuffer_";
-                }
+                audioOutBuffer_.fetch(outputBuffer);
             }
             //sav.calculate()
         });
@@ -476,9 +470,7 @@ void Worker::decodeOpusAndAecBufferFarend(const NetPacket& netPacket){
     }
 
     //device_->write(decodedPcm);
-    if (!spkBuffer_.pushElements((uint8_t*)decodedPcm.data(), 1)) {
-        LOGD << " could not pushElements from spkBuffer_";
-    }
+    audioOutBuffer_.insert(decodedPcm.data());
 }
 
 void Worker::sendHeartbeat(){
