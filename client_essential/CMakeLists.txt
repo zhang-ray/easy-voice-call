@@ -7,6 +7,7 @@ include_directories(../include/)
 
 
 
+add_definitions(-DBOOST_LOG_DYN_LINK)
 if(WIN32)
 	include_directories(
         ../../include/
@@ -20,7 +21,6 @@ if(WIN32)
         "C:/Libraries/boost_1_67_0/lib32-msvc-14.0/"
         )
 else(WIN32)
-	add_definitions(-DBOOST_LOG_DYN_LINK)
 	link_directories(/usr/local/lib/)
 endif(WIN32)
 

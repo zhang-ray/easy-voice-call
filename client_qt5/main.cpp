@@ -3,31 +3,38 @@
 #include <QtGlobal>
 #include <QStandardPaths>
 #include "evc/Logger.hpp"
+#include <cstdio>
+#include <iostream>
+#include <cstring>
+#include <ctime>
 
 #ifdef _WIN32
 #include "resources/resource.h"
 #endif
 
 
-auto initLogger(const std::string &folder) {
-    namespace logging = boost::log;
-    namespace expr = boost::log::expressions;
-
-    /// TODO
-    ///   boost::log::keywords::format= "[%TimeStamp%]: %Message%" ;// DOSE NOT WORK!
-    auto myFileSink = boost::log::add_file_log(
-        boost::log::keywords::file_name = "EasyVoiceCall.%Y.%m.%d.%H.%M.%S.log",
-        boost::log::keywords::target = folder.c_str()
-        );
-    boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::trace);
-
-    return myFileSink;
-}
-
-
+class TrickyBoostLog {
+/*
+HINT: 
+  - USE BOOST_LOG_DYN_LINK
+    - https://www.boost.org/doc/libs/1_67_0/libs/log/doc/html/log/detailed/sink_frontends.html say that:
+        If asynchronous logging is used in a multi-module application, one should decide carefully when to unload dynamically loaded modules that write logs.
+  - redirecting stdout instead of boost::log::add_file_log
+    - when I use boost::log::add_file_log, the formatter is missing... 
+    - relevant ticket: https://svn.boost.org/trac10/ticket/8840
+*/
+public:
+    TrickyBoostLog(const std::string &filePath) {
+        freopen(filePath.c_str(), "w", stdout);
+    }
+    ~TrickyBoostLog(){
+        fclose(stdout);
+    }
+};
 
 
 int main(int argc, char *argv[]) {
+
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
@@ -40,7 +47,31 @@ int main(int argc, char *argv[]) {
     if (!dir.exists()) {
         dir.mkdir(qStringFolder);
     }
-    auto myFileSink = initLogger(qStringFolder.toStdString());
+    auto t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::tm* now = std::localtime(&t);
+    std::cout << (now->tm_year + 1900) << '-'
+        << (now->tm_mon + 1) << '-'
+        << now->tm_mday
+        << "\n";
+
+    TrickyBoostLog trickyBoostLog(qStringFolder.toStdString()
+        .append("/")
+        .append("EasyVoiceCall")
+        .append(".")
+        .append(std::to_string(now->tm_year + 1900))
+        .append(".")
+        .append(std::to_string(now->tm_mon + 1))
+        .append(".")
+        .append(std::to_string(now->tm_mday))
+        .append(".")
+        .append(std::to_string(now->tm_hour))
+        .append(".")
+        .append(std::to_string(now->tm_min))
+        .append(".")
+        .append(std::to_string(now->tm_sec))
+        .append(".log")
+    );
+
 
 
     MainWindow w;
@@ -56,8 +87,5 @@ int main(int argc, char *argv[]) {
 
     w.show();
 
-    auto ret = a.exec();
-    LOGI << "bye";
-    myFileSink->flush();
-    return ret;
+    return a.exec();
 }
