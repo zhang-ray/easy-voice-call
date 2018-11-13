@@ -9,13 +9,12 @@
 #include <cstdio>
 #include <string>
 
-#define LOGV BOOST_LOG_TRIVIAL(trace)  << "\t[" << __FILE__ << ":" << __LINE__ << "]\t"
-#define LOGI BOOST_LOG_TRIVIAL(info)   << "\t[" << __FILE__ << ":" << __LINE__ << "]\t"
-#define LOGD BOOST_LOG_TRIVIAL(debug)  << "\t[" << __FILE__ << ":" << __LINE__ << "]\t"
-#define LOGE BOOST_LOG_TRIVIAL(error)  << "\t[" << __FILE__ << ":" << __LINE__ << "]\t"
+#define LOGV BOOST_LOG_TRIVIAL(trace)  << "\t[" << __FUNCTION__ << "]\t[" << __FILE__ << ":" << __LINE__ << "]\t"
+#define LOGI BOOST_LOG_TRIVIAL(info)   << "\t[" << __FUNCTION__ << "]\t[" << __FILE__ << ":" << __LINE__ << "]\t"
+#define LOGD BOOST_LOG_TRIVIAL(debug)  << "\t[" << __FUNCTION__ << "]\t[" << __FILE__ << ":" << __LINE__ << "]\t"
+#define LOGE BOOST_LOG_TRIVIAL(error)  << "\t[" << __FUNCTION__ << "]\t[" << __FILE__ << ":" << __LINE__ << "]\t"
 
-inline void dumpException(const std::exception &e) { LOGE << e.what(); }
-
+#define LOGE_STD_EXCEPTION(e) do { LOGE << e.what(); } while(0)
 
 
 

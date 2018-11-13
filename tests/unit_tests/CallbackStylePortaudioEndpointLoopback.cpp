@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
         }
     }
     catch (const std::exception &e) {
-        dumpException(e);
+        LOGE_STD_EXCEPTION(e);
     }
     return 0;
 }

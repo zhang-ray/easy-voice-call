@@ -30,7 +30,7 @@ Worker::~Worker(){
         syncStop();
     }
     catch(std::exception &e){
-        dumpException(e);
+        LOGE_STD_EXCEPTION(e);
     }
 }
 
@@ -50,21 +50,21 @@ ReturnType Worker::init(
         }
     }
     catch (const std::exception &e) {
-        dumpException(e);
+        LOGE_STD_EXCEPTION(e);
     }
 
     try {
         needNetworkStub_ = configRoot.get<bool>("needNetworkStub");
     }
     catch (const std::exception &e) {
-        dumpException(e);
+        LOGE_STD_EXCEPTION(e);
     }
 
     try {
         bypassLocalAudioEndpoing_ = configRoot.get<bool>("bypassLocalAudioEndpoing");
     }
     catch (const std::exception &e) {
-        dumpException(e);
+        LOGE_STD_EXCEPTION(e);
     }
 
     try{
@@ -116,7 +116,7 @@ ReturnType Worker::init(
             }
         }
         catch (const std::exception &e) {
-            dumpException(e);
+            LOGE_STD_EXCEPTION(e);
         }
 
 
@@ -144,7 +144,7 @@ ReturnType Worker::init(
 
     }
     catch (const std::exception &e) {
-        dumpException(e);
+        LOGE_STD_EXCEPTION(e);
         return e.what();
     }
 

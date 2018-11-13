@@ -137,7 +137,7 @@ public:
             pThread->join();
         }
         catch (std::exception &e) {
-            dumpException(e);
+            LOGE_STD_EXCEPTION(e);
         }
     }
 

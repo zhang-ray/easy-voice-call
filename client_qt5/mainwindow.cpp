@@ -43,14 +43,14 @@ MainWindow::MainWindow(QWidget *parent)
                 ui->lineEdit_serverHost->setText(root_.get<std::string>("server.host").c_str());
             }
             catch (std::exception &e) {
-                dumpException(e);
+                LOGE_STD_EXCEPTION(e);
             }
 
             try {
                 ui->lineEdit_serverPort->setText(root_.get<std::string>("server.port").c_str());
             }
             catch (std::exception &e) {
-                dumpException(e);
+                LOGE_STD_EXCEPTION(e);
             }
 
 
@@ -193,7 +193,7 @@ MainWindow::~MainWindow()
                 boost::property_tree::read_json(file.fileName().toStdString(), root_);
             }
             catch (std::exception &e) {
-                dumpException(e);
+                LOGE_STD_EXCEPTION(e);
             }
             root_.put("server.host", ui->lineEdit_serverHost->text().toStdString().c_str());
             root_.put("server.port", ui->lineEdit_serverPort->text().toStdString().c_str());
@@ -207,7 +207,7 @@ MainWindow::~MainWindow()
         }
     }
     catch (std::exception &e) {
-        dumpException(e);
+        LOGE_STD_EXCEPTION(e);
     }
 
     delete ui;
@@ -349,7 +349,7 @@ void MainWindow::gotoWork(){
 
     }
     catch (std::exception &e) {
-        dumpException(e);
+        LOGE_STD_EXCEPTION(e);
     }
 
 }
