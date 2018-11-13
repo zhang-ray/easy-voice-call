@@ -43,37 +43,20 @@ MainWindow::MainWindow(QWidget *parent)
                 ui->lineEdit_serverHost->setText(root_.get<std::string>("server.host").c_str());
             }
             catch (std::exception &e) {
-                BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
+                dumpException(e);
             }
 
             try {
                 ui->lineEdit_serverPort->setText(root_.get<std::string>("server.port").c_str());
             }
             catch (std::exception &e) {
-                BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
+                dumpException(e);
             }
 
 
 
 
 
-            try {
-                auto dumpMono16le16kHzPcmFileBaseName = root_.get<std::string>("audio.out.dumpMono16le16kHzPcmFileBaseName");
-                if (dumpMono16le16kHzPcmFileBaseName.length() > 0) {
-                    QFile dumpFile(dir.filePath(dumpMono16le16kHzPcmFileBaseName.c_str()));
-                    dumpMono16le16kHzPcmFile_ = std::make_shared<std::ofstream>(dumpFile.fileName().toStdString(), std::ios::binary);
-                    if (!dumpMono16le16kHzPcmFile_->is_open()) {
-                        BOOST_LOG_TRIVIAL(error) << "could not open " << dumpMono16le16kHzPcmFileBaseName << " for writing";
-                        dumpMono16le16kHzPcmFile_ = nullptr;
-                    }
-                    else {
-                        BOOST_LOG_TRIVIAL(info) << "dumpMono16le16kHzPcmFile = " << dumpFile.fileName().toStdString();
-                    }
-                }
-            }
-            catch (std::exception &e) {
-                BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
-            }
         }
     }
     catch (std::exception &e){
@@ -210,8 +193,7 @@ MainWindow::~MainWindow()
                 boost::property_tree::read_json(file.fileName().toStdString(), root_);
             }
             catch (std::exception &e) {
-                /// maybe load fail
-                BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
+                dumpException(e);
             }
             root_.put("server.host", ui->lineEdit_serverHost->text().toStdString().c_str());
             root_.put("server.port", ui->lineEdit_serverPort->text().toStdString().c_str());
@@ -225,7 +207,7 @@ MainWindow::~MainWindow()
         }
     }
     catch (std::exception &e) {
-        BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
+        dumpException(e);
     }
 
     delete ui;
@@ -367,7 +349,7 @@ void MainWindow::gotoWork(){
 
     }
     catch (std::exception &e) {
-        BOOST_LOG_TRIVIAL(error) << " [" << __FUNCTION__ << "] [" << __FILE__ << ":" << __LINE__ << "] " << e.what();
+        dumpException(e);
     }
 
 }

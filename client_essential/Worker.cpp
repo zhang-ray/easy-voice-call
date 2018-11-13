@@ -30,7 +30,7 @@ Worker::~Worker(){
         syncStop();
     }
     catch(std::exception &e){
-        BOOST_LOG_TRIVIAL(error) << e.what();
+        dumpException(e);
     }
 }
 
@@ -109,8 +109,8 @@ ReturnType Worker::init(
                     ifs.seekg(0, std::ios::beg);
                     ifs.read((char *)(stubMic->data()), theSize);
                     {
-                        BOOST_LOG_TRIVIAL(info) << "fakeMicInPcmFilePath = " << fakeMicInPcmFilePath.c_str();
-                        BOOST_LOG_TRIVIAL(info) << "file size = " << theSize;
+                        LOGI << "fakeMicInPcmFilePath = " << fakeMicInPcmFilePath.c_str();
+                        LOGI << "file size = " << theSize;
                     }
                 }
             }
