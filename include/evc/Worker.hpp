@@ -6,7 +6,7 @@
 #include <fstream>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/lockfree/queue.hpp>
+#include <boost/lockfree/spsc_queue.hpp>
 #include "Logger.hpp"
 #include "Lib.hpp"
 #include "evc/AudioVolume.hpp"
@@ -53,12 +53,12 @@ enum class NetworkState : unsigned char{
 TODO
 - Packet loss compensation
 - cross fading for PLC
-
+// https://www.boost.org/doc/libs/1_67_0/doc/html/boost/lockfree/spsc_queue.html  ?
 */
 
 class AudioOutBuffer {
 private:
-    boost::lockfree::queue<std::array<int16_t, blockSize>> buffer_;
+    boost::lockfree::spsc_queue<std::array<int16_t, blockSize>> buffer_;
     std::array<int16_t, blockSize> emptyBuffer_;
 public:
     AudioOutBuffer()

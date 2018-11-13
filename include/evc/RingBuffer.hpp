@@ -5,7 +5,7 @@
 #include <cstring> // std::memory
 
 
-#pragma error "DEPRECATED. try to use boost::lockfree::queue"
+#pragma error "DEPRECATED. try to use boost::lockfree::spsc_queue"
 
 struct RingBuffer {
 private:
