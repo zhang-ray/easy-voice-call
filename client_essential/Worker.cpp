@@ -230,6 +230,10 @@ void Worker::syncStart(const std::string &host, const std::string &port,
             }
             case NetPacket::PayloadType::AudioMessage: {
                 decodeOpusAndAecBufferFarend(netPacket);
+                profiler_.arrivalAudioOffset_.addData(
+                    (int32_t)(ProcessTime::get().getProcessUptime()) -
+                    (int32_t)(netPacket.timestamp())
+                );
                 break;
             }
             }
@@ -444,6 +448,7 @@ void Worker::decodeOpusAndAecBufferFarend(const NetPacket& netPacket){
 
     {
         /// RUNTIME VERIFICATION
+        /// UNEXPECTED: descending order
         auto currentTS = netPacket.timestamp();
         if (currentTS < largestReceivedMediaDataTimestamp_) {
             // unexpected data order!!!!
@@ -454,8 +459,8 @@ void Worker::decodeOpusAndAecBufferFarend(const NetPacket& netPacket){
         else {
             largestReceivedMediaDataTimestamp_ = currentTS;
         }
-
     }
+
     {
         /// RUNTIME VERIFICATION
         /// SN 

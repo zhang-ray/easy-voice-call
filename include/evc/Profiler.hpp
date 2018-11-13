@@ -12,13 +12,13 @@ statistics media data
 
 class Statistician {
 private:
-    std::vector<uint32_t> durationList;
+    std::vector<int32_t> durationList;
     std::string result_;
 public:
     Statistician(const char *tag) : result_(tag) {}
     Statistician(const Statistician&) = delete;
     
-    void addDurationMs(const uint32_t dur) {
+    void addData(const int32_t dur) {
         durationList.push_back(dur);
     }
 
@@ -50,9 +50,9 @@ public:
     }
 
     ~Timer() {
-        auto dur = static_cast<uint32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startPoint_).count());
+        auto dur = static_cast<int32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startPoint_).count());
         if (stat_) {
-            stat_->addDurationMs(dur);
+            stat_->addData(dur);
         }
     }
 };
@@ -63,16 +63,19 @@ public:
     Statistician durationAudioCallback_;
     Statistician nsAecVolumeVadSend_;
     Statistician decodeOpusAndAecBufferFarend_;
+    Statistician arrivalAudioOffset_;
 public:
     Profiler()
         : durationAudioCallback_("durationAudioCallback_")
         , nsAecVolumeVadSend_("nsAecVolumeVadSend")
         , decodeOpusAndAecBufferFarend_("decodeOpusAndPreAec")
+        , arrivalAudioOffset_("arrivalAudioOffset_")
     { }
 
     void dumpOut() {
         LOGI << durationAudioCallback_.calc();
         LOGI << nsAecVolumeVadSend_.calc();
         LOGI << decodeOpusAndAecBufferFarend_.calc();
+        LOGI << arrivalAudioOffset_.calc();
     }
 };
