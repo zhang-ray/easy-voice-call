@@ -10,7 +10,7 @@ include_directories(../include)
 
 add_definitions(-DBOOST_LOG_DYN_LINK)
 if(WIN32)
-    set(CMAKE_PREFIX_PATH "C:/Qt/5.11.1/msvc2015")
+    set(CMAKE_PREFIX_PATH "C:/Qt/5.11/msvc2015")
     include_directories(
         ../../include/
         "C:/Libraries/boost_1_67_0/"
