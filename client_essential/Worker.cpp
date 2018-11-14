@@ -28,6 +28,7 @@ Worker::Worker()
 Worker::~Worker(){
     try{
         syncStop();
+        Profiler::get().dump();
     }
     catch(std::exception &e){
         LOGE_STD_EXCEPTION(e);
@@ -128,7 +129,6 @@ ReturnType Worker::init(
                 int16_t *outputBuffer,
                 const uint32_t framesPerBuffer
                 ) {
-            Timer timer(&profiler_.durationAudioCallback_);
             if (bypassLocalAudioEndpoing_) {
                 std::memcpy(outputBuffer, inputBuffer, framesPerBuffer * sizeof(int16_t));
             }
@@ -224,7 +224,7 @@ void Worker::syncStart(const std::string &host, const std::string &port,
             }
             case NetPacket::PayloadType::AudioMessage: {
                 decodeOpusAndAecBufferFarend(netPacket);
-                profiler_.arrivalAudioOffset_.addData(
+                Profiler::get().arrivalAudioOffset_.addData(
                     (int32_t)(ProcessTime::get().getProcessUptime()) -
                     (int32_t)(netPacket.timestamp())
                 );
@@ -305,8 +305,6 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
         /// nothing to do, just return!
         return; 
     }
-
-    Timer _timer(&(profiler_.nsAecVolumeVadSend_));
 
     std::vector<short> denoisedBuffer(blockSize);
     std::vector<short> tobeSend(blockSize);
@@ -418,8 +416,6 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
 }
 
 void Worker::decodeOpusAndAecBufferFarend(const NetPacket& netPacket){
-    Timer _timer(&(profiler_.decodeOpusAndAecBufferFarend_));
-
     std::vector<char> netBuff;
     netBuff.resize(netPacket.payloadLength());
     memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
@@ -506,5 +502,4 @@ void Worker::syncStop()
         durationTimer_ = nullptr;
     }
 
-    profiler_.dumpOut();
 }
