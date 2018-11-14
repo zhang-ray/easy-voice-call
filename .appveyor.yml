@@ -21,7 +21,11 @@ build:
 
 after_build:
 - mkdir artifacts
-- copy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_log-vc140-mt-x32-1_67.dll artifacts\
+- copy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_date_time-vc140-mt-x32-1_67.dll          artifacts\
+- copy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_filesystem-vc140-mt-x32-1_67.dll         artifacts\
+- copy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_log-vc140-mt-x32-1_67.dll                artifacts\
+- copy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_system-vc140-mt-x32-1_67.dll             artifacts\
+- copy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_thread-vc140-mt-x32-1_67.dll             artifacts\
 - copy .\client_essential\Release\client_essential.dll  artifacts\
 - copy .\client_cli\Release\client_cli.exe              artifacts\EasyVoiceCall.Client.Cli.exe
 - copy .\client_qt5\Release\client_qt5.exe              artifacts\EasyVoiceCall.exe
