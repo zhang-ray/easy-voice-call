@@ -12,7 +12,25 @@ project(easy-voice-call)
 #endif(CMAKE_COMPILER_IS_GNUCXX)
 
 
+set (CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_definitions(-DBOOST_LOG_DYN_LINK)
+include_directories(./include/evc/)
+if(WIN32)
+    add_compile_options(/MP)  # Speed up compiling
+	include_directories(
+        ../include/
+        "C:/Libraries/boost_1_67_0/"
+        )
+	add_definitions(-D_WIN32_WINNT=0x0A00)
+    link_directories(
+        "C:/projects/VS2010/Win32/Release/"
+        "C:/projects/build/Release/"
+        "C:/Libraries/boost_1_67_0/lib32-msvc-14.0/"
+        )
+else(WIN32)
+	link_directories(/usr/local/lib/)
+endif(WIN32)
 
 
 
@@ -34,10 +52,6 @@ endif()
 
 
 
-############  Speed up compiling ###########
-if(WIN32)
-    add_compile_options(/MP)
-endif()
 
 
 

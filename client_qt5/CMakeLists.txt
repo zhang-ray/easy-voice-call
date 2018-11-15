@@ -2,30 +2,14 @@
 
 project(client_qt5)
 
-set (CMAKE_CXX_STANDARD 14)
 
-
-include_directories(../include/evc/)
-
-
-add_definitions(-DBOOST_LOG_DYN_LINK)
 if(WIN32)
     set(CMAKE_PREFIX_PATH "C:/Qt/5.11/msvc2015")
-    include_directories(
-        ../../include/
-        "C:/Libraries/boost_1_67_0/"
-    )
-    link_directories(
-        "C:/projects/VS2010/Win32/Release/"
-        "C:/projects/build/Release/"
-        "C:/Libraries/boost_1_67_0/lib32-msvc-14.0/"
-        )
 else(WIN32)
     if(APPLE AND EXISTS /usr/local/opt/qt5)
         # ensure it can be found by CMake since it is not in the default /usr/local prefix.
         list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt5")
     endif()
-	link_directories(/usr/local/lib/)
 endif(WIN32)
 
 

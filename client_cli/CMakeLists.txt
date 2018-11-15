@@ -1,10 +1,6 @@
 project(client_cli)
 
-set (CMAKE_CXX_STANDARD 14)
 
-include_directories(../include/evc/)
-
-add_definitions(-DBOOST_LOG_DYN_LINK)
 
 if(WIN32)
 	include_directories(

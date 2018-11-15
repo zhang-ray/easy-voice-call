@@ -1,27 +1,9 @@
 project(client_essential)
 
-set (CMAKE_CXX_STANDARD 14)
-
-include_directories(../include/evc/)
 
 
-
-
-add_definitions(-DBOOST_LOG_DYN_LINK)
 if(WIN32)
-	include_directories(
-        ../../include/
-        "C:/Libraries/boost_1_67_0/"
-        )
-	add_definitions(-D_WIN32_WINNT=0x0A00)
     add_definitions(-DEVC_EXPORT)
-    link_directories(
-        "C:/projects/VS2010/Win32/Release/"
-        "C:/projects/build/Release/"
-        "C:/Libraries/boost_1_67_0/lib32-msvc-14.0/"
-        )
-else(WIN32)
-	link_directories(/usr/local/lib/)
 endif(WIN32)
 
 
