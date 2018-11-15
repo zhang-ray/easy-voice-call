@@ -1,6 +1,6 @@
 set (CMAKE_CXX_STANDARD 14)
 
-include_directories(../../include/)
+include_directories(../../include/evc/)
 if(WIN32)
 	include_directories(
         ../../../include/
@@ -65,6 +65,3 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         pthread
     )
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-
-
-add_executable(RingBuffer RingBuffer.cpp)

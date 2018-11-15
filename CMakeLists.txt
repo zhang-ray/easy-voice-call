@@ -24,7 +24,7 @@ execute_process(COMMAND ${git_cmd} ${git_arg}  WORKING_DIRECTORY ${PROJECT_SOURC
 message(STATUS "git_result: ${git_result}")
 message(STATUS "OUTPUT_VARIABLE: ${GIT_TAG}")
 string(REGEX REPLACE "\n$" "" GIT_TAG "${GIT_TAG}") # strip line ending
-set (GIT_INFO_HEADER_FILE "./include/git_info.hpp")
+set (GIT_INFO_HEADER_FILE "./include/evc/git_info.hpp")
 file(WRITE ${GIT_INFO_HEADER_FILE} "#pragma once\n")
 if (RESULT_VAR STREQUAL 0)
     message(STATUS "RESULT_VAR STREQUAL 0")

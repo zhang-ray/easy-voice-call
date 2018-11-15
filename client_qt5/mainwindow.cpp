@@ -311,6 +311,18 @@ void MainWindow::gotoWork(){
         onNetworkChanged(NetworkState::Connecting);
 
 
+        ui->lineEdit_serverHost->setText(
+            ui->lineEdit_serverHost->text().trimmed()
+        );
+        ui->lineEdit_serverPort->setText(
+            ui->lineEdit_serverPort->text().trimmed()
+        );
+
+        root_.put("server.host", ui->lineEdit_serverHost->text().toStdString().c_str());
+        root_.put("server.port", ui->lineEdit_serverPort->text().toStdString().c_str());
+
+
+
         worker_ = std::make_shared<Worker>();
         root_.put("needAec", ui->checkBox_needAec->checkState() == Qt::CheckState::Checked);
         auto ret = worker_->init(
@@ -328,15 +340,7 @@ void MainWindow::gotoWork(){
 
 
 
-        ui->lineEdit_serverHost->setText(
-                    ui->lineEdit_serverHost->text().trimmed()
-                    );
-        ui->lineEdit_serverPort->setText(
-                    ui->lineEdit_serverPort->text().trimmed()
-                    );
         worker_->asyncStart(
-            ui->lineEdit_serverHost->text().toStdString(),
-            ui->lineEdit_serverPort->text().toStdString(),
             [this](
                 const NetworkState newState,
                 const std::string extraMessage
@@ -344,8 +348,7 @@ void MainWindow::gotoWork(){
         {
             showMessage(extraMessage);
             onNetworkChanged(newState);
-        }
-        );
+        });
 
     }
     catch (std::exception &e) {

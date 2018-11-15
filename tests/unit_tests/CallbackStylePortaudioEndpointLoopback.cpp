@@ -1,8 +1,8 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
-#include "evc/CallbackStylePortaudioEndpoint.hpp"
-#include "evc/Logger.hpp"
+#include "CallbackStylePortaudioEndpoint.hpp"
+#include "Logger.hpp"
 
 
 /*

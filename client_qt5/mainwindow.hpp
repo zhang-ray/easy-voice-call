@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <memory>
-#include "evc/Worker.hpp"
+#include "Worker.hpp"
 #include <QLabel>
 #include <QEvent>
 #include <QTemporaryDir>

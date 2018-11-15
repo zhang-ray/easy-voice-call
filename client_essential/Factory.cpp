@@ -1,7 +1,7 @@
-#include "evc/Factory.hpp"
-#include "evc/OpusEnc.hpp"
-#include "evc/OpusDec.hpp"
-#include "evc/CallbackStylePortaudioEndpoint.hpp"
+#include "Factory.hpp"
+#include "OpusEnc.hpp"
+#include "OpusDec.hpp"
+#include "CallbackStylePortaudioEndpoint.hpp"
 
 CallbackStyleAudioEndpoint & Factory::createCallbackStyleAudioEndpoint() {
     return (CallbackStyleAudioEndpoint &)(CallbackStylePortaudioEndpoint::get());

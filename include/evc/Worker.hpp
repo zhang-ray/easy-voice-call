@@ -9,9 +9,9 @@
 #include <boost/lockfree/spsc_queue.hpp>
 #include "Logger.hpp"
 #include "Lib.hpp"
-#include "evc/AudioVolume.hpp"
-#include "evc/CallbackStylePortaudioEndpoint.hpp"
-#include "evc/Profiler.hpp"
+#include "AudioVolume.hpp"
+#include "CallbackStylePortaudioEndpoint.hpp"
+#include "Profiler.hpp"
 #include "ReturnType.hpp"
 #include "NetClient.hpp"
 #include <vector>
@@ -115,6 +115,7 @@ private:
     std::function<void(const AudioIoVolume)>  volumeReporter_ = nullptr;
     std::function<void(const bool)>  vadReporter_ = nullptr;
     std::function<void(const uint32_t)> durationReporter_ = nullptr;
+    boost::property_tree::ptree configRoot_;
     bool needAec_ = false;
 
     uint8_t vadCounter_ = 0; // nbActivated
@@ -152,13 +153,9 @@ public:
     EVC_API void setDurationReporter(decltype(durationReporter_) __);
     EVC_API void setMute(bool mute);
 
-    EVC_API void asyncStart(const std::string &host, const std::string &port,
-        std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
-    );
+    EVC_API void asyncStart(std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState);
 
-    EVC_API void syncStart(const std::string &host, const std::string &port,
-        std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
-    );
+    EVC_API void syncStart(std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState);
 
 
     ///// TODO: blocked when server down?

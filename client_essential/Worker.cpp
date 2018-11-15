@@ -1,16 +1,16 @@
-#include "evc/Worker.hpp"
+#include "Worker.hpp"
 
 
-#include "evc/Factory.hpp"
-#include "evc/TcpClient.hpp"
-#include "evc/Logger.hpp"
+#include "Factory.hpp"
+#include "TcpClient.hpp"
+#include "Logger.hpp"
 
 //// TODO
 //// don't include WEBRTC directly...
 #include "../audio-processing-module/independent_vad/src/webrtc_vad.hpp"
 #include "../audio-processing-module/independent_aec/src/echo_cancellation.h"
 #include "../audio-processing-module/independent_ns/src/noise_suppression_x.hpp"
-#include "evc/NetClientStub_EchoMediaData.hpp"
+#include "NetClientStub_EchoMediaData.hpp"
 
 namespace {
 VadInst* vad;
@@ -41,6 +41,8 @@ ReturnType Worker::init(
     std::function<void(const AudioIoVolume)> reportVolume,
     std::function<void(const bool)> vadReporter
 ) {
+    configRoot_ = configRoot;
+
     try {
         needAec_ = configRoot.get<bool>("needAec");
         if (needAec_) {
@@ -173,16 +175,12 @@ bool Worker::initCodec(){
     return false;
 }
 
-void Worker::asyncStart(const std::string &host, const std::string &port,
-    std::function<void(const NetworkState &, const std::string &)> toggleState) {
-    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, host, port, toggleState));
+void Worker::asyncStart(std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState) {
+    netThread_ = std::make_shared<std::thread>(std::bind(&Worker::syncStart, this, toggleState));
 }
 
 
-void Worker::syncStart(const std::string &host, const std::string &port,
-    std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState
-) {
-
+void Worker::syncStart(std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState) {
     try{
         gotoStop_ = false;
         bool isLogin = false;
@@ -203,6 +201,9 @@ void Worker::syncStart(const std::string &host, const std::string &port,
         else {
             pClient = std::make_shared<TcpClient>();
         }
+
+        auto host = configRoot_.get<std::string>("server.host");
+        auto port = configRoot_.get<std::string>("server.port");
 
         pClient->init(
                     host.c_str(),

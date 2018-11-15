@@ -1,5 +1,5 @@
-#include "evc/OpusDec.hpp"
-#include "evc/OpusEnc.hpp"
+#include "OpusDec.hpp"
+#include "OpusEnc.hpp"
 
 #include <numeric>
 #include <cmath>

@@ -2,7 +2,7 @@ project(server)
 
 set (CMAKE_CXX_STANDARD 14)
 
-include_directories(../include/)
+include_directories(../include/evc/)
 
 if (WIN32)
 	include_directories(C:/Libraries/boost_1_67_0)

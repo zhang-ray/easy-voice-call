@@ -4,33 +4,82 @@
 #include <thread>
 #include <fstream>
 
-#include "evc/Worker.hpp"
-#include "evc/Logger.hpp"
+#include "Worker.hpp"
+#include "Logger.hpp"
+
+
+
+void printUsage() {
+    std::cout << "Usage: CLI config.json\n";
+}
+
+
+void onNetworkStateChanged(
+    const NetworkState newState,
+    const std::string extraMessage
+)
+{
+    switch (newState)
+    {
+    case NetworkState::Connected:
+        LOGI << "Connected";
+        break;
+    case NetworkState::Connecting:
+        LOGI << "Connecting";
+        break;
+    case NetworkState::Disconnected:
+        LOGI << "Disconnected";
+        break;
+    default:
+        break;
+    }
+
+
+    if (!extraMessage.empty()) {
+        LOGI << "extraMessage=" << extraMessage;
+    }
+};
 
 
 int main(int argc, char* argv[]) {
-    std::string host = "127.0.0.1";
-    std::string port = "1222";
-    Worker worker;
+    TrickyBoostLog trickyBoostLog(boost::log::trivial::severity_level::debug);
 
-    boost::property_tree::ptree root;
-    if (worker.init(
-        root,
-        [](const std::string &, const std::string &) {},
-        [](const AudioIoVolume) {},
-        [](const bool) {}
-    )) {
-        worker.syncStart(
-            host, port,
-            [](
-                const NetworkState newState,
-                const std::string extraMessage
-                )
-        {
-            BOOST_LOG_TRIVIAL(info) << "newState=" << (uint8_t)(newState);
-            BOOST_LOG_TRIVIAL(info) << "extraMessage=" << extraMessage;
+    try {
+        auto file = argv[1];
+
+        boost::property_tree::ptree root;
+        boost::property_tree::read_json(file, root);
+
+        auto workingDuration = -1;
+        try {
+            workingDuration = root.get <int>("cli.workingduration");
         }
-        );
+        catch (const std::exception &e) {
+            LOGE_STD_EXCEPTION(e);
+        }
+
+        Worker worker;
+        if (worker.init(
+            root,
+            [](const std::string &, const std::string &) {},
+            [](const AudioIoVolume) {},
+            [](const bool) {}
+        )) {
+            if (workingDuration < 0) {
+                // infinite
+                worker.syncStart(onNetworkStateChanged);
+            }
+            else {
+                worker.asyncStart(onNetworkStateChanged);
+                std::this_thread::sleep_for(std::chrono::seconds(workingDuration));
+            }
+        }
     }
+    catch (const std::exception &e) {
+        printUsage();
+        LOGE_STD_EXCEPTION(e);
+    }
+
+
     return 0;
 }

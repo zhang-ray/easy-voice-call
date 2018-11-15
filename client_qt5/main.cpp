@@ -2,7 +2,7 @@
 #include <QApplication>
 #include <QtGlobal>
 #include <QStandardPaths>
-#include "evc/Logger.hpp"
+#include "Logger.hpp"
 
 #ifdef _WIN32
 #include "resources/resource.h"

@@ -7,8 +7,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <cstring>
-#include "evc/NetPacket.hpp"
-#include "evc/ReturnType.hpp"
+#include "NetPacket.hpp"
+#include "ReturnType.hpp"
 #include "ServerLogger.hpp"
 
 class Participant {
