@@ -34,6 +34,11 @@ endif()
 
 
 
+############  Speed up compiling ###########
+if(WIN32)
+    add_compile_options(/MP)
+endif()
+
 
 
 # Ubuntu 14.04 is to old...

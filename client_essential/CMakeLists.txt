@@ -14,7 +14,7 @@ if(WIN32)
         "C:/Libraries/boost_1_67_0/"
         )
 	add_definitions(-D_WIN32_WINNT=0x0A00)
-    add_definitions(-DEVC_API=EVC_EXPORT)
+    add_definitions(-DEVC_EXPORT)
     link_directories(
         "C:/projects/VS2010/Win32/Release/"
         "C:/projects/build/Release/"
