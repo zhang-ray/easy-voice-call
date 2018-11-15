@@ -10,20 +10,8 @@
 class CallbackStylePortaudioEndpoint : public CallbackStyleAudioEndpoint, public Singleton<CallbackStylePortaudioEndpoint>{
 private:
     PaStream *stream_ = nullptr;
-    std::shared_ptr<std::vector<int16_t>> stubMic_ = nullptr;
-    size_t fakeAudioInOffset = 0;
     std::function<void(const int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer)> callbackFunc_ = nullptr;
     
-    int16_t * getStubMic() {
-        if (stubMic_ == nullptr) { return nullptr; }
-        int16_t *myMicPointer = nullptr;
-        if (fakeAudioInOffset + blockSize > stubMic_->size()) {
-            fakeAudioInOffset = 0;
-        }
-        myMicPointer = stubMic_->data()+fakeAudioInOffset;
-        fakeAudioInOffset += blockSize;
-        return myMicPointer;
-    }
 
     static int sFuncPaStreamCallback(
         const void *input, void *output,
@@ -33,10 +21,8 @@ private:
         void *userData) {
         auto instance = static_cast<CallbackStylePortaudioEndpoint*> (userData);
         if (instance->callbackFunc_) {
-            auto myMicPointer = instance->getStubMic();
-            if (myMicPointer == nullptr)myMicPointer =(decltype(myMicPointer))input;
             instance->callbackFunc_(
-                myMicPointer,
+                (const int16_t *)input,
                 (int16_t *)output,
                 (uint32_t)frameCount
             );
@@ -46,7 +32,6 @@ private:
 
 public:
     virtual ReturnType init(
-        std::shared_ptr<std::vector<int16_t>> stubMic, 
         const std::function<void(const int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer)> callbackFunc
     ) override {
         auto err = Pa_Initialize();
@@ -64,12 +49,10 @@ public:
             sFuncPaStreamCallback,
             this);
         if (err != paNoError) {
-            // error
-            return err;
+            return Pa_GetErrorText(err);
         }
 
         callbackFunc_ = callbackFunc;
-        stubMic_ = stubMic;
         return 0;
     }
 

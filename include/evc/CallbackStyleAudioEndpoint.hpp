@@ -14,7 +14,6 @@ class CallbackStyleAudioEndpoint {
 public:
     virtual ~CallbackStyleAudioEndpoint() { }
     virtual ReturnType init(
-        std::shared_ptr<std::vector<int16_t>> stubMic,
         const std::function<void(const int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer)> callbackFunc
     ) = 0;
     virtual ReturnType asyncStart() = 0;

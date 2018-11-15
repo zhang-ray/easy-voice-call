@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <string>
 
-// #define PRINT_SOURCE_INFO
+#define PRINT_SOURCE_INFO
 
 #ifdef PRINT_SOURCE_INFO
 #define MY_LOG(LEVEL) BOOST_LOG_TRIVIAL(LEVEL) << "\t[" << __FUNCTION__ << "]\t[" << __FILE__ << ":" << __LINE__ << "]\t" 

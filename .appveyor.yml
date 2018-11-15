@@ -19,7 +19,13 @@ build:
   parallel: true
   verbosity: quiet
 
-after_build:
+
+test_script:
+- set PATH=%PATH%;C:\Libraries\boost_1_67_0\lib32-msvc-14.0;C:\projects\easy-voice-call-build\client_essential\Release;
+- ..\easy-voice-call-build\tests\sanity_check\Release\sanity_check_audio.exe
+
+
+after_test:
 - mkdir artifacts
 - copy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_date_time-vc140-mt-x32-1_67.dll          artifacts\
 - copy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_filesystem-vc140-mt-x32-1_67.dll         artifacts\

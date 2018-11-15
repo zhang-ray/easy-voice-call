@@ -131,6 +131,7 @@ private:
     RingBuffer micBuffer_;
     */
     AudioOutBuffer audioOutBuffer_;
+    std::shared_ptr<std::vector<int16_t>> audioOutStub_ = nullptr;
 
     uint32_t sn_sendingAudio_ = 0;
     uint32_t sn_sendingHeartBeat_ = 0;

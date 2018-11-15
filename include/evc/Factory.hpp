@@ -9,6 +9,7 @@
 class Factory : public Singleton<Factory> {
 public:
     CallbackStyleAudioEndpoint &createCallbackStyleAudioEndpoint();
+    CallbackStyleAudioEndpoint &createCallbackStyleAudioEndpoint(const std::vector<int16_t> &audioInStub, std::vector<int16_t> &audioOutStub);
     AudioEncoder &createAudioEncoder();
     AudioDecoder &createAudioDecoder();
 

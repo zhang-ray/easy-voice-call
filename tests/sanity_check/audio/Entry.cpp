@@ -25,41 +25,44 @@ public:
         root.put<bool>("needAec", false);
 
         Worker worker;
-        if (worker.init(
+        auto ret = worker.init(
             root,
             [](const std::string &, const std::string &) {},
             [](const AudioIoVolume) {},
             [](const bool) {}
-        )) {
-            worker.asyncStart([this](
-                const NetworkState newState,
-                const std::string extraMessage
-                )
-            {
-                switch (newState)
-                {
-                case NetworkState::Connected:
-                    LOGI << "Connected";
-                    break;
-                case NetworkState::Connecting:
-                    LOGI << "Connecting";
-                    break;
-                case NetworkState::Disconnected:
-                    LOGI << "Disconnected";
-                    break;
-                default:
-                    break;
-                }
-
-                if (!extraMessage.empty()) {
-                    LOGI << "extraMessage=" << extraMessage;
-                }
-            });
-            std::this_thread::sleep_for(std::chrono::seconds(10));
-            return 0;
+        );
+        if (!ret) {
+            LOGE << ret.message();
+            return -1;
         }
 
-        return -1;
+        worker.asyncStart([this](
+            const NetworkState newState,
+            const std::string extraMessage
+            )
+        {
+            switch (newState)
+            {
+            case NetworkState::Connected:
+                LOGI << "Connected";
+                break;
+            case NetworkState::Connecting:
+                LOGI << "Connecting";
+                break;
+            case NetworkState::Disconnected:
+                LOGI << "Disconnected";
+                break;
+            default:
+                break;
+            }
+
+            if (!extraMessage.empty()) {
+                LOGI << "extraMessage=" << extraMessage;
+            }
+        });
+
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        return 0;
     }
 
 };
@@ -78,48 +81,107 @@ public:
         root.put<bool>("needAec", false);
 
         Worker worker;
-        if (worker.init(
+        auto ret = worker.init(
             root,
             [](const std::string &, const std::string &) {},
             [](const AudioIoVolume) {},
             [](const bool) {}
-        )) {
-            worker.asyncStart([this](
-                const NetworkState newState,
-                const std::string extraMessage
-                )
-            {
-                switch (newState)
-                {
-                case NetworkState::Connected:
-                    LOGI << "Connected";
-                    break;
-                case NetworkState::Connecting:
-                    LOGI << "Connecting";
-                    break;
-                case NetworkState::Disconnected:
-                    LOGI << "Disconnected";
-                    break;
-                default:
-                    break;
-                }
-
-                if (!extraMessage.empty()) {
-                    LOGI << "extraMessage=" << extraMessage;
-                }
-            });
-            std::this_thread::sleep_for(std::chrono::seconds(10));
-            return 0;
+        );
+        if (!ret) {
+            LOGE << ret.message();
+            return -1;
         }
 
-        return -1;
+
+        worker.asyncStart([this](
+            const NetworkState newState,
+            const std::string extraMessage
+            )
+        {
+            switch (newState)
+            {
+            case NetworkState::Connected:
+                LOGI << "Connected";
+                break;
+            case NetworkState::Connecting:
+                LOGI << "Connecting";
+                break;
+            case NetworkState::Disconnected:
+                LOGI << "Disconnected";
+                break;
+            default:
+                break;
+            }
+
+            if (!extraMessage.empty()) {
+                LOGI << "extraMessage=" << extraMessage;
+            }
+        });
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        return 0;
     }
 };
 
 
 
+class Case_noDevice : public Case {
+public:
+    virtual int run() override {
+        boost::property_tree::ptree root;
+
+        root.put<bool>("needNetworkStub", true);
+        root.put<bool>("bypassLocalAudioEndpoing", true);
+        root.put<bool>("needAec", false);
+        root.put<bool>("audio.noDevice", true);
+
+        Worker worker;
+        auto ret = worker.init(
+            root,
+            [](const std::string &, const std::string &) {},
+            [](const AudioIoVolume) {},
+            [](const bool) {}
+        );
+        if (!ret) {
+            LOGE << ret.message();
+            return -1;
+        }
+
+        worker.asyncStart([this](
+            const NetworkState newState,
+            const std::string extraMessage
+            )
+        {
+            switch (newState)
+            {
+            case NetworkState::Connected:
+                LOGI << "Connected";
+                break;
+            case NetworkState::Connecting:
+                LOGI << "Connecting";
+                break;
+            case NetworkState::Disconnected:
+                LOGI << "Disconnected";
+                break;
+            default:
+                break;
+            }
+
+            if (!extraMessage.empty()) {
+                LOGI << "extraMessage=" << extraMessage;
+            }
+        });
+
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        return 0;
+    }
+
+};
+
+
+
+
 int main(void) {
-    auto cases = std::initializer_list<Case*> { new Case_bypassAudioEndpoint() , new Case_bypassServer() };
+    auto cases = std::initializer_list<Case*> { new Case_noDevice()};
 
     for (auto &oneCase : cases) {
         auto className = typeid(*oneCase).name();

@@ -100,6 +100,7 @@ ReturnType Worker::init(
             return "initCodec fail";
         }
 
+#if 0
         std::shared_ptr<std::vector<int16_t>> stubMic = nullptr;
         try {
             auto fakeMicInPcmFilePath = configRoot.get<std::string>("audio.in.fakeMicInPcmFilePath");
@@ -114,6 +115,8 @@ ReturnType Worker::init(
                     {
                         LOGI << "fakeMicInPcmFilePath = " << fakeMicInPcmFilePath.c_str();
                         LOGI << "file size = " << theSize;
+                        audioOutStub_ = std::make_shared<std::vector<int16_t>>();
+                        endpoint_ = &Factory::get().createCallbackStyleAudioEndpoint(*stubMic, *audioOutStub_);
                     }
                 }
             }
@@ -122,10 +125,28 @@ ReturnType Worker::init(
             LOGE_STD_EXCEPTION(e);
         }
 
+#endif
 
-        endpoint_ = &Factory::get().createCallbackStyleAudioEndpoint();
+        auto noDevice = false;
+        try {
+            noDevice = configRoot.get<bool>("audio.noDevice");
+        }
+        catch (const std::exception &e) {
+            LOGE_STD_EXCEPTION(e);
+        }
+
+        if (noDevice) {
+            std::shared_ptr<std::vector<int16_t>> stubMic = std::make_shared<std::vector<int16_t>>();
+            stubMic->resize(sampleRate * 3/*seconds*/);
+            audioOutStub_ = std::make_shared<std::vector<int16_t>>();
+            endpoint_ = &Factory::get().createCallbackStyleAudioEndpoint(*stubMic, *audioOutStub_);
+        }
+        else {
+            endpoint_ = &Factory::get().createCallbackStyleAudioEndpoint();
+        }
+
+
         auto ret = endpoint_->init(
-            stubMic,
             [this](
                 const int16_t *inputBuffer,
                 int16_t *outputBuffer,
