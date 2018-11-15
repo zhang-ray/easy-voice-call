@@ -7,7 +7,7 @@
 class CallbackStyleAudioEndpointStub : public CallbackStyleAudioEndpoint{
 private:
     std::function<void(const int16_t * inputBuffer, int16_t * outputBuffer, const uint32_t framesPerBuffer) > callbackFunc_ = nullptr;
-    std::atomic_bool started_ = false;
+    std::atomic_bool started_;
 
     std::vector<int16_t> audioInStub_;
     std::vector<int16_t> &audioOutStub_;
@@ -33,6 +33,7 @@ public:
     CallbackStyleAudioEndpointStub(const std::vector<int16_t> &audioInStub, std::vector<int16_t> &audioOutStub)
         : audioInStub_(audioInStub)
         , audioOutStub_(audioOutStub)
+        , started_(false)
     {
 
     }
