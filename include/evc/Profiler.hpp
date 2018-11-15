@@ -59,7 +59,10 @@ public:
         durationList.push_back(dur);
     }
 
-    std::string calc(){
+    std::string calc() {
+        if (durationList.empty()) {
+            return "list is empty";
+        }
         const auto &v = durationList;
         double sum = std::accumulate(v.begin(), v.end(), 0.0);
         double mean = sum / v.size();
@@ -122,6 +125,9 @@ public:
     void mark(const _TS &ts= ProcessTime::get().getProcessUptime()) { tsList_.push_back(ts); }
 private:
     std::string calc() {
+        if (tsList_.empty()) {
+            return "list is empty";
+        }
         std::string result_ = "{@tag [min,max]#nbElements}";
         const auto &v = tsList_;
         auto nbElements = v.size();

@@ -9,10 +9,18 @@
 #include <cstdio>
 #include <string>
 
-#define LOGV BOOST_LOG_TRIVIAL(trace)  << "\t[" << __FUNCTION__ << "]\t[" << __FILE__ << ":" << __LINE__ << "]\t"
-#define LOGI BOOST_LOG_TRIVIAL(info)   << "\t[" << __FUNCTION__ << "]\t[" << __FILE__ << ":" << __LINE__ << "]\t"
-#define LOGD BOOST_LOG_TRIVIAL(debug)  << "\t[" << __FUNCTION__ << "]\t[" << __FILE__ << ":" << __LINE__ << "]\t"
-#define LOGE BOOST_LOG_TRIVIAL(error)  << "\t[" << __FUNCTION__ << "]\t[" << __FILE__ << ":" << __LINE__ << "]\t"
+// #define PRINT_SOURCE_INFO
+
+#ifdef PRINT_SOURCE_INFO
+#define MY_LOG(LEVEL) BOOST_LOG_TRIVIAL(LEVEL) << "\t[" << __FUNCTION__ << "]\t[" << __FILE__ << ":" << __LINE__ << "]\t" 
+#else  // PRINT_SOURCE_INFO
+#define MY_LOG(LEVEL) BOOST_LOG_TRIVIAL(LEVEL)
+#endif // PRINT_SOURCE_INFO
+
+#define LOGV MY_LOG(trace) 
+#define LOGI MY_LOG(info)  
+#define LOGD MY_LOG(debug) 
+#define LOGE MY_LOG(error) 
 
 #define LOGE_STD_EXCEPTION(e) do { LOGE << e.what(); } while(0)
 

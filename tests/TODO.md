@@ -6,5 +6,3 @@
             - pink noise
             - sine wave
             - solo speech
-- smoking test
-   - loopback: for testing local audio device 

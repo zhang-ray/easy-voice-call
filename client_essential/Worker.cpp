@@ -202,8 +202,23 @@ void Worker::syncStart(std::function<void(const NetworkState &newState, const st
             pClient = std::make_shared<TcpClient>();
         }
 
-        auto host = configRoot_.get<std::string>("server.host");
-        auto port = configRoot_.get<std::string>("server.port");
+        std::string host;
+        std::string port;
+
+        try {
+            host = configRoot_.get<std::string>("server.host");
+        }
+        catch (const std::exception &e) {
+            LOGE_STD_EXCEPTION(e);
+        }
+
+        try {
+            port = configRoot_.get<std::string>("server.port");
+        }
+        catch (const std::exception &e) {
+            LOGE_STD_EXCEPTION(e);
+        }
+
 
         pClient->init(
                     host.c_str(),

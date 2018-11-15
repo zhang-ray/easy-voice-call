@@ -78,6 +78,7 @@ int main(int argc, char* argv[]) {
     catch (const std::exception &e) {
         printUsage();
         LOGE_STD_EXCEPTION(e);
+        return -1;
     }
 
 

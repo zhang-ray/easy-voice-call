@@ -8,4 +8,4 @@ EVC(easy-voice-call) is a self-hosting voice chating App.
 - [x] Acoustic Echo Cancellation; 
 - [x] Noise Suppression;
 - [ ] Voice Changing Capability;
-- [x] concise source code - less than 5k lines (including clients, server, unit_tests and smoking_tests code);
+- [x] concise source code - less than 5k lines (including clients, server, unit_tests and smoke_tests / sanity_check code);
