@@ -20,6 +20,10 @@ make -j3 || exit 1
 
 
 
+############  sanity check  ############
+./tests/sanity_check/sanity_check_audio || exit 1
+
+
 
 ####### make artifact
 # TODO: try to auto find the macdeployqt path?
