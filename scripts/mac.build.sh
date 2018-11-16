@@ -59,3 +59,8 @@ cp MyIcon.icns EasyVoiceCall.app/Contents/Resources/
 npm install -g appdmg || exit 1 
 appdmg spec.json EasyVoiceCall.dmg || exit 1 
 mv EasyVoiceCall.dmg ../../../EasyVoiceCall.Client.macOS.dmg || exit 1 
+
+
+############ extra sanity check  ############
+open ../../../EasyVoiceCall.Client.macOS.dmg      || exit 1
+open EasyVoiceCall.app                            || exit 1

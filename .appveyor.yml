@@ -41,6 +41,8 @@ after_test:
 - makensis EasyVoiceCall.nsi
 - move EasyVoiceCall.Client.Windows.Installer.exe ..\easy-voice-call\
 - move .\server\Release\server.exe ..\easy-voice-call\EasyVoiceCall.Server.Windows.exe
+- # extra sanity check
+- cmd: .\artifacts\EasyVoiceCall.exe
 
 
 artifacts:
