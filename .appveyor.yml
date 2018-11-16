@@ -23,12 +23,7 @@ build:
   verbosity: quiet
 
 
-test_script:
-- set PATH=%PATH%;C:\Libraries\boost_1_67_0\lib32-msvc-14.0;C:\projects\easy-voice-call-build\client_essential\Release;
-- ..\easy-voice-call-build\tests\sanity_check\Release\sanity_check_audio.exe
-
-
-after_test:
+after_build:
 - mkdir artifacts
 - copy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_date_time-vc140-mt-x32-1_67.dll          artifacts\
 - copy C:\Libraries\boost_1_67_0\lib32-msvc-14.0\boost_filesystem-vc140-mt-x32-1_67.dll         artifacts\
@@ -39,18 +34,22 @@ after_test:
 - copy .\client_cli\Release\client_cli.exe              artifacts\EasyVoiceCall.Client.Cli.exe
 - copy .\client_qt5\Release\client_qt5.exe              artifacts\EasyVoiceCall.exe
 - copy .\server\Release\server.exe                      artifacts\EasyVoiceCall.Server.Windows.exe
+- move .\tests\sanity_check\Release\sanity_check_audio.exe                                      artifacts\
 - C:\Qt\5.11\msvc2015\bin\windeployqt.exe               artifacts\EasyVoiceCall.exe
 - copy ..\easy-voice-call\scripts\EasyVoiceCall.nsi .
 - makensis EasyVoiceCall.nsi
 - move EasyVoiceCall.Client.Windows.Installer.exe ..\easy-voice-call\
-- move .\server\Release\server.exe ..\easy-voice-call\EasyVoiceCall.Server.Windows.exe
-- # extra sanity check
+
+
+test_script: #sanity check
 - ..\easy-voice-call\EasyVoiceCall.Client.Windows.Installer.exe /S /D # silently, default
+- ps: Start-Process -FilePath "C:\Program Files (x86)\EasyVoiceCall\sanity_check_audio.exe"
+- ps: Start-Process -FilePath "C:\Program Files (x86)\EasyVoiceCall\EasyVoiceCall.Server.Windows.exe"  -ArgumentList "1222 echo" -PassThru
+- ps: Start-Process -FilePath "C:\Program Files (x86)\EasyVoiceCall\EasyVoiceCall.exe" -PassThru
 
 
 artifacts:
 - path: EasyVoiceCall.Client.Windows.Installer.exe
-- path: EasyVoiceCall.Server.Windows.exe
 
 deploy:
   provider: GitHub
