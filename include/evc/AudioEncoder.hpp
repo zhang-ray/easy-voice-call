@@ -10,5 +10,7 @@ public:
     virtual ReturnType encode(const std::vector<short> &pcmData, std::vector<char> &encodedData) = 0;
     
     virtual ~AudioEncoder(){}
+
+    static AudioEncoder &create();
 };
 

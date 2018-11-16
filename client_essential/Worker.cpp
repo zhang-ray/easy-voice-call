@@ -1,7 +1,8 @@
 #include "Worker.hpp"
 
+#include "AudioDecoder.hpp"
+#include "AudioEncoder.hpp"
 
-#include "Factory.hpp"
 #include "TcpClient.hpp"
 #include "Logger.hpp"
 
@@ -43,126 +44,71 @@ ReturnType Worker::init(
 ) {
     configRoot_ = configRoot;
 
-    try {
-        needAec_ = configRoot.get<bool>("needAec");
-        if (needAec_) {
-            aec = WebRtcAec_Create();
-            if (auto ret = WebRtcAec_Init(aec, sampleRate, sampleRate)) {
-                throw "WebRtcAec_Init failed";
-            }
+    needAec_ = configRoot.get<bool>("needAec", needAec_);
+    if (needAec_) {
+        aec = WebRtcAec_Create();
+        if (auto ret = WebRtcAec_Init(aec, sampleRate, sampleRate)) {
+            throw "WebRtcAec_Init failed";
         }
     }
-    catch (const std::exception &e) {
-        LOGE_STD_EXCEPTION(e);
-    }
+
 
     try {
-        needNetworkStub_ = configRoot.get<bool>("needNetworkStub");
-    }
-    catch (const std::exception &e) {
-        LOGE_STD_EXCEPTION(e);
-    }
-
-    try {
-        bypassLocalAudioEndpoing_ = configRoot.get<bool>("bypassLocalAudioEndpoing");
-    }
-    catch (const std::exception &e) {
-        LOGE_STD_EXCEPTION(e);
-    }
-
-    try{
         {
             vad = WebRtcVad_Create();
             if (WebRtcVad_Init(vad)) {
-                std::cerr << "WebRtcVad_Init failed" << std::endl;
-                throw;
+                return "WebRtcVad_Init failed";
             }
 
             if (WebRtcVad_set_mode(vad, 3)) {
-                std::cerr << "WebRtcVad_set_mode failed" << std::endl;
-                throw;
+                return "WebRtcVad_set_mode failed";
             }
         }
 
         {
             ns_ = WebRtcNsx_Create();
             if (WebRtcNsx_Init(ns_, sampleRate)) {
-                throw;
+                return "WebRtcNsx_Init failed";
             }
 
             if (WebRtcNsx_set_policy(ns_, 3)) {
-                throw;
+                return "WebRtcNsx_set_policy failed";
             }
         }
 
-        
+
         if (!initCodec()) {
             return "initCodec fail";
         }
 
-#if 0
-        std::shared_ptr<std::vector<int16_t>> stubMic = nullptr;
-        try {
-            auto fakeMicInPcmFilePath = configRoot.get<std::string>("audio.in.fakeMicInPcmFilePath");
-            if (fakeMicInPcmFilePath.length() > 0) {
-                std::ifstream ifs(fakeMicInPcmFilePath.c_str(), std::ios::binary | std::ios::ate);
-                if (ifs.is_open()) {
-                    auto theSize = ifs.tellg();
-                    stubMic = std::make_shared<std::vector<int16_t>>();
-                    stubMic->resize(theSize / sizeof(int16_t));
-                    ifs.seekg(0, std::ios::beg);
-                    ifs.read((char *)(stubMic->data()), theSize);
-                    {
-                        LOGI << "fakeMicInPcmFilePath = " << fakeMicInPcmFilePath.c_str();
-                        LOGI << "file size = " << theSize;
-                        audioOutStub_ = std::make_shared<std::vector<int16_t>>();
-                        endpoint_ = &Factory::get().createCallbackStyleAudioEndpoint(*stubMic, *audioOutStub_);
-                    }
-                }
+        audioInStub_ = AudioInStub::create(
+            configRoot.get<std::string>("audioInStub", "")
+        );
+
+        endpoint_ = &CallbackStyleAudioEndpoint::create(
+            configRoot.get<bool>("needRealAudioEndpoint", true)
+        );
+
+
+        auto ret = endpoint_->init([this](const int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer) {
+            auto finalInputBuffer = inputBuffer;
+            if (audioInStub_) {
+                finalInputBuffer = audioInStub_->get();
             }
-        }
-        catch (const std::exception &e) {
-            LOGE_STD_EXCEPTION(e);
-        }
-
-#endif
-
-        auto noDevice = false;
-        try {
-            noDevice = configRoot.get<bool>("audio.noDevice");
-        }
-        catch (const std::exception &e) {
-            LOGE_STD_EXCEPTION(e);
-        }
-
-        if (noDevice) {
-            std::shared_ptr<std::vector<int16_t>> stubMic = std::make_shared<std::vector<int16_t>>();
-            stubMic->resize(sampleRate * 3/*seconds*/);
-            audioOutStub_ = std::make_shared<std::vector<int16_t>>();
-            endpoint_ = &Factory::get().createCallbackStyleAudioEndpoint(*stubMic, *audioOutStub_);
-        }
-        else {
-            endpoint_ = &Factory::get().createCallbackStyleAudioEndpoint();
-        }
-
-
-        auto ret = endpoint_->init(
-            [this](
-                const int16_t *inputBuffer,
-                int16_t *outputBuffer,
-                const uint32_t framesPerBuffer
-                ) {
-            if (bypassLocalAudioEndpoing_) {
-                std::memcpy(outputBuffer, inputBuffer, framesPerBuffer * sizeof(int16_t));
-            }
-            else {
-                nsAecVolumeVadSend(inputBuffer);
-                audioOutBuffer_.fetch(outputBuffer);
-            }
-            //sav.calculate()
+            nsAecVolumeVadSend(finalInputBuffer);
+            audioOutBuffer_.fetch(outputBuffer);
         });
         if (!ret) {
             return ret;
+        }
+
+
+
+        if (configRoot.get<bool>("needNetworkStub", false)) {
+            pClient = std::make_shared<NetClientStub_EchoMediaData>();
+        }
+        else {
+            pClient = std::make_shared<TcpClient>();
         }
 
     }
@@ -185,8 +131,8 @@ void Worker::setMute(bool mute)
 }
 
 bool Worker::initCodec(){
-    decoder = &(Factory::get().createAudioDecoder());
-    encoder = &(Factory::get().createAudioEncoder());
+    decoder = &(AudioDecoder::create());
+    encoder = &(AudioEncoder::create());
 
     if (encoder->reInit()){
         if (decoder->reInit()) {
@@ -216,30 +162,8 @@ void Worker::syncStart(std::function<void(const NetworkState &newState, const st
             });
         }
         
-        if (needNetworkStub_) {
-            pClient = std::make_shared<NetClientStub_EchoMediaData>();
-        }
-        else {
-            pClient = std::make_shared<TcpClient>();
-        }
-
-        std::string host;
-        std::string port;
-
-        try {
-            host = configRoot_.get<std::string>("server.host");
-        }
-        catch (const std::exception &e) {
-            LOGE_STD_EXCEPTION(e);
-        }
-
-        try {
-            port = configRoot_.get<std::string>("server.port");
-        }
-        catch (const std::exception &e) {
-            LOGE_STD_EXCEPTION(e);
-        }
-
+        std::string host = configRoot_.get<std::string>("server.host", "127.0.0.1");
+        std::string port = configRoot_.get<std::string>("server.port", "80");
 
         pClient->init(
                     host.c_str(),
@@ -515,6 +439,7 @@ void Worker::sendHeartbeat(){
         lastTimeStamp = std::chrono::system_clock::now();
     }
 }
+
 
 void Worker::syncStop()
 {

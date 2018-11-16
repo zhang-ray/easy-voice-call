@@ -13,126 +13,14 @@ public:
 
 
 
-
-class Case_bypassAudioEndpoint : public Case {
-public:
-    virtual int run() override
-    {
-        boost::property_tree::ptree root;
-        
-        root.put<bool>("needNetworkStub", true);
-        root.put<bool>("bypassLocalAudioEndpoing", true);
-        root.put<bool>("needAec", false);
-
-        Worker worker;
-        auto ret = worker.init(
-            root,
-            [](const std::string &, const std::string &) {},
-            [](const AudioIoVolume) {},
-            [](const bool) {}
-        );
-        if (!ret) {
-            LOGE << ret.message();
-            return -1;
-        }
-
-        worker.asyncStart([this](
-            const NetworkState newState,
-            const std::string extraMessage
-            )
-        {
-            switch (newState)
-            {
-            case NetworkState::Connected:
-                LOGI << "Connected";
-                break;
-            case NetworkState::Connecting:
-                LOGI << "Connecting";
-                break;
-            case NetworkState::Disconnected:
-                LOGI << "Disconnected";
-                break;
-            default:
-                break;
-            }
-
-            if (!extraMessage.empty()) {
-                LOGI << "extraMessage=" << extraMessage;
-            }
-        });
-
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        return 0;
-    }
-
-};
-
-
-//////////////////////////////////////////////////////////////////////////
-// needNetworkStub
-//////////////////////////////////////////////////////////////////////////
-class Case_bypassServer : public Case {
-public:
-    virtual int run() override
-    {
-        boost::property_tree::ptree root;
-
-        root.put<bool>("needNetworkStub", true);
-        root.put<bool>("needAec", false);
-
-        Worker worker;
-        auto ret = worker.init(
-            root,
-            [](const std::string &, const std::string &) {},
-            [](const AudioIoVolume) {},
-            [](const bool) {}
-        );
-        if (!ret) {
-            LOGE << ret.message();
-            return -1;
-        }
-
-
-        worker.asyncStart([this](
-            const NetworkState newState,
-            const std::string extraMessage
-            )
-        {
-            switch (newState)
-            {
-            case NetworkState::Connected:
-                LOGI << "Connected";
-                break;
-            case NetworkState::Connecting:
-                LOGI << "Connecting";
-                break;
-            case NetworkState::Disconnected:
-                LOGI << "Disconnected";
-                break;
-            default:
-                break;
-            }
-
-            if (!extraMessage.empty()) {
-                LOGI << "extraMessage=" << extraMessage;
-            }
-        });
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        return 0;
-    }
-};
-
-
-
 class Case_noDevice : public Case {
 public:
     virtual int run() override {
         boost::property_tree::ptree root;
 
         root.put<bool>("needNetworkStub", true);
-        root.put<bool>("bypassLocalAudioEndpoing", true);
-        root.put<bool>("needAec", false);
-        root.put<bool>("audio.noDevice", true);
+        root.put<bool>("needRealAudioEndpoint", false);
+        root.put<bool>("audioInStub", "sine");
 
         Worker worker;
         auto ret = worker.init(
@@ -178,7 +66,10 @@ public:
 };
 
 
-
+/*
+TODO
+- comparing audioInStub with DUMP_AUDIO_OUT
+*/
 
 int main(void) {
     auto cases = std::initializer_list<Case*> { new Case_noDevice()};

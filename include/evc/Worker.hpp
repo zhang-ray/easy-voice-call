@@ -15,6 +15,9 @@
 #include "ReturnType.hpp"
 #include "NetClient.hpp"
 #include <vector>
+#include <climits>
+
+
 class AudioDecoder;
 class AudioEncoder;
 
@@ -55,7 +58,7 @@ TODO
 - cross fading for PLC
 // https://www.boost.org/doc/libs/1_67_0/doc/html/boost/lockfree/spsc_queue.html  ?
 */
-
+//// TODO DUMP AUDIO OUT 
 class AudioOutBuffer {
 private:
     boost::lockfree::spsc_queue<std::array<int16_t, blockSize>> buffer_;
@@ -86,6 +89,89 @@ public:
         }
     }
 };
+
+
+class GeneratedWave {
+public:
+    virtual ~GeneratedWave(){}
+};
+
+
+class SineWave : public GeneratedWave {
+private:
+    std::vector<int16_t> wholePcm_;
+public:
+    double pi() { return std::atan(1) * 4; }
+    SineWave(size_t sampleRate, double freq, double maxAmplitude, double durationSecond) {
+        auto size_ = sampleRate * durationSecond;
+        wholePcm_.resize(size_);
+        for (int i = 0; i < size_; i++) {
+            wholePcm_[i] = maxAmplitude * SHRT_MAX * std::sin(2 * pi() * freq / size_ * i);
+        }
+    }
+    operator std::vector<int16_t>() const { return wholePcm_; }
+};
+
+
+class AudioInStub {
+private:
+    std::vector<int16_t> wholePcm_;
+    size_t size_ = 0;
+    size_t pos_ = 0;
+    const bool loop_ = true;
+public:
+    AudioInStub(const decltype(wholePcm_) &wholePcm)
+        : wholePcm_(wholePcm) 
+        , size_(wholePcm_.size())
+    {
+#ifdef _DEBUG
+        DataDumper<int16_t> d("AudioInStub.txt");
+        d.dump(wholePcm_);
+#endif // _DEBUG
+
+    }
+
+    const int16_t *get() {
+        if (pos_ + blockSize >= size_) {
+            pos_ = 0;
+        }
+        auto ret = wholePcm_.data() + pos_;
+        pos_ += blockSize;
+        return ret;
+    }
+
+    static std::shared_ptr<AudioInStub> loadFile(const std::string &filePathOrTag) {
+        std::ifstream ifs(filePathOrTag.c_str(), std::ios::binary | std::ios::ate);
+        auto fileSize = ifs.tellg();
+        if (fileSize <= 0) {
+            return nullptr;
+        }
+        std::vector<int16_t > wholePcm_;
+        ifs.seekg(0, std::ios::beg);
+        wholePcm_.resize((size_t)fileSize / sizeof(int16_t));
+        if (!ifs.read((char*)wholePcm_.data(), fileSize)) {
+            return nullptr;
+        }
+        wholePcm_.shrink_to_fit();
+
+        return std::make_shared<AudioInStub>(wholePcm_);
+    }
+
+
+    static std::shared_ptr<AudioInStub> create(const std::string &filePathOrTag) {
+        auto ret = loadFile(filePathOrTag);
+
+        if (!ret) {
+            if (filePathOrTag == "sine") {
+                return std::make_shared<AudioInStub>(SineWave(sampleRate, 440, .8, 10));
+            }
+        }
+
+        return nullptr;
+    }
+};
+
+
 
 /// TODO:
 ///    - make timestamp
@@ -121,15 +207,14 @@ private:
     uint8_t vadCounter_ = 0; // nbActivated
     bool mute_ = false;
     bool needSend_ = true;
-    bool needNetworkStub_ = false;
     SuckAudioVolume sav;
     std::shared_ptr<std::thread> durationTimer_ = nullptr;
     std::shared_ptr<NetClient> pClient = nullptr;
     uint32_t largestReceivedMediaDataTimestamp_ = 0;
-    bool bypassLocalAudioEndpoing_ = false;
     /*
     RingBuffer micBuffer_;
     */
+    std::shared_ptr<AudioInStub> audioInStub_ = nullptr;
     AudioOutBuffer audioOutBuffer_;
     std::shared_ptr<std::vector<int16_t>> audioOutStub_ = nullptr;
 

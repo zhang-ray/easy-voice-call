@@ -50,13 +50,7 @@ int main(int argc, char* argv[]) {
         boost::property_tree::ptree root;
         boost::property_tree::read_json(file, root);
 
-        auto workingDuration = -1;
-        try {
-            workingDuration = root.get <int>("cli.workingduration");
-        }
-        catch (const std::exception &e) {
-            LOGE_STD_EXCEPTION(e);
-        }
+        auto workingDuration = root.get <int>("cli.workingduration", -1);
 
         Worker worker;
         if (worker.init(

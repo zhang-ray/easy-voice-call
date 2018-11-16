@@ -39,24 +39,8 @@ MainWindow::MainWindow(QWidget *parent)
         if (file.open(QIODevice::ReadOnly)) {
             boost::property_tree::read_json(file.fileName().toStdString(), root_);
 
-            try {
-                ui->lineEdit_serverHost->setText(root_.get<std::string>("server.host").c_str());
-            }
-            catch (std::exception &e) {
-                LOGE_STD_EXCEPTION(e);
-            }
-
-            try {
-                ui->lineEdit_serverPort->setText(root_.get<std::string>("server.port").c_str());
-            }
-            catch (std::exception &e) {
-                LOGE_STD_EXCEPTION(e);
-            }
-
-
-
-
-
+            ui->lineEdit_serverHost->setText(root_.get<std::string>("server.host", "127.0.0.1").c_str());
+            ui->lineEdit_serverPort->setText(root_.get<std::string>("server.port", "80").c_str());
         }
     }
     catch (std::exception &e){

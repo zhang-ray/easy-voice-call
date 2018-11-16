@@ -10,5 +10,7 @@ public:
     virtual ReturnType decode(const std::vector<char> &encodedData, std::vector<short> &pcmData) = 0;
     
     virtual ~AudioDecoder(){}
+
+    static AudioDecoder &create();
 };
 

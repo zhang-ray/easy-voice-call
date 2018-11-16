@@ -10,6 +10,7 @@
 #else
 #include <opus/opus.h>
 #endif
+#include "AudioCommon.hpp"
 
 #define MAX_PACKET_SIZE (3*1276)
 
