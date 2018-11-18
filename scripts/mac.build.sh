@@ -21,7 +21,8 @@ make -j3 || exit 1
 
 
 ############  sanity check  ############
-./tests/sanity_check/sanity_check_audio || exit 1
+(./server/server 1222 echo &) || exit 1
+./tests/sanity_check/sanity_check_audio || exit 1  # use 127.0.0.1:1222
 
 
 

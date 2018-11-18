@@ -43,9 +43,10 @@ after_build:
 
 test_script: #sanity check
 - ..\easy-voice-call\EasyVoiceCall.Client.Windows.Installer.exe /S /D # silently, default
-- ps: Start-Process -FilePath "C:\Program Files (x86)\EasyVoiceCall\sanity_check_audio.exe"
-- ps: Start-Process -FilePath "C:\Program Files (x86)\EasyVoiceCall\EasyVoiceCall.Server.Windows.exe"  -ArgumentList "1222 echo" -PassThru
-- ps: Start-Process -FilePath "C:\Program Files (x86)\EasyVoiceCall\EasyVoiceCall.exe" -PassThru
+- cd "C:\Program Files (x86)\EasyVoiceCall\"
+- ps: Start-Process -FilePath "EasyVoiceCall.Server.Windows.exe"  -ArgumentList "1222 echo" -PassThru
+- ps: Start-Process -FilePath "EasyVoiceCall.exe" -PassThru
+- sanity_check_audio.exe
 
 
 artifacts:

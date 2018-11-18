@@ -74,6 +74,8 @@ TODO
 */
 
 int main(void) {
+    TrickyBoostLog trickyBoostLog(boost::log::trivial::severity_level::debug);
+
     auto cases = std::initializer_list<Case*> { new Case_noDevice()};
 
     for (auto &oneCase : cases) {
