@@ -16,6 +16,7 @@
 #include "NetClient.hpp"
 #include <vector>
 #include <climits>
+#include <fstream>
 
 
 class AudioDecoder;
@@ -58,16 +59,28 @@ TODO
 - cross fading for PLC
 // https://www.boost.org/doc/libs/1_67_0/doc/html/boost/lockfree/spsc_queue.html  ?
 */
-//// TODO DUMP AUDIO OUT 
 class AudioOutBuffer {
 private:
     boost::lockfree::spsc_queue<std::array<int16_t, blockSize>> buffer_;
     std::array<int16_t, blockSize> emptyBuffer_;
+
+    std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile_ = nullptr;
 public:
     AudioOutBuffer()
         : buffer_(100)
     {
         memset(emptyBuffer_.data(), 0, emptyBuffer_.size() * sizeof(int16_t));
+    }
+     
+    ReturnType setAudioOutDumpPath(const std::string &filePath){
+        dumpMono16le16kHzPcmFile_ = std::make_shared<std::ofstream>(filePath, std::ofstream::binary /*don't miss std::ofstream::binary*/);
+        if (!dumpMono16le16kHzPcmFile_->is_open()) {
+            return "!is_open()";
+        }
+
+        dumpMono16le16kHzPcmFile_ = nullptr;
+
+        return 0;
     }
 
     void fetch(int16_t *outData) {
@@ -79,6 +92,10 @@ public:
             Profiler::get().emptyAudioOutBufferTS_.mark();
             std::memcpy((char*)outData, (char*)emptyBuffer_.data(), emptyBuffer_.size() * sizeof(int16_t));
         }
+
+        if (dumpMono16le16kHzPcmFile_) {
+            dumpMono16le16kHzPcmFile_->write((char*)outData, sizeof(int16_t)*blockSize);
+        }
     }
 
     void insert(const int16_t *inData) {
@@ -86,6 +103,14 @@ public:
         std::memcpy(data.data(), inData, sizeof(int16_t)*blockSize);
         if (!buffer_.push(data)) {
             LOGD << " could not pushElements from spkBuffer_";
+        }
+    }
+
+    ~AudioOutBuffer() {
+        if (dumpMono16le16kHzPcmFile_) {
+            if (dumpMono16le16kHzPcmFile_->is_open()) {
+                dumpMono16le16kHzPcmFile_->close();
+            }
         }
     }
 };
@@ -108,7 +133,7 @@ public:
         for (int i = 0; i < size_; i++) {
             wholePcm_[i] = maxAmplitude * SHRT_MAX * std::sin(2 * pi() * freq / sampleRate * i);
         }
-#ifdef _DEBUG
+#ifdef DUMP_GeneratedWave
         DataDumper<int16_t> d("AudioInStub.txt");
         d.dump(wholePcm_);
 #endif // _DEBUG

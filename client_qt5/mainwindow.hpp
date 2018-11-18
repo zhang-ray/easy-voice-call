@@ -81,7 +81,6 @@ private:
     Ui::MainWindow *ui = nullptr;
 
     std::shared_ptr<Worker> worker_ = nullptr;
-    std::shared_ptr<std::ofstream> dumpMono16le16kHzPcmFile_ = nullptr;
     boost::property_tree::ptree root_;
 private:
 

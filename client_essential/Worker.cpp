@@ -51,6 +51,11 @@ ReturnType Worker::init(
         }
     }
 
+    auto ret = audioOutBuffer_.setAudioOutDumpPath(configRoot.get("audioOutDumpPath", "audioOut_mono16le16kHz.pcm"));
+    if (!ret) {
+        LOGE << ret.message();
+    }
+
 
     try {
         {
@@ -435,6 +440,12 @@ void Worker::sendHeartbeat(){
 void Worker::syncStop()
 {
     gotoStop_ = true;
+    
+    if (endpoint_) {
+        endpoint_->syncStop();
+        endpoint_ = nullptr;
+    }
+
     if (netThread_) {
         if (netThread_->joinable()) {
             netThread_->join();
@@ -442,10 +453,6 @@ void Worker::syncStop()
         netThread_ = nullptr;
     }
 
-    if (endpoint_) {
-        endpoint_->syncStop();
-        endpoint_ = nullptr;
-    }
 
 
     if (durationTimer_) {

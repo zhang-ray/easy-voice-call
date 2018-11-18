@@ -184,11 +184,6 @@ MainWindow::~MainWindow()
             boost::property_tree::write_json(file.fileName().toStdString(), root_);
         }
 
-        if (dumpMono16le16kHzPcmFile_) {
-            if (dumpMono16le16kHzPcmFile_->is_open()) {
-                dumpMono16le16kHzPcmFile_->close();
-            }
-        }
     }
     catch (std::exception &e) {
         LOGE_STD_EXCEPTION(e);
