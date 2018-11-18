@@ -106,7 +106,7 @@ public:
         auto size_ = sampleRate * durationSecond;
         wholePcm_.resize(size_);
         for (int i = 0; i < size_; i++) {
-            wholePcm_[i] = maxAmplitude * SHRT_MAX * std::sin(2 * pi() * freq / size_ * i);
+            wholePcm_[i] = maxAmplitude * SHRT_MAX * std::sin(2 * pi() * freq / sampleRate * i);
         }
 #ifdef _DEBUG
         DataDumper<int16_t> d("AudioInStub.txt");
