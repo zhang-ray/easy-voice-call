@@ -108,6 +108,10 @@ public:
         for (int i = 0; i < size_; i++) {
             wholePcm_[i] = maxAmplitude * SHRT_MAX * std::sin(2 * pi() * freq / size_ * i);
         }
+#ifdef _DEBUG
+        DataDumper<int16_t> d("AudioInStub.txt");
+        d.dump(wholePcm_);
+#endif // _DEBUG
     }
     operator std::vector<int16_t>() const { return wholePcm_; }
 };
@@ -123,13 +127,7 @@ public:
     AudioInStub(const decltype(wholePcm_) &wholePcm)
         : wholePcm_(wholePcm) 
         , size_(wholePcm_.size())
-    {
-#ifdef _DEBUG
-        DataDumper<int16_t> d("AudioInStub.txt");
-        d.dump(wholePcm_);
-#endif // _DEBUG
-
-    }
+    { }
 
     const int16_t *get() {
         if (pos_ + blockSize >= size_) {
@@ -161,10 +159,12 @@ public:
     static std::shared_ptr<AudioInStub> create(const std::string &filePathOrTag) {
         auto ret = loadFile(filePathOrTag);
 
-        if (!ret) {
-            if (filePathOrTag == "sine") {
-                return std::make_shared<AudioInStub>(SineWave(sampleRate, 440, .8, 10));
-            }
+        if (ret) {
+            return ret;
+        }
+        
+        if (filePathOrTag == "sine") {
+            return std::make_shared<AudioInStub>(SineWave(sampleRate, 440, .8, 10));
         }
 
         return nullptr;
