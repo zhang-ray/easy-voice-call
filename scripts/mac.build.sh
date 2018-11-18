@@ -1,4 +1,6 @@
 
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 brew install portaudio || exit 1 
 brew install qt        || exit 1 
 brew install wget      || exit 1 
