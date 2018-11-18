@@ -11,7 +11,6 @@
 #include "../audio-processing-module/independent_vad/src/webrtc_vad.hpp"
 #include "../audio-processing-module/independent_aec/src/echo_cancellation.h"
 #include "../audio-processing-module/independent_ns/src/noise_suppression_x.hpp"
-#include "NetClientStub_EchoMediaData.hpp"
 
 namespace {
 VadInst* vad;
@@ -102,15 +101,7 @@ ReturnType Worker::init(
             return ret;
         }
 
-
-
-        if (configRoot.get<bool>("needNetworkStub", false)) {
-            pClient = std::make_shared<NetClientStub_EchoMediaData>();
-        }
-        else {
-            pClient = std::make_shared<TcpClient>();
-        }
-
+        pClient = std::make_shared<TcpClient>();
     }
     catch (const std::exception &e) {
         LOGE_STD_EXCEPTION(e);

@@ -1,6 +1,8 @@
 #pragma once
 #include "NetClient.hpp"
 
+#error DEPRECATED
+
 class NetClientStub_EchoMediaData : public NetClient , public Singleton<NetClientStub_EchoMediaData>{
 private:
     std::function<void(const NetClient & myClient, const NetPacket & netPacket) > onDataReceived_ = nullptr;

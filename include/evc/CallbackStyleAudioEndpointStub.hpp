@@ -32,13 +32,13 @@ public:
     virtual ReturnType asyncStart() override{
         started_ = true;
         [this]() {
-            for (; !started_;) {
+            for (; started_;) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
                 /// TODO: make tempo more precisely
                 callbackFunc_(
                     audioInStub_.data(),
-                    nullptr,
+                    audioOutStub_.data(),
                     blockSize);
             }
         }();
