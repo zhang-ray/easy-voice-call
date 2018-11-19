@@ -88,7 +88,7 @@ private:
             }
             auto sum = std::accumulate(theResult.begin(), theResult.end(), 0.0);
             LOGD << filePaths[i] << "\t feature = " << sum;
-            if (std::fabs(sum) < std::fabs(std::numeric_limits<double>::lowest())) {
+            if (std::fabs(sum) < std::fabs(std::numeric_limits<double>::epsilon())) {
                 LOGE << filePaths[i] << "\t is too low";
                 return -1;
             }
