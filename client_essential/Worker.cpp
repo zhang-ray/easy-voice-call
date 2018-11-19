@@ -143,7 +143,7 @@ void Worker::asyncStart(std::function<void(const NetworkState &newState, const s
 }
 
 
-void Worker::syncStart(std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState) {
+ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState) {
     try{
         gotoStop_ = false;
         bool isLogin = false;
@@ -208,7 +208,7 @@ void Worker::syncStart(std::function<void(const NetworkState &newState, const st
                 if (durationReporter_) {
                     durationReporter_(0);
                 }
-                return;
+                return "Could not connect to Server...";
             }
         }
 
@@ -227,7 +227,7 @@ void Worker::syncStart(std::function<void(const NetworkState &newState, const st
 
         if (!isLogin){
             toggleState(NetworkState::Disconnected, "Could not Login to Server...");
-            return;
+            return "Could not Login to Server...";
         }
 
         toggleState(NetworkState::Connected, "");
@@ -248,13 +248,10 @@ void Worker::syncStart(std::function<void(const NetworkState &newState, const st
 
     }
     catch (std::exception& e){
-        std::cerr << "Exception: " << e.what() << "\n";
+        return e.what();
     }
 
-    //        emit updateUiState(NetworkState::Disconnected);
-
-    /* ... here is the expensive or blocking operation ... */
-    //        emit resultReady(result);
+    return 0;
 }
 
 void Worker::nsAecVolumeVadSend(const short *buffer){

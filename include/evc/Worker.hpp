@@ -266,7 +266,7 @@ public:
 
     EVC_API void asyncStart(std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState);
 
-    EVC_API void syncStart(std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState);
+    EVC_API ReturnType syncStart(std::function<void(const NetworkState &newState, const std::string &extraMessage)> toggleState);
 
 
     ///// TODO: blocked when server down?

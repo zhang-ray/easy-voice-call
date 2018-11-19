@@ -8,14 +8,35 @@
 class Case {
 public:
     virtual ~Case() {}
-    virtual int run() = 0;
+    virtual ReturnType run() = 0;
 };
 
 
 
+void onNetworkChanged(const NetworkState &newState, const std::string &extraMessage) {
+    switch (newState)
+    {
+    case NetworkState::Connected:
+        LOGI << "Connected";
+        break;
+    case NetworkState::Connecting:
+        LOGI << "Connecting";
+        break;
+    case NetworkState::Disconnected:
+        LOGI << "Disconnected";
+        break;
+    default:
+        break;
+    }
+
+    if (!extraMessage.empty()) {
+        LOGI << "extraMessage=" << extraMessage;
+    }
+}
+
 class Case_noDevice : public Case {
 public:
-    virtual int run() override {
+    virtual ReturnType run() override {
         boost::property_tree::ptree root;
 
         root.put<std::string>("server.host", "127.0.0.1");
@@ -36,35 +57,20 @@ public:
             return -1;
         }
 
-        worker.asyncStart([this](
-            const NetworkState newState,
-            const std::string extraMessage
-            )
-        {
-            switch (newState)
-            {
-            case NetworkState::Connected:
-                LOGI << "Connected";
-                break;
-            case NetworkState::Connecting:
-                LOGI << "Connecting";
-                break;
-            case NetworkState::Disconnected:
-                LOGI << "Disconnected";
-                break;
-            default:
-                break;
-            }
 
-            if (!extraMessage.empty()) {
-                LOGI << "extraMessage=" << extraMessage;
-            }
+        std::thread bg([&]() {
+            std::this_thread::sleep_for(std::chrono::seconds(10));
+            worker.syncStop();
         });
+        bg.detach();
 
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+        auto ret2 = worker.syncStart(&onNetworkChanged);
+        if (!ret2) {
+            return ret2;
+        }
+
         return 0;
     }
-
 };
 
 
@@ -76,20 +82,18 @@ TODO
 int main(void) {
     TrickyBoostLog trickyBoostLog(boost::log::trivial::severity_level::debug);
 
-    auto cases = std::initializer_list<Case*> { new Case_noDevice()};
+    auto cases = std::initializer_list<Case*>{ new Case_noDevice() };
 
     for (auto &oneCase : cases) {
         auto className = typeid(*oneCase).name();
         LOGI << "\n\n\nstart check " << className;
-        if (oneCase->run()) {
+        if (!oneCase->run()) {
             LOGE << className << " failed";
             return -1;
         }
-        else {
-            LOGI << className << " OK";
-        }
+        LOGI << className << " OK";
     }
 
-    LOGI << "all tests were passed!";
+    LOGI << "all tests were passed!\n\n\n";
     return 0;
 }
