@@ -29,8 +29,7 @@ make -j3 || exit 1
 
 
 ####### make artifact
-# TODO: try to auto find the macdeployqt path?
-/usr/local/Cellar/qt/5.11.2/bin/macdeployqt client_qt5 || exit 1 
+/usr/local/opt/qt/bin/macdeployqt client_qt5 || exit 1 
 cd client_qt5
 mkdir Contents/MacOS
 mv client_qt5 Contents/MacOS/EasyVoiceCall
