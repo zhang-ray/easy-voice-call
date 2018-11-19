@@ -181,7 +181,7 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
             }
             case NetPacket::PayloadType::AudioMessage: {
                 decodeOpusAndAecBufferFarend(netPacket);
-                Profiler::get().arrivalAudioOffset_.addData(
+                Profiler::get().packageDelayList_.addData(
                     (int32_t)(ProcessTime::get().getProcessUptime()) -
                     (int32_t)(netPacket.timestamp())
                 );

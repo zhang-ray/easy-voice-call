@@ -57,6 +57,8 @@ enum class NetworkState : unsigned char{
 TODO
 - Packet loss compensation
 - cross fading for PLC
+- store encoded package?
+- Timestamp information should be stored
 // https://www.boost.org/doc/libs/1_67_0/doc/html/boost/lockfree/spsc_queue.html  ?
 */
 class AudioOutBuffer {
@@ -88,7 +90,7 @@ public:
             std::memcpy((void*)outData, (void*)data.data(), sizeof(int16_t)*blockSize);
         }
         else {
-            Profiler::get().emptyAudioOutBufferTS_.mark();
+            Profiler::get().emptyAudioOutBuffer_.addData(true);
             std::memcpy((char*)outData, (char*)emptyBuffer_.data(), emptyBuffer_.size() * sizeof(int16_t));
         }
 

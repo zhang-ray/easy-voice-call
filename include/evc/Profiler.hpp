@@ -10,34 +10,35 @@
 
 
 
-
 template <typename T>
-class DataDumper {
+class EventList{
 private:
-    const std::string fileName_;
+    const char *tag_ = nullptr;
+    std::vector<std::tuple<uint32_t, T>> list_; // {uptime, delay}
     std::ofstream ofs_;
 public:
-    DataDumper(const std::string fileName)
-        : fileName_(fileName)
-    {
-        ofs_.open(fileName_);
+    EventList(const char *tag) : tag_(tag) {
+        ofs_.open(tag);
+    }
+    void addData(const T &data) {
+        list_.push_back({ProcessTime::get().getProcessUptime(),data});
     }
 
-    void dump(const std::vector<T> data) {
-        for (const auto &v : data) {
-            ofs_ << v << std::endl;
+    /// CSV format
+    void dump() {
+        LOGI << "dump_to: " << tag_;
+        for (const auto &v : list_) {
+            ofs_ << std::get<0>(v) << ", " << std::get<1>(v) << std::endl;
         }
     }
 };
 
 
-/* TODO
-statistics media data
-    - packet order
-    - arrival time's Evenness 
-    - 
-*/
 
+
+/// DEPRECATED....
+/// try to dump data and analyze off-line
+#if 0
 class Statistician {
 private:
     std::vector<int32_t> durationList;
@@ -80,76 +81,23 @@ public:
 
         return result_;
     }
-
 };
-
-
-class Timer {
-private:
-    Statistician *stat_ = nullptr;
-    decltype(std::chrono::system_clock::now()) startPoint_;
-public:
-    Timer(Statistician *stat)
-        : stat_(stat)
-    {
-        startPoint_ = std::chrono::system_clock::now();
-    }
-
-    ~Timer() {
-        auto dur = static_cast<int32_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startPoint_).count());
-        if (stat_) {
-            stat_->addData(dur);
-        }
-    }
-};
-
-
-
-class TimestampMarker {
-    using _TS = decltype(ProcessTime::get().getProcessUptime());
-private:
-    const char *tag_ = nullptr;
-    std::vector<_TS> tsList_;
-public:
-    TimestampMarker(const char *tag) : tag_(tag) {}
-    void dump(){
-        try {
-            LOGI << calc();
-            DataDumper<_TS> dumper(tag_);
-            dumper.dump(tsList_);
-        }
-        catch (const std::exception &e){
-            LOGE_STD_EXCEPTION(e);
-        }
-    }
-    void mark(const _TS &ts= ProcessTime::get().getProcessUptime()) { tsList_.push_back(ts); }
-private:
-    std::string calc() {
-        if (tsList_.empty()) {
-            return "list is empty";
-        }
-        std::string result_ = "{@tag [min,max]#nbElements}";
-        const auto &v = tsList_;
-        auto nbElements = v.size();
-        auto minV = *std::min_element(std::begin(v), std::end(v));
-        auto maxV = *std::max_element(std::begin(v), std::end(v));
-        result_ = result_ + "\t{@" + tag_ + "[" + std::to_string(minV) + "," + std::to_string(maxV) + "]#" + std::to_string(nbElements) + "}";
-        return result_;
-    }
-};
+#endif
 
 
 class Profiler : public Singleton<Profiler> {
 public:
-    Statistician arrivalAudioOffset_;
-    TimestampMarker emptyAudioOutBufferTS_;
+    //Statistician arrivalAudioOffset_;
+    EventList<int32_t> packageDelayList_;
+    EventList<bool> emptyAudioOutBuffer_;
 public:
     Profiler()
-        : arrivalAudioOffset_("arrivalOffset(ms)")
-        , emptyAudioOutBufferTS_("emptyBufferTS(uptime, ms)")
+        : packageDelayList_("packageDelayList_.csv")
+        , emptyAudioOutBuffer_("emptyBuffer_.csv")
     { }
+
     void dump() {
-        arrivalAudioOffset_.dump();
-        emptyAudioOutBufferTS_.dump();
+        packageDelayList_.dump();
+        emptyAudioOutBuffer_.dump();
     }
 };
