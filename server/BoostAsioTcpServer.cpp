@@ -155,7 +155,7 @@ public:
 
 
 
-    void deliver(const NetPacket& msg) {
+    virtual void deliver(const NetPacket& msg) override {
         bool write_in_progress = !write_msgs_.empty();
         write_msgs_.push_back(msg);
         if (!write_in_progress) {

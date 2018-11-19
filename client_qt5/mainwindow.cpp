@@ -208,6 +208,8 @@ void MainWindow::on_pushButton_connecting_clicked(){
         }
         break;
     }
+    default:
+        break;
     }
 }
 

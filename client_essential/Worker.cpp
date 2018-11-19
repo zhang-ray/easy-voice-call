@@ -187,6 +187,8 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
                 );
                 break;
             }
+            default:
+                break;
             }
         });
 
