@@ -46,6 +46,8 @@ test_script: #sanity check
 - cd "C:\Program Files (x86)\EasyVoiceCall\"
 - ps: Start-Process -FilePath "EasyVoiceCall.Server.Windows.exe"  -ArgumentList "1222 echo" -PassThru
 - ps: Start-Process -FilePath "EasyVoiceCall.exe" -PassThru
+- ps: Start-FileDownload 'https://github.com/zhang-ray/playground-github/releases/download/voice_material/mono16le16kHz.pcm'
+- move mono16le16kHz.pcm audioInStub.pcm
 - sanity_check_audio.exe
 
 

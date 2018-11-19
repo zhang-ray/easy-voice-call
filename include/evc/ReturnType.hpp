@@ -12,5 +12,5 @@ public:
 private:
     void dump(){printf("%s:%s\n", ok_?"OK":"Not OK", errorMessage_.c_str());}
     bool ok_ = true;
-    const std::string errorMessage_ = "";
+    std::string errorMessage_ = "";
 };

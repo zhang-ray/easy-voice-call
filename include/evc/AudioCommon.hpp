@@ -8,3 +8,6 @@ enum class AudioInOut : uint8_t {
     In,
     Out
 };
+
+using OneSegment = std::array<int16_t, blockSize>;
+

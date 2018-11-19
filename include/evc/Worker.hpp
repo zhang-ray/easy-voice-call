@@ -75,10 +75,9 @@ public:
     ReturnType setAudioOutDumpPath(const std::string &filePath){
         dumpMono16le16kHzPcmFile_ = std::make_shared<std::ofstream>(filePath, std::ofstream::binary /*don't miss std::ofstream::binary*/);
         if (!dumpMono16le16kHzPcmFile_->is_open()) {
+            dumpMono16le16kHzPcmFile_ = nullptr;
             return "!is_open()";
         }
-
-        dumpMono16le16kHzPcmFile_ = nullptr;
 
         return 0;
     }
