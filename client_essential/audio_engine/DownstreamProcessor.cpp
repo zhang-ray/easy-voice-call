@@ -102,4 +102,6 @@ void DownstreamProcessor::fetch(int16_t * const outData)
     if (dumpMono16le16kHzPcmFile_) {
         dumpMono16le16kHzPcmFile_->write((char*)outData, sizeof(int16_t)*blockSize);
     }
+
+    Profiler::get().audioOutBufferSize_.addData(encodedBuffer_.read_available());
 }

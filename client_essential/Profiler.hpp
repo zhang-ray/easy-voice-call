@@ -90,14 +90,17 @@ public:
     //Statistician arrivalAudioOffset_;
     EventList<int32_t> packageDelayList_;
     EventList<bool> emptyAudioOutBuffer_;
+    EventList<size_t> audioOutBufferSize_;
 public:
     Profiler()
         : packageDelayList_("packageDelayList_.csv")
         , emptyAudioOutBuffer_("emptyBuffer_.csv")
+        , audioOutBufferSize_("audioOutBufferSize_.csv")
     { }
 
     void dump() {
         packageDelayList_.dump();
         emptyAudioOutBuffer_.dump();
+        audioOutBufferSize_.dump();
     }
 };

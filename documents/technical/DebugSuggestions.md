@@ -1,0 +1,3 @@
+- Visual Studio is a powerful environment for debugging C++ project.
+- Visual Studio Debuging suggestion:
+  - set PATH=%PATH%;C:\Libraries\boost_1_67_0\lib32-msvc-14.0;C:\projects\easy-voice-call-build\client_essential\Debug;C:\Qt\5.11.1\msvc2015\bin; in LocalDebuggerEnvironment. It's not easy to implement by CMake...
