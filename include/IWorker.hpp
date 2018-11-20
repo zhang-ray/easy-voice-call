@@ -36,5 +36,5 @@ public:
     ///// TODO: blocked when server down?
     virtual void syncStop() = 0;
 
-    static EVC_API IWorker *create();
+    static EVC_API std::shared_ptr<IWorker> create();
 };

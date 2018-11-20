@@ -465,6 +465,6 @@ void Worker::syncStop()
 
 
 
-IWorker *IWorker::create() {
-    return new Worker;
+std::shared_ptr<IWorker> IWorker::create() {
+    return std::make_shared<Worker>();
 }

@@ -1,9 +1,10 @@
-#include "Worker.hpp"
-
+#include "IWorker.hpp"
 #include "ZeroCrossingRate.hpp"
-
 #include "FileUtils.hpp"
-
+#include "Logger.hpp"
+#include <thread>
+#include <chrono>
+#include <numeric>
 
 namespace {
     void onNetworkChanged(const NetworkState &newState, const std::string &extraMessage) {
@@ -42,8 +43,8 @@ namespace {
 
 
         virtual ReturnType run() {
-            Worker worker;
-            auto ret = worker.init(root_, nullptr, nullptr, nullptr);
+            auto worker = IWorker::create();
+            auto ret = worker->init(root_, nullptr, nullptr, nullptr);
             if (!ret) {
                 return ret;
             }
@@ -51,11 +52,11 @@ namespace {
 
             std::thread bg([&]() {
                 std::this_thread::sleep_for(std::chrono::seconds(5));
-                worker.syncStop();
+                worker->syncStop();
             });
             bg.detach();
 
-            ret = worker.syncStart(&onNetworkChanged);
+            ret = worker->syncStart(&onNetworkChanged);
             if (!ret) {
                 return ret;
             }

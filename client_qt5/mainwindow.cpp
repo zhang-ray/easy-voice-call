@@ -305,7 +305,7 @@ void MainWindow::gotoWork(){
 
 
 
-        worker_.reset(IWorker::create());
+        worker_ = IWorker::create();
         root_.put("needAec", ui->checkBox_needAec->checkState() == Qt::CheckState::Checked);
         auto ret = worker_->init(
             root_,
