@@ -3,12 +3,13 @@
 
 #include <QMainWindow>
 #include <memory>
-#include "Worker.hpp"
+#include "IWorker.hpp"
 #include <QLabel>
 #include <QEvent>
 #include <QTemporaryDir>
 #include <QFile>
 #include <QTimeLine>
+#include <thread>
 
 
 namespace Ui {
@@ -80,7 +81,7 @@ private slots:
 private:
     Ui::MainWindow *ui = nullptr;
 
-    std::shared_ptr<Worker> worker_ = nullptr;
+    std::shared_ptr<IWorker> worker_ = nullptr;
     boost::property_tree::ptree root_;
 private:
 

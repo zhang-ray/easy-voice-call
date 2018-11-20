@@ -15,7 +15,7 @@ project(easy-voice-call)
 set (CMAKE_CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-DBOOST_LOG_DYN_LINK)
-include_directories(./include/evc/)
+include_directories(./include/)
 if(WIN32)
     add_compile_options(/MP)  # Speed up compiling
 	include_directories(
@@ -42,7 +42,7 @@ execute_process(COMMAND ${git_cmd} ${git_arg}  WORKING_DIRECTORY ${PROJECT_SOURC
 message(STATUS "git_result: ${git_result}")
 message(STATUS "OUTPUT_VARIABLE: ${GIT_TAG}")
 string(REGEX REPLACE "\n$" "" GIT_TAG "${GIT_TAG}") # strip line ending
-set (GIT_INFO_HEADER_FILE "./include/evc/git_info.hpp")
+set (GIT_INFO_HEADER_FILE "./include/git_info.hpp")
 file(WRITE ${GIT_INFO_HEADER_FILE} "#pragma once\n")
 if (RESULT_VAR STREQUAL 0)
     message(STATUS "RESULT_VAR STREQUAL 0")

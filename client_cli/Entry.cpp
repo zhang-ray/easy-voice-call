@@ -4,7 +4,7 @@
 #include <thread>
 #include <fstream>
 
-#include "Worker.hpp"
+#include "IWorker.hpp"
 #include "Logger.hpp"
 
 
@@ -52,8 +52,8 @@ int main(int argc, char* argv[]) {
 
         auto workingDuration = root.get <int>("cli.workingduration", -1);
 
-        Worker worker;
-        if (worker.init(
+        auto worker = IWorker::create();
+        if (worker->init(
             root,
             [](const std::string &, const std::string &) {},
             [](const AudioIoVolume) {},
@@ -61,10 +61,10 @@ int main(int argc, char* argv[]) {
         )) {
             if (workingDuration < 0) {
                 // infinite
-                worker.syncStart(onNetworkStateChanged);
+                worker->syncStart(onNetworkStateChanged);
             }
             else {
-                worker.asyncStart(onNetworkStateChanged);
+                worker->asyncStart(onNetworkStateChanged);
                 std::this_thread::sleep_for(std::chrono::seconds(workingDuration));
             }
         }

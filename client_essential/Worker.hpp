@@ -4,9 +4,6 @@
 #include <thread>
 #include <string>
 #include <fstream>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/lockfree/spsc_queue.hpp>
 #include "Logger.hpp"
 #include "Lib.hpp"
 #include "AudioVolume.hpp"
@@ -18,38 +15,12 @@
 #include <climits>
 #include <fstream>
 
+#include "IWorker.hpp"
 
 class AudioDecoder;
 class AudioEncoder;
 
 
-
-
-
-class AudioIoVolume {
-public:
-    enum { MAX_VOLUME_LEVEL = 10};
-
-    using Level = uint8_t;
-
-    AudioInOut io_;
-    Level level_;
-    Level recentMaxLevel_;
-public:
-    AudioIoVolume(const AudioInOut io, const Level level, const Level recentMaxLevel)
-        :io_(io)
-        ,level_(level)
-    , recentMaxLevel_(recentMaxLevel)
-    {
-
-    }
-};
-
-enum class NetworkState : unsigned char{
-    Disconnected,
-    Connecting,
-    Connected,
-};
 
 
 
@@ -204,18 +175,6 @@ public:
 ///    - use reliable UDP in weak network
 ///    - check version (server & client)
 ///    - display build date and git commit version in GUI and server side
-
-
-class IWorker {
-public:
-    virtual ~IWorker() {}
-    virtual ReturnType init(
-        const boost::property_tree::ptree &configRoot,
-        std::function<void(const std::string &, const std::string &)> reportInfo,
-        std::function<void(const AudioIoVolume)> reportVolume,
-        std::function<void(const bool)> vadReporter
-    ) = 0;
-};
 
 class Worker : public IWorker {
 private:

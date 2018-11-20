@@ -15,6 +15,7 @@
 #include <QDesktopServices>
 #include <fstream>
 #include "git_info.hpp"
+#include "Logger.hpp"
 
 QEvent::Type AudioVolumeEvent::sType = (QEvent::Type)QEvent::registerEventType();
 QEvent::Type VadEvent::sType = (QEvent::Type)QEvent::registerEventType();
@@ -304,7 +305,7 @@ void MainWindow::gotoWork(){
 
 
 
-        worker_ = std::make_shared<Worker>();
+        worker_.reset(IWorker::create());
         root_.put("needAec", ui->checkBox_needAec->checkState() == Qt::CheckState::Checked);
         auto ret = worker_->init(
             root_,

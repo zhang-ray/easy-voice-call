@@ -462,3 +462,9 @@ void Worker::syncStop()
     }
 
 }
+
+
+
+IWorker *IWorker::create() {
+    return new Worker;
+}
