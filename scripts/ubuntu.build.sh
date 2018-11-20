@@ -28,4 +28,11 @@ echo -e "[Desktop Entry]\nName=EasyVoiceCall.Server.Linux\nExec=EasyVoiceCall.Se
 convert -size 256x256 xc:transparent AppDir/EasyVoiceCall.Server.Linux.png
 ../linuxdeploy-x86_64.AppImage --appdir=AppDir || exit 1 
 ../appimagetool-x86_64.AppImage AppDir || exit 1 
-mv EasyVoiceCall.Server.Linux-x86_64.AppImage ../../
+cp EasyVoiceCall.Server.Linux-x86_64.AppImage ../../
+
+
+
+
+############  sanity check  ############
+chmod +x EasyVoiceCall.Server.Linux-x86_64.AppImage
+(./EasyVoiceCall.Server.Linux-x86_64.AppImage 1222 echo &) || exit 1
