@@ -4,7 +4,7 @@
 #include <vector>
 
 
-inline double ZeroCrossingRate(const OneSegment &oneSegment) {
+inline double ZeroCrossingRate(const PcmSegment &oneSegment) {
     int sum = 0;
     std::vector<bool> positiveArray(blockSize);
 

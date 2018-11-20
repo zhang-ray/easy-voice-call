@@ -6,6 +6,7 @@
 #include <chrono>
 #include <numeric>
 
+
 namespace {
     void onNetworkChanged(const NetworkState &newState, const std::string &extraMessage) {
         switch (newState)
@@ -112,6 +113,7 @@ public:
 /*
 TODO
 - comparing audioInStub with DUMP_AUDIO_OUT
+- check glitch noise
 */
 
 int main(void) {

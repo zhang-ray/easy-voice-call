@@ -4,6 +4,8 @@
 #include "../../audio-processing-module/independent_aec/src/echo_cancellation.h"
 #include "Profiler.hpp"
 
+#include "PacketLossConcealment.hpp"
+
 void DownstreamProcessor::decodeOpusAndAecBufferFarend(const std::shared_ptr<NetPacket> netPacket, std::vector<short> &decodedPcm)
 {
     std::vector<char> netBuff;

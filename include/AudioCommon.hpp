@@ -31,5 +31,5 @@ public:
     }
 };
 
-using OneSegment = std::array<int16_t, blockSize>;
+using PcmSegment = std::array<int16_t, blockSize>;
 
