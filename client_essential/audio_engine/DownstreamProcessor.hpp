@@ -1,11 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <boost/lockfree/spsc_queue.hpp>
 #include "NetPacket.hpp"
 #include "Logger.hpp"
 #include "AudioDecoder.hpp"
-
+#include "JitterBuffer.hpp"
 
 //////////////////////////////////////////////////////////////////////////
 // Decoder, Jitter buffer, Packet loss concealment
@@ -15,7 +14,7 @@
 //////////////////////////////////////////////////////////////////////////
 class DownstreamProcessor {
 private:
-    boost::lockfree::spsc_queue<std::shared_ptr<NetPacket>> encodedBuffer_;
+    JitterBuffer jitterBuffer_;
     AudioDecoder *decoder_ = nullptr;
     bool needAec_ = false;
     uint32_t largestReceivedMediaDataTimestamp_ = 0;
@@ -27,6 +26,6 @@ private:
 public:
     DownstreamProcessor(bool needAec, void *aec, const std::string &audioOutDumpPath);
     ~DownstreamProcessor();
-    void append(const std::shared_ptr<NetPacket> &netPacket) {encodedBuffer_.push(netPacket);}
+    void append(const std::shared_ptr<NetPacket> &netPacket) { jitterBuffer_.append(netPacket);}
     void fetch(int16_t * const outData);
 };

@@ -56,8 +56,7 @@ void DownstreamProcessor::decodeOpusAndAecBufferFarend(const std::shared_ptr<Net
 }
 
 DownstreamProcessor::DownstreamProcessor(bool needAec, void *aec, const std::string &audioOutDumpPath)
-    :encodedBuffer_(100)
-    , decoder_(&AudioDecoder::create())
+    : decoder_(&AudioDecoder::create())
     , needAec_(needAec)
     , aec_(aec)
 {
@@ -84,9 +83,8 @@ DownstreamProcessor::~DownstreamProcessor()
 
 void DownstreamProcessor::fetch(int16_t * const outData)
 {
-    std::shared_ptr<NetPacket> packet = nullptr;
     std::vector<int16_t> data;
-    if (encodedBuffer_.pop(packet)) {
+    if (auto packet = jitterBuffer_.fetch()) {
         decodeOpusAndAecBufferFarend(packet, data);
         memcpy(outData, data.data(), blockSize * sizeof(int16_t));
 
@@ -103,5 +101,5 @@ void DownstreamProcessor::fetch(int16_t * const outData)
         dumpMono16le16kHzPcmFile_->write((char*)outData, sizeof(int16_t)*blockSize);
     }
 
-    Profiler::get().audioOutBufferSize_.addData(encodedBuffer_.read_available());
+    Profiler::get().audioOutBufferSize_.addData(jitterBuffer_.read_available());
 }
