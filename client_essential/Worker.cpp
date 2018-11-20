@@ -53,6 +53,7 @@ ReturnType Worker::init(
     }
 
 
+    downStreamProcessor_ = std::make_shared<DownstreamProcessor>(needAec_, aec, configRoot.get("audioOutDumpPath", ""));
 
     try {
         {
@@ -226,7 +227,6 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
 
         endpoint_->asyncStart();
         
-        downStreamProcessor_ = std::make_shared<DownstreamProcessor>(needAec_, aec);
 
         // sending work
         for (;!gotoStop_;){

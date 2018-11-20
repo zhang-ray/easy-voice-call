@@ -25,9 +25,8 @@ private:
 private:
     void decodeOpusAndAecBufferFarend(const std::shared_ptr<NetPacket> netPacket, std::vector<short> &decodedPcm);
 public:
-    DownstreamProcessor(bool needAec, void *aec );
+    DownstreamProcessor(bool needAec, void *aec, const std::string &audioOutDumpPath);
     ~DownstreamProcessor();
     void append(const std::shared_ptr<NetPacket> &netPacket) {encodedBuffer_.push(netPacket);}
     void fetch(int16_t * const outData);
-    ReturnType setAudioOutDumpPath(const std::string &filePath);
 };

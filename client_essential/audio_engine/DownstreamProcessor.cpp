@@ -55,7 +55,7 @@ void DownstreamProcessor::decodeOpusAndAecBufferFarend(const std::shared_ptr<Net
     }
 }
 
-DownstreamProcessor::DownstreamProcessor(bool needAec, void *aec)
+DownstreamProcessor::DownstreamProcessor(bool needAec, void *aec, const std::string &audioOutDumpPath)
     :encodedBuffer_(100)
     , decoder_(&AudioDecoder::create())
     , needAec_(needAec)
@@ -65,6 +65,12 @@ DownstreamProcessor::DownstreamProcessor(bool needAec, void *aec)
         decoder_->reInit();
     }
 
+    if (!audioOutDumpPath.empty()) {
+        dumpMono16le16kHzPcmFile_ = std::make_shared<std::ofstream>(audioOutDumpPath, std::ofstream::binary /*don't miss std::ofstream::binary*/);
+        if (!dumpMono16le16kHzPcmFile_->is_open()) {
+            dumpMono16le16kHzPcmFile_ = nullptr;
+        }
+    }
 }
 
 DownstreamProcessor::~DownstreamProcessor()
@@ -96,15 +102,4 @@ void DownstreamProcessor::fetch(int16_t * const outData)
     if (dumpMono16le16kHzPcmFile_) {
         dumpMono16le16kHzPcmFile_->write((char*)outData, sizeof(int16_t)*blockSize);
     }
-}
-
-ReturnType DownstreamProcessor::setAudioOutDumpPath(const std::string &filePath)
-{
-    dumpMono16le16kHzPcmFile_ = std::make_shared<std::ofstream>(filePath, std::ofstream::binary /*don't miss std::ofstream::binary*/);
-    if (!dumpMono16le16kHzPcmFile_->is_open()) {
-        dumpMono16le16kHzPcmFile_ = nullptr;
-        return "!is_open()";
-    }
-
-    return 0;
 }
