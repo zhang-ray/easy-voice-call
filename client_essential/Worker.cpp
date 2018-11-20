@@ -44,6 +44,7 @@ ReturnType Worker::init(
     configRoot_ = configRoot;
 
     needAec_ = configRoot.get<bool>("needAec", needAec_);
+    
     if (needAec_) {
         aec = WebRtcAec_Create();
         if (auto ret = WebRtcAec_Init(aec, sampleRate, sampleRate)) {
@@ -51,10 +52,6 @@ ReturnType Worker::init(
         }
     }
 
-    auto ret = audioOutBuffer_.setAudioOutDumpPath(configRoot.get("audioOutDumpPath", "audioOut_mono16le16kHz.pcm"));
-    if (!ret) {
-        LOGE << ret.message();
-    }
 
 
     try {
@@ -100,7 +97,9 @@ ReturnType Worker::init(
                 finalInputBuffer = audioInStub_->get();
             }
             nsAecVolumeVadSend(finalInputBuffer);
-            audioOutBuffer_.fetch(outputBuffer);
+            if (downStreamProcessor_) {
+                downStreamProcessor_->fetch(outputBuffer);
+            }
         });
         if (!ret) {
             return ret;
@@ -127,13 +126,10 @@ void Worker::setMute(bool mute)
 }
 
 bool Worker::initCodec(){
-    decoder = &(AudioDecoder::create());
     encoder = &(AudioEncoder::create());
 
     if (encoder->reInit()){
-        if (decoder->reInit()) {
-            return true;
-        }
+        return true;
     }
     return false;
 }
@@ -164,13 +160,9 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
         pClient->init(
                     host.c_str(),
                     port.c_str(),
-                    [&](const NetClient & myClient, const NetPacket& netPacket){
+            [&](const NetClient & myClient, const std::shared_ptr<NetPacket> netPacket) {
             // on Received Data
-#ifdef _DEBUG
-            LOGV << netPacket.info();
-#endif // _DEBUG
-
-            switch (netPacket.payloadType()){
+            switch (netPacket->payloadType()){
             case NetPacket::PayloadType::HeartBeatRequest:{
                 myClient.send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
                 break;
@@ -180,11 +172,9 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
                 break;
             }
             case NetPacket::PayloadType::AudioMessage: {
-                decodeOpusAndAecBufferFarend(netPacket);
-                Profiler::get().packageDelayList_.addData(
-                    (int32_t)(ProcessTime::get().getProcessUptime()) -
-                    (int32_t)(netPacket.timestamp())
-                );
+                if (downStreamProcessor_) {
+                    downStreamProcessor_->append(netPacket);
+                }
                 break;
             }
             default:
@@ -235,6 +225,8 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
         toggleState(NetworkState::Connected, "");
 
         endpoint_->asyncStart();
+        
+        downStreamProcessor_ = std::make_shared<DownstreamProcessor>(needAec_, aec);
 
         // sending work
         for (;!gotoStop_;){
@@ -371,59 +363,6 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
     }
 }
 
-void Worker::decodeOpusAndAecBufferFarend(const NetPacket& netPacket){
-    std::vector<char> netBuff;
-    netBuff.resize(netPacket.payloadLength());
-    memcpy(netBuff.data(), netPacket.payload(), netPacket.payloadLength());
-    std::vector<short> decodedPcm;
-    decoder->decode(netBuff, decodedPcm);
-
-    if (needAec_) {
-        std::vector<float> floatFarend(decodedPcm.size());
-        for (auto i = 0u; i < decodedPcm.size(); i++) {
-            floatFarend[i] = ((float)decodedPcm[i]) / (1 << 15);
-        }
-        for (int i = 0; i < blockSize; i += 160) {
-            auto ret = WebRtcAec_BufferFarend(aec, &(floatFarend[i]), 160);
-            if (ret) {
-                throw;
-            }
-        }
-    }
-
-
-    {
-        /// RUNTIME VERIFICATION
-        /// UNEXPECTED: descending order
-        auto currentTS = netPacket.timestamp();
-        if (currentTS < largestReceivedMediaDataTimestamp_) {
-            // unexpected data order!!!!
-            LOGE << "currentTS < largestReceivedMediaDataTimestamp_";
-            // TODO: AND THEN? THROW?
-            throw;
-        }
-        else {
-            largestReceivedMediaDataTimestamp_ = currentTS;
-        }
-    }
-
-    {
-        /// RUNTIME VERIFICATION
-        /// SN 
-        auto currentSn = netPacket.serialNumber();
-        if (!lastReceivedAudioSn_) {
-            if (lastReceivedAudioSn_ + 1 != currentSn) {
-                LOGE << "lastReceivedAudioSn_ + 1 != currentSn";
-                LOGE << "lastReceivedAudioSn_=" << lastReceivedAudioSn_;
-                LOGE << "currentSn=" << currentSn;
-            }
-        }
-        lastReceivedAudioSn_ = currentSn;
-    }
-
-    //device_->write(decodedPcm);
-    audioOutBuffer_.insert(decodedPcm.data());
-}
 
 void Worker::sendHeartbeat(){
     static auto lastTimeStamp = std::chrono::system_clock::now();

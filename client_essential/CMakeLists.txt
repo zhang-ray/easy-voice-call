@@ -11,7 +11,7 @@ file(GLOB_RECURSE FILES_SOURCES *.cpp *.c)
 file(GLOB_RECURSE FILES_INCLUDE *.hpp *.h ../include/*.hpp ../include/*.h)
 
 
-
+include_directories(.)
 
 add_library(${PROJECT_NAME} SHARED ${FILES_INCLUDE} ${FILES_SOURCES} )
 

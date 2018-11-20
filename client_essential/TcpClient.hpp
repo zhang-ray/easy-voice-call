@@ -36,7 +36,7 @@ class TcpClient;
 class BoostAsioTcpClient{
     friend class TcpClient;
 private:
-    std::function<void(const NetClient &myClient, const NetPacket&)> onDataReceived_;
+    std::function<void(const NetClient & myClient, const std::shared_ptr<NetPacket> netPacket) > onDataReceived_;
     TcpClient *pTcpClient_ = nullptr;
 public:
     BoostAsioTcpClient(
@@ -122,7 +122,7 @@ public:
     virtual ReturnType init(
         const std::string &serverHost,
         const std::string &serverPort,
-        std::function<void(const NetClient & myClient, const NetPacket & netPacket) > onDataReceived
+        std::function<void(const NetClient & myClient, const std::shared_ptr<NetPacket> netPacket) > onDataReceived
     ) override {
         boost::asio::ip::tcp::resolver resolver(io_service);
         pClient = std::make_shared<BoostAsioTcpClient>(io_service, resolver.resolve({ serverHost, serverPort }), onDataReceived, this);
@@ -211,7 +211,7 @@ void BoostAsioTcpClient::readPayload(){
         ////////////////////////////////
         ////////////////////////////////
         ////////////////////////////////
-        onDataReceived_(*pTcpClient_, read_msg_);
+        onDataReceived_(*pTcpClient_, std::make_shared<NetPacket>(read_msg_));
         readHeader();
     });
 }

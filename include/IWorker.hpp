@@ -9,7 +9,6 @@
 // for property tree
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/lockfree/spsc_queue.hpp>
 
 
 #include <string>
