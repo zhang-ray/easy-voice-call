@@ -114,7 +114,17 @@ void DownstreamProcessor::fetch(int16_t * const outData){
     m2_ = m1_;
     m1_ = data;
 
-    memcpy(outData, std::get<1>(*data)->data(), blockSize * sizeof(int16_t));
+
+
+
+    // TODO: fade out for the fragment after ZeroInsertion
+
+    if (m2_) {
+        memcpy(outData, std::get<1>(*m2_)->data(), blockSize * sizeof(int16_t));
+    }
+    else {
+        memset(outData, 0, blockSize * sizeof(int16_t));
+    }
 
 
     if (dumpMono16le16kHzPcmFile_) {
