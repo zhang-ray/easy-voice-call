@@ -4,7 +4,9 @@
 #include "../../audio-processing-module/independent_aec/src/echo_cancellation.h"
 #include "Profiler.hpp"
 
-#include "PacketLossConcealment.hpp"
+#include "PacketLossConcealment_ZeroInsertion.hpp"
+#include <memory>
+
 
 void DownstreamProcessor::decodeOpusAndAecBufferFarend(const std::shared_ptr<NetPacket> netPacket, std::vector<short> &decodedPcm)
 {
@@ -83,21 +85,37 @@ DownstreamProcessor::~DownstreamProcessor()
     }
 }
 
-void DownstreamProcessor::fetch(int16_t * const outData)
-{
-    std::vector<int16_t> data;
-    if (auto packet = jitterBuffer_.fetch()) {
-        decodeOpusAndAecBufferFarend(packet, data);
-        memcpy(outData, data.data(), blockSize * sizeof(int16_t));
+void DownstreamProcessor::append(const std::shared_ptr<NetPacket> &netPacket){
+    std::vector<short> pcm;
+    decodeOpusAndAecBufferFarend(netPacket, pcm);
+    auto segment = std::make_shared<PcmSegment>();
+    std::memcpy(segment->data(), pcm.data(), blockSize * sizeof(int16_t));
+    jitterBuffer_.append(std::make_shared<std::tuple<uint32_t, std::shared_ptr<PcmSegment>>>(std::make_tuple<uint32_t, std::shared_ptr<PcmSegment>>( netPacket->timestamp(), std::move(segment ))));
+}
 
-        Profiler::get().packageDelayList_.addData(
-            (int32_t)(ProcessTime::get().getProcessUptime()) -
-            (int32_t)(packet->timestamp())
-        );
+void DownstreamProcessor::fetch(int16_t * const outData){
+    auto data = jitterBuffer_.fetch();
+
+    if (data == nullptr) {
+        auto predicted = std::make_shared<PcmSegment>();
+        if (m1_&&m2_) {
+            PacketLossConcealment_ZeroInsertion plc;
+            std::vector<std::shared_ptr<PcmSegment>> theList;
+            theList.push_back(std::get<1>(*(m1_.get())));
+            theList.push_back(std::get<1>(*(m2_.get())));
+            plc.predict(theList, predicted);
+        }
+
+        data = std::make_shared<std::tuple<uint32_t, std::shared_ptr<PcmSegment>>>(
+            std::make_tuple<uint32_t, std::shared_ptr<PcmSegment>>(0, std::move(predicted))
+            );
     }
-    else {
-        Profiler::get().emptyAudioOutBuffer_.addData(true);
-    }
+
+    m2_ = m1_;
+    m1_ = data;
+
+    memcpy(outData, std::get<1>(*data)->data(), blockSize * sizeof(int16_t));
+
 
     if (dumpMono16le16kHzPcmFile_) {
         dumpMono16le16kHzPcmFile_->write((char*)outData, sizeof(int16_t)*blockSize);

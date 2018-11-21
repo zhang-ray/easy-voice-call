@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "AudioCommon.hpp"
+#include <memory>
 
 
 class PacketLossConcealment {
@@ -12,9 +13,6 @@ public:
         ModelBasedMethods
     };
 
-    virtual bool predict(const PcmSegment *, const PcmSegment outputSegment) = 0;
-};
 
-class PlcZeroInsertion : public PacketLossConcealment{
-
+    virtual bool predict(std::vector<std::shared_ptr<PcmSegment>> older, std::shared_ptr<PcmSegment> &outputSegment) = 0;
 };
