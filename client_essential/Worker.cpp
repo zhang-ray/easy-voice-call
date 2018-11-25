@@ -107,7 +107,9 @@ ReturnType Worker::init(
                 memcpy(outputBuffer, outData.data(), sizeof(int16_t) * outData.size());
             }
 
-            volumeReporter_(volumeMeterOut_.calculate(outData));
+            if (volumeReporter_) {
+                volumeReporter_(volumeMeterOut_.calculate(outData));
+            }
         });
         if (!ret) {
             return ret;
@@ -306,7 +308,9 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
         PcmSegment seg;
         memcpy(seg.data(), denoisedBuffer.data(), denoisedBuffer.size() * sizeof(int16_t));
 
-        volumeReporter_(volumeMeterIn_.calculate(seg));
+        if (volumeReporter_) {
+            volumeReporter_(volumeMeterIn_.calculate(seg));
+        }
     }
 
     auto haveVoice = (1 == WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate / 100));
