@@ -260,7 +260,7 @@ void MainWindow::onVolumeChanged(const AudioIoVolume aivl) {
             label_img_[(uint8_t)aivl.io_][i]->setPixmap(i<aivl.level_? vertical_bar_half_full: vertical_bar_empty);
         }
         if (aivl.recentMaxLevel_> aivl.level_){
-            label_img_[(uint8_t)aivl.io_][aivl.recentMaxLevel_]->setPixmap(vertical_bar_full);
+            label_img_[(uint8_t)aivl.io_][aivl.recentMaxLevel_-1]->setPixmap(vertical_bar_full);
         }
     }
     else{

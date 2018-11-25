@@ -20,6 +20,7 @@
 #include "audio_engine/AudioInStub.hpp"
 #include "audio_engine/DownstreamProcessor.hpp"
 #include "audio_engine/AudioVolumeMeter_RMS.hpp"
+#include "audio_engine/AudioVolumeMeter_Peak.hpp"
 
 
 class AudioEncoder;
@@ -49,8 +50,8 @@ private:
     uint8_t vadCounter_ = 0; // nbActivated
     bool mute_ = false;
     bool needSend_ = true;
-    AudioVolumeMeter_RMS volumeMeterIn_;
-    AudioVolumeMeter_RMS volumeMeterOut_;
+    AudioVolumeMeter_Peak volumeMeterIn_;
+    AudioVolumeMeter_Peak volumeMeterOut_;
     std::shared_ptr<std::thread> durationTimer_ = nullptr;
     std::shared_ptr<NetClient> pClient = nullptr;
     std::shared_ptr<DownstreamProcessor> downStreamProcessor_ = nullptr;
