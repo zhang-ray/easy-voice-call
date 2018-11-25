@@ -23,6 +23,11 @@ public:
 
     AudioIoVolume calculate(const PcmSegment &buffer) {
         auto currentLevel = calculate(buffer, AudioIoVolume::MAX_VOLUME_LEVEL);
+
+        if (currentLevel > AudioIoVolume::MAX_VOLUME_LEVEL - 1) {
+            currentLevel = AudioIoVolume::MAX_VOLUME_LEVEL - 1;
+        }
+
         static uint8_t recentMaxLevel = currentLevel;
         static auto lastTimeStamp = std::chrono::system_clock::now();;
 
