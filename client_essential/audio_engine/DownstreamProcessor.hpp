@@ -37,5 +37,5 @@ public:
     DownstreamProcessor(bool needAec, void *aec, const std::string &audioOutDumpPath);
     ~DownstreamProcessor();
     void append(const std::shared_ptr<NetPacket> &netPacket);
-    void fetch(int16_t * const outData);
+    void fetch(PcmSegment &outData);
 };

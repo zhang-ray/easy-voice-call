@@ -6,7 +6,7 @@
 #include <fstream>
 #include "Logger.hpp"
 #include "Lib.hpp"
-#include "AudioVolume.hpp"
+
 #include "CallbackStylePortaudioEndpoint.hpp"
 #include "Profiler.hpp"
 #include "ReturnType.hpp"
@@ -19,6 +19,7 @@
 
 #include "audio_engine/AudioInStub.hpp"
 #include "audio_engine/DownstreamProcessor.hpp"
+#include "audio_engine/AudioVolumeMeter_RMS.hpp"
 
 
 class AudioEncoder;
@@ -48,7 +49,8 @@ private:
     uint8_t vadCounter_ = 0; // nbActivated
     bool mute_ = false;
     bool needSend_ = true;
-    SuckAudioVolume sav;
+    AudioVolumeMeter_RMS volumeMeterIn_;
+    AudioVolumeMeter_RMS volumeMeterOut_;
     std::shared_ptr<std::thread> durationTimer_ = nullptr;
     std::shared_ptr<NetClient> pClient = nullptr;
     std::shared_ptr<DownstreamProcessor> downStreamProcessor_ = nullptr;

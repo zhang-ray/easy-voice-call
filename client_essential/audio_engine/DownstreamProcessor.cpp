@@ -93,7 +93,7 @@ void DownstreamProcessor::append(const std::shared_ptr<NetPacket> &netPacket){
     jitterBuffer_.append(std::make_shared<std::tuple<uint32_t, std::shared_ptr<PcmSegment>>>(std::make_tuple<uint32_t, std::shared_ptr<PcmSegment>>( netPacket->timestamp(), std::move(segment ))));
 }
 
-void DownstreamProcessor::fetch(int16_t * const outData){
+void DownstreamProcessor::fetch(PcmSegment &outData){
     auto data = jitterBuffer_.fetch();
 
     if (data == nullptr) {
@@ -120,15 +120,15 @@ void DownstreamProcessor::fetch(int16_t * const outData){
     // TODO: fade out for the fragment after ZeroInsertion
 
     if (m2_) {
-        memcpy(outData, std::get<1>(*m2_)->data(), blockSize * sizeof(int16_t));
+        memcpy(outData.data(), std::get<1>(*m2_)->data(), blockSize * sizeof(int16_t));
     }
     else {
-        memset(outData, 0, blockSize * sizeof(int16_t));
+        memset(outData.data(), 0, blockSize * sizeof(int16_t));
     }
 
 
     if (dumpMono16le16kHzPcmFile_) {
-        dumpMono16le16kHzPcmFile_->write((char*)outData, sizeof(int16_t)*blockSize);
+        dumpMono16le16kHzPcmFile_->write((char*)(outData.data()), sizeof(int16_t)*blockSize);
     }
 
     Profiler::get().audioOutBufferSize_.addData(jitterBuffer_.read_available());

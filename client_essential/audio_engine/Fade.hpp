@@ -3,6 +3,8 @@
 #include "AudioCommon.hpp"
 #include <complex>
 #include <vector>
+#include <memory>
+#include <cassert>
 
 
 enum class FadeInOut {

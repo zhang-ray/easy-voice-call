@@ -21,6 +21,8 @@ decltype(WebRtcNsx_Create()) ns_ = nullptr;
 using namespace webrtc;
 
 Worker::Worker()
+    :volumeMeterIn_(AudioInOut::In)
+    ,volumeMeterOut_(AudioInOut::Out)
 {
 
 }
@@ -98,15 +100,22 @@ ReturnType Worker::init(
                 finalInputBuffer = audioInStub_->get();
             }
             nsAecVolumeVadSend(finalInputBuffer);
+
+            PcmSegment outData;
             if (downStreamProcessor_) {
-                downStreamProcessor_->fetch(outputBuffer);
+                downStreamProcessor_->fetch(outData);
+                memcpy(outputBuffer, outData.data(), sizeof(int16_t) * outData.size());
             }
+
+            volumeReporter_(volumeMeterOut_.calculate(outData));
         });
         if (!ret) {
             return ret;
         }
 
         pClient = std::make_shared<TcpClient>();
+
+        volumeReporter_ = reportVolume;
     }
     catch (const std::exception &e) {
         LOGE_STD_EXCEPTION(e);
@@ -293,32 +302,12 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
         }
     }
 
+    {
+        PcmSegment seg;
+        memcpy(seg.data(), denoisedBuffer.data(), denoisedBuffer.size() * sizeof(int16_t));
 
-
-    if (volumeReporter_) {
-        auto currentLevel = sav.calculate(denoisedBuffer, AudioIoVolume::MAX_VOLUME_LEVEL);
-        static auto recentMaxLevel = currentLevel;
-
-        static auto lastTimeStamp = std::chrono::system_clock::now();
-        auto now = std::chrono::system_clock::now();
-        auto elapsed = now - lastTimeStamp;
-
-        // hold on 1s
-        if (elapsed > std::chrono::seconds(1)) {
-            recentMaxLevel = 0;
-            lastTimeStamp = std::chrono::system_clock::now();
-        }
-
-
-        if (currentLevel > recentMaxLevel) {
-            recentMaxLevel = currentLevel;
-            // re calculate hold-on time
-            lastTimeStamp = std::chrono::system_clock::now();
-        }
-
-        volumeReporter_({ AudioInOut::In, currentLevel, recentMaxLevel });
+        volumeReporter_(volumeMeterIn_.calculate(seg));
     }
-
 
     auto haveVoice = (1 == WebRtcVad_Process(vad, sampleRate, denoisedBuffer.data(), sampleRate / 100));
     if (vadReporter_) {

@@ -2,6 +2,7 @@
 
 
 #include <string>
+#include <fstream>
 
 inline std::vector<int16_t> loadPcmFile(const std::string &filePath) {
     std::ifstream ifs(filePath.c_str(), std::ios::binary | std::ios::ate);
