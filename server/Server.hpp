@@ -277,7 +277,7 @@ std::string make_daytime_string()
 class UdpServer
 {
 public:
-    UdpServer(boost::asio::io_context& io_context, uint32_t port)
+    UdpServer(boost::asio::io_service& io_context, int port)
         : socket_(io_context, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))
     {
         start_receive();

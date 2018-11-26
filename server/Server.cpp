@@ -4,7 +4,7 @@
 int main(int argc, char* argv[]) {
     try {
         int port = 80;
-        auto udpPort = 1222u;
+        int udpPort = 1222;
 
         // init port
         {
