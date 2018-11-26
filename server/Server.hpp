@@ -10,6 +10,7 @@
 #include "NetPacket.hpp"
 #include "ReturnType.hpp"
 #include "ServerLogger.hpp"
+#include <functional>
 
 
 class Participant {
@@ -228,17 +229,13 @@ private:
 
 
 // one TCP server
-class Server {
+class TcpServer {
 public:
-    Server(boost::asio::io_service& io_service, const boost::asio::ip::tcp::endpoint& endpoint)
-        : acceptor_(io_service, endpoint)
+    TcpServer(boost::asio::io_service& io_service, int port)
+        : acceptor_(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
         , socket_(io_service) {
-
-            {
-                BOOST_LOG_TRIVIAL(info) << "Server started: port = " << endpoint.port() << " " << (isEchoMode ? "echo" : "broadcast") << " mode";
-            }
-
-            doAccept();
+        BOOST_LOG_TRIVIAL(info) << "Server started: port = " << port << " " << (isEchoMode ? "echo" : "broadcast") << " mode";
+        doAccept();
     }
 
 private:
@@ -264,3 +261,59 @@ void printUsage() {
     std::cerr << "   or: EvcServer <port> <broadcast/echo>\n";
 }
 
+
+
+
+std::string make_daytime_string()
+{
+    using namespace std; // For time_t, time and ctime;
+    time_t now = time(0);
+    return ctime(&now);
+}
+
+
+
+
+class UdpServer
+{
+public:
+    UdpServer(boost::asio::io_context& io_context, uint32_t port)
+        : socket_(io_context, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))
+    {
+        start_receive();
+    }
+
+private:
+    void start_receive()
+    {
+        socket_.async_receive_from(
+            boost::asio::buffer(recv_buffer_), remote_endpoint_,
+            std::bind(&UdpServer::handle_receive, this,
+                std::placeholders::_1)
+        );
+    }
+
+    void handle_receive(const boost::system::error_code& error)
+    {
+        if (!error)
+        {
+            boost::shared_ptr<std::string> message(
+                new std::string(make_daytime_string()));
+
+            socket_.async_send_to(boost::asio::buffer(*message), 
+                remote_endpoint_,
+                std::bind(&UdpServer::handle_send, this, message)
+            );
+
+            start_receive();
+        }
+    }
+
+    void handle_send(boost::shared_ptr<std::string> /*message*/)
+    {
+    }
+
+    boost::asio::ip::udp::socket socket_;
+    boost::asio::ip::udp::endpoint remote_endpoint_;
+    boost::array<char, 1> recv_buffer_;
+};

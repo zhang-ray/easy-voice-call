@@ -4,6 +4,7 @@
 int main(int argc, char* argv[]) {
     try {
         int port = 80;
+        auto udpPort = 1222u;
 
         // init port
         {
@@ -37,13 +38,9 @@ int main(int argc, char* argv[]) {
         }
 
         boost::asio::io_service io_service;
-        Server server(
-            io_service,
-            boost::asio::ip::tcp::endpoint(
-                boost::asio::ip::tcp::v4(),
-                port
-            )
-        );
+        TcpServer server(io_service, port);
+        UdpServer udpServer(io_service, udpPort);
+
         io_service.run();
     }
     catch (std::exception& e) {
