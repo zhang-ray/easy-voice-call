@@ -1,10 +1,9 @@
-#include "Server.hpp"
-
+#include "TcpServer.hpp"
+#include "UdpServer.hpp"
 
 int main(int argc, char* argv[]) {
     try {
         int port = 80;
-        int udpPort = 1222;
 
         // init port
         {
@@ -29,17 +28,14 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        BOOST_LOG_TRIVIAL(trace) << "PORT=" << port;
+        LOGI << "PORT=" << port;
 
 
-        /// init logger
-        {
-            //boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::trace);
-        }
+        boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::trace);
 
         boost::asio::io_service io_service;
         TcpServer server(io_service, port);
-        UdpServer udpServer(io_service, udpPort);
+        //UdpServer server(io_service, port);
 
         io_service.run();
     }
@@ -49,4 +45,3 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
