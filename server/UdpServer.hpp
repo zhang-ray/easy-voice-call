@@ -9,7 +9,7 @@
 class UdpServer
 {
 public:
-    UdpServer(boost::asio::io_context& io_context, short port)
+    UdpServer(boost::asio::io_service& io_context, short port)
         : socket_(io_context, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port)) {
         do_receive();
     }
