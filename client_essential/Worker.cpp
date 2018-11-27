@@ -5,6 +5,7 @@
 
 #include "TcpClient.hpp"
 #include "Logger.hpp"
+#include "net_engine/KcpClient.hpp"
 
 //// TODO
 //// don't include WEBRTC directly...
@@ -115,7 +116,12 @@ ReturnType Worker::init(
             return ret;
         }
 
-        pClient = std::make_shared<TcpClient>();
+        if (false) {
+            pClient = std::make_shared<TcpClient>();
+        }
+        else {
+            pClient = std::make_shared<KcpClient>();
+        }
 
         volumeReporter_ = reportVolume;
     }
@@ -156,16 +162,6 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
         gotoStop_ = false;
         bool isLogin = false;
                 
-        if (durationReporter_){
-            //start Timer
-            durationTimer_ = std::make_shared<std::thread>([this]() {
-                for (uint32_t s = 0u;!gotoStop_; s++) {
-                    std::this_thread::sleep_for(std::chrono::seconds(1));
-                    durationReporter_(s);
-                }
-            });
-        }
-        
         std::string host = configRoot_.get<std::string>("server.host", "127.0.0.1");
         std::string port = configRoot_.get<std::string>("server.port", "80");
 
@@ -237,6 +233,17 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
         toggleState(NetworkState::Connected, "");
 
         endpoint_->asyncStart();
+
+        if (durationReporter_) {
+            //start Timer
+            durationTimer_ = std::make_shared<std::thread>([this]() {
+                for (uint32_t s = 0u; !gotoStop_; s++) {
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    durationReporter_(s);
+                }
+            });
+        }
+
         
 
         // sending work
