@@ -2,8 +2,7 @@
 
 #include "Participant.hpp"
 
-// TODO, don't use global var
-bool isEchoMode = false;
+extern bool isEchoMode;
 
 /// TODO:
 /// Response some voice like "waiting for someone else login" ?

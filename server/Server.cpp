@@ -2,6 +2,11 @@
 #include "UdpServer.hpp"
 #include "KcpServer.hpp"
 
+
+/// I don't like this kind of global variable
+bool isEchoMode = false;
+
+
 int main(int argc, char* argv[]) {
     try {
         int port = 80;

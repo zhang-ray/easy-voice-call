@@ -1,5 +1,7 @@
 #include "KcpServer.hpp"
 
+// Server.cpp
+extern bool isEchoMode;
 
 std::shared_ptr<NetPacket> KcpConnection::makePacket(const char *data, std::size_t bytes_recvd)
 {
@@ -105,7 +107,6 @@ int KcpPriv::udp_output(const char *buf, int len, ikcpcb *kcp, void *user)
 
 void KcpPriv::processClientMessagePayload(const NetPacket& msg, std::shared_ptr<KcpConnection> sender , KcpRoom &room)
 {
-    static bool isEchoMode = true;
     static uint32_t counterUserMessage_ = 0;
     auto payloadType = msg.payloadType();
 
@@ -127,13 +128,13 @@ void KcpPriv::processClientMessagePayload(const NetPacket& msg, std::shared_ptr<
         }
         else {
             /// broadcast mode
-            //for (auto participant : participants_) {
-            //    if (participant == sender) {
-            //        continue;
-            //    }
+            for (auto participant : room.peers_) {
+                if (participant == sender) {
+                    continue;
+                }
 
-            //    participant->deliver(msg);
-            //}
+                participant->send(msg);
+            }
         }
 
         traceDump = false;

@@ -16,10 +16,12 @@
 class KcpRoom;
 class KcpConnection;
 
-namespace KcpPriv{
-    int udp_output(const char *buf, int len, ikcpcb *kcp, void *user);
-    void processClientMessagePayload(const NetPacket& msg, std::shared_ptr<KcpConnection> sender, KcpRoom &room);
-}
+class KcpPriv{
+    /// use class instead of namespace for "friend class"
+public:
+    static int udp_output(const char *buf, int len, ikcpcb *kcp, void *user);
+    static void processClientMessagePayload(const NetPacket& msg, std::shared_ptr<KcpConnection> sender, KcpRoom &room);
+};
 
 class KcpConnection : public std::enable_shared_from_this<KcpConnection> {
     friend class KcpRoom;
@@ -69,6 +71,7 @@ public:
 
 class KcpRoom {
     friend class KcpConnection;
+    friend class KcpPriv;
 private:
     std::set<std::shared_ptr<KcpConnection>> peers_;
     std::shared_ptr<KcpConnection> findPeer(boost::asio::ip::udp::endpoint endpoint);
