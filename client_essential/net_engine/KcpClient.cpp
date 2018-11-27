@@ -50,7 +50,8 @@ public:
                 ikcp_update(kcp_, ProcessTime::get().getProcessUptime());
             }
         })->detach();
-        ikcp_nodelay(kcp_, 1, 1, 2, 1);
+        ikcp_nodelay(kcp_, 1, 1, 0, 1);
+        //ikcp_wndsize(kcp_, 128, 128);
 
 
         std::make_shared<std::thread>([this]() {
@@ -65,10 +66,10 @@ public:
                     int kcp_recvd_bytes = ikcp_recv(kcp_, kcp_buf, NetPacket::FixHeaderLength + NetPacket::MaxPayloadLength);
                     if (kcp_recvd_bytes <= 0)
                     {
-                        LOGD << "kcp_recvd_bytes<=0 " << kcp_recvd_bytes << std::endl;
+                        //LOGD << "kcp_recvd_bytes<=0 " << kcp_recvd_bytes << std::endl;
                         break;
                     }
-                    LOGV << "kcp_recvd_bytes=" << kcp_recvd_bytes;
+                    //LOGV << "kcp_recvd_bytes=" << kcp_recvd_bytes;
 
                     auto oldSize = inputBuffer_.size();
                     inputBuffer_.resize(oldSize + kcp_recvd_bytes);
@@ -76,7 +77,7 @@ public:
 
                     auto newPacket = makePacket(inputBuffer_.data(), inputBuffer_.size());
                     if (newPacket) {
-                        LOGV << "newPacket=" << NetPacket::getDescription(newPacket->payloadType());
+                        //LOGV << "newPacket=" << NetPacket::getDescription(newPacket->payloadType());
                         // digest inputBuffer_
                         auto oldSize = inputBuffer_.size();
                         auto newSize = oldSize - newPacket->wholePackLength();

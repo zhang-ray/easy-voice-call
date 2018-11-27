@@ -45,7 +45,8 @@ public:
                 ikcp_update(kcp_, ProcessTime::get().getProcessUptime());
             }
         })->detach();
-        ikcp_nodelay(kcp_, 1, 1, 2, 1);
+        ikcp_nodelay(kcp_, 1, 1, 0, 1);
+        //ikcp_wndsize(kcp_, 128, 128);
     }
     ~KcpConnection(){
         isGoingOn_ = false;
