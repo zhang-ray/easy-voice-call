@@ -403,7 +403,7 @@
      <widget class="QRadioButton" name="radioButton_tcp">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>120</x>
         <y>30</y>
         <width>61</width>
         <height>23</height>
@@ -413,30 +413,17 @@
        <string>TCP</string>
       </property>
      </widget>
-     <widget class="QRadioButton" name="radioButton_rtp">
+     <widget class="QRadioButton" name="radioButton_kcp_udp">
       <property name="geometry">
        <rect>
-        <x>70</x>
+        <x>10</x>
         <y>30</y>
-        <width>61</width>
+        <width>111</width>
         <height>23</height>
        </rect>
       </property>
       <property name="text">
-       <string>RTP</string>
-      </property>
-     </widget>
-     <widget class="QRadioButton" name="radioButton_rudp">
-      <property name="geometry">
-       <rect>
-        <x>140</x>
-        <y>30</y>
-        <width>81</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>RUDP</string>
+       <string>KCP/UDP</string>
       </property>
      </widget>
     </widget>

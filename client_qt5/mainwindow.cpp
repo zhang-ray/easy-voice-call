@@ -139,9 +139,8 @@ MainWindow::MainWindow(QWidget *parent)
             onNetworkChanged(NetworkState::Disconnected);
             toggleAdvancedMode(true);
             showMessage("F1: help    F2: toggle mode (advanced/easy mode)");
-            ui->radioButton_tcp->toggle();
-            ui->radioButton_rtp->setEnabled(false);
-            ui->radioButton_rudp->setEnabled(false);
+            ui->radioButton_kcp_udp->toggle();
+            ui->radioButton_tcp->setEnabled(false);
         }
 
 
