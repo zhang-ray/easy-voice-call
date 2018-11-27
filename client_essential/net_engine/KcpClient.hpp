@@ -1,7 +1,7 @@
 #pragma once
 #include "../NetClient.hpp"
 
-
+#include "ikcp.h" 
 
 class KcpClientImpl;
 

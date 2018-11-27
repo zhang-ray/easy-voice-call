@@ -1,10 +1,12 @@
 project(server)
 
 
-file(GLOB_RECURSE FILES_SOURCES *.cpp *.c)
+file(GLOB_RECURSE FILES_SOURCES *.cpp *.c ../3rd/kcp/*.c)
+file(GLOB_RECURSE FILES_INCLUDE *.hpp *.h ../3rd/kcp/*.h)
 
+include_directories(../3rd/kcp/)
 
-add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES} )
+add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES})
 
 if(NOT WIN32)
 	if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
