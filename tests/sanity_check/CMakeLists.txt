@@ -9,3 +9,8 @@ add_executable(sanity_check_udp_echo_client net/udp/SanityCheckUdpEchoClient.cpp
 target_link_libraries(sanity_check_udp_echo_client client_essential)
 
 
+
+add_executable(sanity_check_kcp_echo_client net/kcp/SanityCheckKcpEchoClient.cpp)
+target_link_libraries(sanity_check_kcp_echo_client client_essential)
+
+

@@ -1,5 +1,6 @@
 #include "TcpServer.hpp"
 #include "UdpServer.hpp"
+#include "KcpServer.hpp"
 
 int main(int argc, char* argv[]) {
     try {
@@ -34,8 +35,8 @@ int main(int argc, char* argv[]) {
         boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::trace);
 
         boost::asio::io_service io_service;
-        TcpServer server(io_service, port);
-        //UdpServer server(io_service, port);
+        KcpServer server(io_service, port);
+        //KcpServer server(io_service, port);
 
         io_service.run();
     }

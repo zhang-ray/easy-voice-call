@@ -6,6 +6,10 @@
 #include <boost/asio.hpp>
 #include "Logger.hpp"
 
+class UdpEndpoint : public boost::asio::ip::udp::endpoint {
+
+};
+
 class UdpServer
 {
 public:
@@ -22,6 +26,10 @@ public:
         {
             if (!ec && bytes_recvd > 0){
                 LOGV << sender_endpoint_;
+                auto static lastEndpoint = sender_endpoint_;
+                if (lastEndpoint != sender_endpoint_) {
+                    LOGV << "lastEndpoint!=sender_endpoint_";
+                }
                 do_send(bytes_recvd);
             }
             else{
@@ -41,7 +49,7 @@ public:
 
 private:
     boost::asio::ip::udp::socket socket_;
-    boost::asio::ip::udp::endpoint sender_endpoint_;
+    UdpEndpoint sender_endpoint_;
     enum { max_length = 1<<10 };
     char data_[max_length];
 };
