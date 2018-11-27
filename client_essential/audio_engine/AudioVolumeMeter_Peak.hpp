@@ -3,6 +3,8 @@
 
 class AudioVolumeMeter_Peak : public AudioVolumeMeter{
     AudioInOut inOut_;
+    uint8_t recentMaxLevel =0;
+    decltype(std::chrono::system_clock::now()) lastTimeStamp = std::chrono::system_clock::now();
 public:
     AudioVolumeMeter_Peak(AudioInOut inOut) :inOut_(inOut) {}
 
@@ -19,10 +21,6 @@ public:
         if (currentLevel > AudioIoVolume::MAX_VOLUME_LEVEL-1) {
             currentLevel = AudioIoVolume::MAX_VOLUME_LEVEL-1;
         }
-
-
-        static uint8_t recentMaxLevel = currentLevel;
-        static auto lastTimeStamp = std::chrono::system_clock::now();;
 
         auto now = std::chrono::system_clock::now();
         auto elapsed = now - lastTimeStamp;
