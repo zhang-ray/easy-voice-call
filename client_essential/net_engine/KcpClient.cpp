@@ -28,6 +28,7 @@ private:
     std::function<void(const NetClient & myClient, const std::shared_ptr<NetPacket> netPacket) > onDataReceived_ = nullptr;
     std::vector<char> inputBuffer_;
     std::shared_ptr<NetClient> tcpClient_ = nullptr;
+    std::shared_ptr<std::thread> kcpUpdater_ = nullptr;
 public:
     KcpClientImpl(
         std::shared_ptr<NetClient> pTcpClient,
@@ -54,49 +55,54 @@ public:
         //ikcp_wndsize(kcp_, 128, 128);
 
 
-        std::make_shared<std::thread>([this]() {
+        kcpUpdater_ = std::make_shared<std::thread>([this]() {
             udp::endpoint sender_endpoint;
             char reply[max_length];
 
-            for (; isGoingOn_;) {
-                size_t reply_length = s.receive_from(boost::asio::buffer(reply, max_length), sender_endpoint);
-                ikcp_input(kcp_, reply, reply_length);
+            try{
                 for (; isGoingOn_;) {
-                    char kcp_buf[NetPacket::FixHeaderLength + NetPacket::MaxPayloadLength] = "";
-                    int kcp_recvd_bytes = ikcp_recv(kcp_, kcp_buf, NetPacket::FixHeaderLength + NetPacket::MaxPayloadLength);
-                    if (kcp_recvd_bytes <= 0)
-                    {
-                        //LOGD << "kcp_recvd_bytes<=0 " << kcp_recvd_bytes << std::endl;
-                        break;
-                    }
-                    //LOGV << "kcp_recvd_bytes=" << kcp_recvd_bytes;
+                    size_t reply_length = s.receive_from(boost::asio::buffer(reply, max_length), sender_endpoint);
+                    ikcp_input(kcp_, reply, reply_length);
+                    for (; isGoingOn_;) {
+                        char kcp_buf[NetPacket::FixHeaderLength + NetPacket::MaxPayloadLength] = "";
+                        int kcp_recvd_bytes = ikcp_recv(kcp_, kcp_buf, NetPacket::FixHeaderLength + NetPacket::MaxPayloadLength);
+                        if (kcp_recvd_bytes <= 0){
+                            break;
+                        }
 
-                    auto oldSize = inputBuffer_.size();
-                    inputBuffer_.resize(oldSize + kcp_recvd_bytes);
-                    std::memcpy(inputBuffer_.data() + oldSize, kcp_buf, kcp_recvd_bytes);
-
-                    auto newPacket = makePacket(inputBuffer_.data(), inputBuffer_.size());
-                    if (newPacket) {
-                        //LOGV << "newPacket=" << NetPacket::getDescription(newPacket->payloadType());
-                        // digest inputBuffer_
                         auto oldSize = inputBuffer_.size();
-                        auto newSize = oldSize - newPacket->wholePackLength();
-                        std::memcpy(inputBuffer_.data(), inputBuffer_.data() + newPacket->wholePackLength(), newSize);
-                        inputBuffer_.resize(newSize);
-                    }
+                        inputBuffer_.resize(oldSize + kcp_recvd_bytes);
+                        std::memcpy(inputBuffer_.data() + oldSize, kcp_buf, kcp_recvd_bytes);
 
-                    if (newPacket) {
-                        // handle payload
-                        onDataReceived_(*tcpClient_, newPacket);
+                        auto newPacket = makePacket(inputBuffer_.data(), inputBuffer_.size());
+                        if (newPacket) {
+                            // digest inputBuffer_
+                            {
+                                auto oldSize = inputBuffer_.size();
+                                auto newSize = oldSize - newPacket->wholePackLength();
+                                std::memcpy(inputBuffer_.data(), inputBuffer_.data() + newPacket->wholePackLength(), newSize);
+                                inputBuffer_.resize(newSize);
+                            }
+                            // handle payload
+                            onDataReceived_(*tcpClient_, newPacket);
+                        }
                     }
                 }
             }
-        })->detach();
+            catch (const std::exception &e){
+                LOGE_STD_EXCEPTION(e);
+            }
+
+        });
     }
 
 
     ~KcpClientImpl() {
         isGoingOn_ = false;
+        if (kcpUpdater_) {
+            kcpUpdater_->join();
+        }
+        ikcp_release(kcp_);
     }
 
     ReturnType send(const NetPacket &netPacket) {
@@ -165,8 +171,6 @@ ReturnType KcpClient::init(
     std::function<void(const NetClient & myClient, const std::shared_ptr<NetPacket> netPacket) > onDataReceived
 ) {
     impl_ = std::make_shared<KcpClientImpl>(shared_from_this(), serverHost, serverPort, onDataReceived);
-    onDataReceived_ = onDataReceived;
-
     return true;
 }
 

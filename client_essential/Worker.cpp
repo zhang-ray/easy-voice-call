@@ -116,13 +116,6 @@ ReturnType Worker::init(
             return ret;
         }
 
-        if (false) {
-            pClient = std::make_shared<TcpClient>();
-        }
-        else {
-            pClient = std::make_shared<KcpClient>();
-        }
-
         volumeReporter_ = reportVolume;
     }
     catch (const std::exception &e) {
@@ -164,6 +157,13 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
                 
         std::string host = configRoot_.get<std::string>("server.host", "127.0.0.1");
         std::string port = configRoot_.get<std::string>("server.port", "80");
+
+        if (false) {
+            pClient = std::make_shared<TcpClient>();
+        }
+        else {
+            pClient = std::make_shared<KcpClient>();
+        }
 
         pClient->init(
                     host.c_str(),

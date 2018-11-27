@@ -31,6 +31,7 @@ private:
     std::shared_ptr<NetPacket> makePacket(const char *data, std::size_t bytes_recvd);
     bool isGoingOn_ = true;
     std::vector<char> inputBuffer_;
+    std::shared_ptr<std::thread> kcpUpdater_ = nullptr;
 public:
     KcpConnection(boost::asio::ip::udp::socket &socket, boost::asio::ip::udp::endpoint remote_endpoint, KcpRoom &room)
         : remote_endpoint_(remote_endpoint)
@@ -39,17 +40,26 @@ public:
     {
         kcp_ = ikcp_create(0x11223344, this);
         kcp_->output = KcpPriv::udp_output;
-        std::make_shared<std::thread>([this]() {
-            for (; isGoingOn_;) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(5));
-                ikcp_update(kcp_, ProcessTime::get().getProcessUptime());
+        kcpUpdater_ = std::make_shared<std::thread>([this]() {
+            try{
+                for (; isGoingOn_;) {
+                    ikcp_update(kcp_, ProcessTime::get().getProcessUptime());
+                    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                }
             }
-        })->detach();
+            catch (const std::exception &e) {
+                LOGE_STD_EXCEPTION(e);
+            }
+        });
         ikcp_nodelay(kcp_, 1, 1, 0, 1);
         //ikcp_wndsize(kcp_, 128, 128);
     }
-    ~KcpConnection(){
+    ~KcpConnection() {
         isGoingOn_ = false;
+        if (kcpUpdater_) {
+            kcpUpdater_->join();
+        }
+        ikcp_release(kcp_);
     }
     bool onReceived(const char *data, std::size_t bytes_recvd);
     void send(const NetPacket& msg);
