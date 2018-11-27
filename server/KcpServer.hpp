@@ -10,6 +10,7 @@
 #include "Logger.hpp"
 #include "NetPacket.hpp"
 #include "ikcp.h"
+#include <thread>
 
 
 class KcpRoom;
