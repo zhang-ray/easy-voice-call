@@ -36,7 +36,7 @@ public:
         , room_(room)
         , socket_(socket)
     {
-        kcp_ = ikcp_create((int)this, this);
+        kcp_ = ikcp_create(0x11223344, this);
         kcp_->output = KcpPriv::udp_output;
         std::make_shared<std::thread>([this]() {
             for (; isGoingOn_;) {
@@ -44,6 +44,7 @@ public:
                 ikcp_update(kcp_, ProcessTime::get().getProcessUptime());
             }
         })->detach();
+        ikcp_nodelay(kcp_, 1, 1, 2, 1);
     }
     ~KcpConnection(){
         isGoingOn_ = false;

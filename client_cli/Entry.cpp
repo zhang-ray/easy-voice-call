@@ -42,7 +42,9 @@ void onNetworkStateChanged(
 
 
 int main(int argc, char* argv[]) {
+#ifndef _DEBUG
     TrickyBoostLog trickyBoostLog(boost::log::trivial::severity_level::debug);
+#endif // _DEBUG
 
     try {
         auto file = argv[1];

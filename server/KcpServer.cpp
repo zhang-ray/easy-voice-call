@@ -22,8 +22,8 @@ std::shared_ptr<NetPacket> KcpConnection::makePacket(const char *data, std::size
     return ret;
 }
 
-bool KcpConnection::onReceived(const char *data, std::size_t bytes_recvd)
-{
+bool KcpConnection::onReceived(const char *data, std::size_t bytes_recvd) {
+    LOGV << "bytes_recvd=" << bytes_recvd;
     ikcp_input(kcp_, data, bytes_recvd);
 
     char kcp_buf[NetPacket::FixHeaderLength + NetPacket::MaxPayloadLength] = "";
@@ -33,6 +33,7 @@ bool KcpConnection::onReceived(const char *data, std::size_t bytes_recvd)
         LOGD << "kcp_recvd_bytes<=0 " << kcp_recvd_bytes << std::endl;
         return false;
     }
+    LOGV << "kcp_recvd_bytes=" << kcp_recvd_bytes;
 
     auto oldSize = inputBuffer_.size();
     inputBuffer_.resize(oldSize + kcp_recvd_bytes);
@@ -85,9 +86,8 @@ void KcpServer::doReceive()
             LOGV << sender_endpoint_;
             room_.insert(socket_, sender_endpoint_, data_, bytes_recvd);
         }
-        else {
-            doReceive();
-        }
+
+        doReceive();
     });
 }
 
@@ -111,6 +111,7 @@ void KcpPriv::processClientMessagePayload(const NetPacket& msg, std::shared_ptr<
 
     bool traceDump = true;
     switch (payloadType) {
+        LOGI << "payloadType=" << NetPacket::getDescription(payloadType);
     case NetPacket::PayloadType::HeartBeatRequest: {
         sender->send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
         break;

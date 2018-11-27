@@ -7,11 +7,12 @@ if(WIN32)
 endif(WIN32)
 
 
-file(GLOB_RECURSE FILES_SOURCES *.cpp *.c)
-file(GLOB_RECURSE FILES_INCLUDE *.hpp *.h ../include/*.hpp ../include/*.h)
+file(GLOB_RECURSE FILES_SOURCES *.cpp *.c ../3rd/kcp/*.c)
+file(GLOB_RECURSE FILES_INCLUDE *.hpp *.h ../3rd/kcp/*.h ../include/*.hpp ../include/*.h)
 
 
 include_directories(.)
+include_directories(../3rd/kcp/)
 
 add_library(${PROJECT_NAME} SHARED ${FILES_INCLUDE} ${FILES_SOURCES} )
 

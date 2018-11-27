@@ -1,11 +1,9 @@
 #pragma once
 #include "../NetClient.hpp"
 
-#include "ikcp.h" 
-
 class KcpClientImpl;
 
-class KcpClient : public NetClient {
+class KcpClient : public NetClient, public std::enable_shared_from_this<KcpClient>{
 private:
     std::function<void(const NetClient & myClient, const std::shared_ptr<NetPacket> netPacket) > onDataReceived_ = nullptr;
     std::shared_ptr<KcpClientImpl> impl_ = nullptr;
