@@ -216,7 +216,8 @@ void MainWindow::on_pushButton_connecting_clicked(){
 void MainWindow::onNetworkChanged(const NetworkState networkState){
     if(mainThreadId_ == std::this_thread::get_id()){
         switch(networkState){
-        case NetworkState::Disconnected:{
+        case NetworkState::Disconnected: {
+            ui->groupBox_protocol->setEnabled(true);
             ui->lineEdit_serverHost->setEnabled(true);
             ui->lineEdit_serverPort->setEnabled(true);
             ui->checkBox_needAec->setEnabled(true);
@@ -226,7 +227,8 @@ void MainWindow::onNetworkChanged(const NetworkState networkState){
             QCoreApplication::postEvent(this, new SetDurationEvent(0));
             break;
         }
-        case NetworkState::Connecting:{
+        case NetworkState::Connecting: {
+            ui->groupBox_protocol->setEnabled(false);
             ui->lineEdit_serverHost->setEnabled(false);
             ui->lineEdit_serverPort->setEnabled(false);
             ui->checkBox_needAec->setEnabled(false);
@@ -234,7 +236,8 @@ void MainWindow::onNetworkChanged(const NetworkState networkState){
             ui->pushButton_connecting->setText("Connecting...");
             break;
         }
-        case NetworkState::Connected:{
+        case NetworkState::Connected: {
+            ui->groupBox_protocol->setEnabled(false);
             ui->lineEdit_serverHost->setEnabled(false);
             ui->lineEdit_serverPort->setEnabled(false);
             ui->checkBox_needAec->setEnabled(false);
