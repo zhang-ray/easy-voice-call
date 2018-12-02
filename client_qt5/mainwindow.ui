@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>400</height>
+    <height>460</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -359,7 +359,7 @@
       <x>20</x>
       <y>150</y>
       <width>250</width>
-      <height>121</height>
+      <height>171</height>
      </rect>
     </property>
     <property name="title">
@@ -394,7 +394,7 @@
        <x>10</x>
        <y>54</y>
        <width>231</width>
-       <height>61</height>
+       <height>111</height>
       </rect>
      </property>
      <property name="title">
@@ -403,21 +403,21 @@
      <widget class="QRadioButton" name="radioButton_tcp">
       <property name="geometry">
        <rect>
-        <x>120</x>
-        <y>30</y>
-        <width>61</width>
+        <x>10</x>
+        <y>50</y>
+        <width>111</width>
         <height>23</height>
        </rect>
       </property>
       <property name="text">
-       <string>TCP</string>
+       <string>Raw TCP</string>
       </property>
      </widget>
      <widget class="QRadioButton" name="radioButton_kcp_udp">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>30</y>
+        <y>80</y>
         <width>111</width>
         <height>23</height>
        </rect>
@@ -426,13 +426,26 @@
        <string>KCP/UDP</string>
       </property>
      </widget>
+     <widget class="QRadioButton" name="radioButton_udp">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>111</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Raw UDP</string>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QPushButton" name="pushButton_connecting">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>280</y>
+      <y>340</y>
       <width>250</width>
       <height>61</height>
      </rect>
@@ -458,7 +471,7 @@
       <x>289</x>
       <y>10</y>
       <width>300</width>
-      <height>360</height>
+      <height>421</height>
      </rect>
     </property>
     <property name="title">
@@ -537,7 +550,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>350</y>
+      <y>420</y>
       <width>250</width>
       <height>16</height>
      </rect>

@@ -55,12 +55,12 @@ MainWindow::MainWindow(QWidget *parent)
         /// -> center of screen, and fix window Size
         {
             setGeometry(QStyle::alignedRect(
-                            Qt::LeftToRight,
-                            Qt::AlignCenter,
-                            size(),
-                            qApp->desktop()->availableGeometry()
-                            )
-                        );
+                Qt::LeftToRight,
+                Qt::AlignCenter,
+                size(),
+                qApp->desktop()->availableGeometry()
+            )
+            );
             setFixedSize(width(), height());
 
         }
@@ -139,8 +139,8 @@ MainWindow::MainWindow(QWidget *parent)
             onNetworkChanged(NetworkState::Disconnected);
             toggleAdvancedMode(true);
             showMessage("F1: help    F2: toggle mode (advanced/easy mode)");
-            ui->radioButton_kcp_udp->toggle();
-            ui->radioButton_tcp->setEnabled(false);
+            ui->radioButton_udp->toggle();
+            ui->radioButton_kcp_udp->setEnabled(false);
         }
 
 
@@ -284,7 +284,7 @@ void MainWindow::toggleAdvancedMode(bool newMode)
     ui->lineEdit_serverPort->setVisible(advancedMode_);
     ui->groupBox_protocol->setVisible(advancedMode_);
     */
-    setFixedSize(advancedMode_?600:300,400);
+    setFixedSize(advancedMode_ ? 600 : 300, height());
 }
 
 void MainWindow::gotoWork(){
@@ -302,6 +302,15 @@ void MainWindow::gotoWork(){
         root_.put("server.host", ui->lineEdit_serverHost->text().toStdString().c_str());
         root_.put("server.port", ui->lineEdit_serverPort->text().toStdString().c_str());
 
+        if (ui->radioButton_tcp->isChecked()) {
+            root_.put("protocol", "raw_tcp");
+        }
+        else if (ui->radioButton_udp->isChecked()) {
+            root_.put("protocol", "raw_udp");
+        }
+        else if (ui->radioButton_kcp_udp->isChecked()) {
+            root_.put("protocol", "kcp_udp");
+        }
 
 
         worker_ = IWorker::create();

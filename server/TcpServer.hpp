@@ -14,6 +14,7 @@
 #include "Logger.hpp"
 #include <functional>
 #include "Room.hpp"
+#include "Server.hpp"
 
 
 
@@ -120,7 +121,7 @@ private:
 
 
 // one TCP server
-class TcpServer {
+class TcpServer :public Server{
 public:
     TcpServer(boost::asio::io_service& io_service, int port)
         : acceptor_(io_service, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
@@ -145,13 +146,5 @@ private:
     boost::asio::ip::tcp::socket socket_;
     Room room_;
 };
-
-
-void printUsage() {
-    std::cerr << "Usage: EvcServer <port>\n";
-    std::cerr << "   or: EvcServer <port> <broadcast/echo>\n";
-}
-
-
 
 

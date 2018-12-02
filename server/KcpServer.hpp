@@ -11,7 +11,7 @@
 #include "NetPacket.hpp"
 #include "ikcp.h"
 #include <thread>
-
+#include "Server.hpp"
 
 class KcpRoom;
 class KcpConnection;
@@ -81,8 +81,7 @@ public:
 };
 
 
-class KcpServer
-{
+class KcpServer : public Server {
 private:
 
 public:

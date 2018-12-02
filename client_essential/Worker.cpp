@@ -12,6 +12,7 @@
 #include "../audio-processing-module/independent_vad/src/webrtc_vad.hpp"
 #include "../audio-processing-module/independent_aec/src/echo_cancellation.h"
 #include "../audio-processing-module/independent_ns/src/noise_suppression_x.hpp"
+#include "net_engine/RawUdpClient.hpp"
 
 namespace {
 VadInst* vad;
@@ -116,6 +117,26 @@ ReturnType Worker::init(
             return ret;
         }
 
+
+
+        auto protocol = configRoot_.get<std::string>("protocol", "");
+
+        if (protocol == "raw_udp") {
+            pClient = std::make_shared<RawUdpClient>();
+        }
+        else if (protocol == "raw_tcp"){
+            pClient = std::make_shared<TcpClient>();
+        }
+        else if (protocol == "kcp_udp") {
+            pClient = std::make_shared<KcpClient>();
+        }
+        else {
+            throw protocol + " :unknown protocol" ;
+        }
+
+
+
+
         volumeReporter_ = reportVolume;
     }
     catch (const std::exception &e) {
@@ -157,13 +178,6 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
                 
         std::string host = configRoot_.get<std::string>("server.host", "127.0.0.1");
         std::string port = configRoot_.get<std::string>("server.port", "80");
-
-        if (false) {
-            pClient = std::make_shared<TcpClient>();
-        }
-        else {
-            pClient = std::make_shared<KcpClient>();
-        }
 
         pClient->init(
                     host.c_str(),

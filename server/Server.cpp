@@ -1,38 +1,50 @@
 #include "TcpServer.hpp"
-#include "UdpServer.hpp"
 #include "KcpServer.hpp"
+#include "RawUdpServer.hpp"
+
 
 
 /// I don't like this kind of global variable
 bool isEchoMode = false;
 
 
+
+void printUsage() {
+    std::cerr << "Usage: EvcServer <port>\n";
+    std::cerr << "   or: EvcServer <port> <broadcast/echo>\n";
+}
+
+
+
+
+
+
 int main(int argc, char* argv[]) {
+    std::shared_ptr<Server> server_ = nullptr;
     try {
         int port = 80;
 
-        // init port
-        {
-            if ((argc == 2) || (argc == 3)) {
-                if (argc == 3) {
-                    if (!strcmp("broadcast", argv[2])) {
-                        isEchoMode = false;
-                    }
-                    else if (!strcmp("echo", argv[2])) {
-                        isEchoMode = true;
-                    }
-                    else {
-                        printUsage();
-                        return -1;
-                    }
-                }
-                port = std::atoi(argv[1]);
-            }
-            else {
-                printUsage();
-                return -1;
-            }
+        if (argc != 4) {
+            printUsage();
+            return -1;
         }
+        
+
+
+        if (!strcmp("broadcast", argv[3])) {
+            isEchoMode = false;
+        }
+        else if (!strcmp("echo", argv[3])) {
+            isEchoMode = true;
+        }
+        else {
+            printUsage();
+            return -1;
+        }
+        
+        
+        port = std::atoi(argv[2]);
+
 
         LOGI << "PORT=" << port;
 
@@ -40,8 +52,19 @@ int main(int argc, char* argv[]) {
         boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::trace);
 
         boost::asio::io_service io_service;
-        
-        KcpServer server(io_service, port);
+
+        if (!strcmp("raw_udp", argv[1])) {
+            server_ = std::make_shared<RawUdpServer>(io_service, port);
+        }
+        else if (!strcmp("raw_tcp", argv[1])) {
+            server_ = std::make_shared<TcpServer>(io_service, port);
+        }
+        else if (!strcmp("kcp_udp", argv[1])) {
+            server_ = std::make_shared<KcpServer>(io_service, port);
+        }
+        else {
+            LOGE << "unknown protocol : " << argv[1];
+        }
 
         io_service.run();
     }

@@ -35,6 +35,7 @@ namespace {
         boost::property_tree::ptree root_;
     public:
         Case() {
+            root_.put("protocol", "raw_tcp");
             root_.put("server.host", "127.0.0.1");
             root_.put("server.port", "1222");
             root_.put("needRealAudioEndpoint", false);
