@@ -24,6 +24,7 @@ make -j3 || exit 1
 
 ############  sanity check  ############
 (./server/server raw_tcp 1222 echo &) || exit 1
+(./server/server raw_udp 1222 echo &) || exit 1
 wget https://github.com/zhang-ray/playground-github/releases/download/voice_material/mono16le16kHz.pcm -O audioInStub.pcm || exit 1 
 ./tests/sanity_check/sanity_check_audio || exit 1  # use 127.0.0.1:1222
 

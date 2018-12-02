@@ -36,3 +36,4 @@ cp EasyVoiceCall.Server.Linux-x86_64.AppImage ../../
 ############  sanity check  ############
 chmod +x EasyVoiceCall.Server.Linux-x86_64.AppImage
 (./EasyVoiceCall.Server.Linux-x86_64.AppImage raw_tcp 1222 echo &) || exit 1
+(./EasyVoiceCall.Server.Linux-x86_64.AppImage raw_udp 1222 echo &) || exit 1
