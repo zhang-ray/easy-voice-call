@@ -137,7 +137,7 @@ MainWindow::MainWindow(QWidget *parent)
             onVolumeChanged({AudioInOut::In, 0u, 0u});
             onVolumeChanged({AudioInOut::Out, 0u, 0u});
             onNetworkChanged(NetworkState::Disconnected);
-            toggleAdvancedMode(true);
+            toggleAdvancedMode(false);
             showMessage("F1: help    F2: toggle mode (advanced/easy mode)");
             ui->radioButton_udp->toggle();
             ui->radioButton_kcp_udp->setEnabled(false);

@@ -60,6 +60,8 @@ public:
         }
     };
 
+    bool isMediaType() {return (payloadType() == NetPacket::PayloadType::AudioMessage) || (payloadType() == NetPacket::PayloadType::TextMessage);}
+
 private:
     const std::string headMarker_ = "evc ";
     const std::string version_ = GIT_TAG; // TODO re-format

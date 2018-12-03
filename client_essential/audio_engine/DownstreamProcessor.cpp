@@ -37,7 +37,7 @@ void DownstreamProcessor::decodeOpusAndAecBufferFarend(const std::shared_ptr<Net
             // unexpected data order!!!!
             LOGE << "currentTS < largestReceivedMediaDataTimestamp_";
             // TODO: AND THEN? THROW?
-            throw;
+            //throw;
         }
         else {
             largestReceivedMediaDataTimestamp_ = currentTS;
