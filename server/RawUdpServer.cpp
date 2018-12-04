@@ -99,7 +99,8 @@ void RawUdpPriv::processClientMessagePayload(const NetPacket& msg, std::shared_p
         break;
     }
     case NetPacket::PayloadType::TextMessage:
-    case NetPacket::PayloadType::AudioMessage:
+	case NetPacket::PayloadType::AudioMessage:
+	case NetPacket::PayloadType::AudioMessage_CN:
     {
         counterUserMessage_++;
 

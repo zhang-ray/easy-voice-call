@@ -37,8 +37,9 @@ public:
             sender->deliver(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
             break;
         }
-        case NetPacket::PayloadType::TextMessage:
-        case NetPacket::PayloadType::AudioMessage:
+		case NetPacket::PayloadType::TextMessage:
+		case NetPacket::PayloadType::AudioMessage:
+		case NetPacket::PayloadType::AudioMessage_CN:
         {
             counterUserMessage_++;
 

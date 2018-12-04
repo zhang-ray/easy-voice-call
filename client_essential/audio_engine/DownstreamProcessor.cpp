@@ -8,12 +8,24 @@
 #include <memory>
 
 
-void DownstreamProcessor::decodeOpusAndAecBufferFarend(const std::shared_ptr<NetPacket> netPacket, std::vector<short> &decodedPcm)
-{
-    std::vector<char> netBuff;
-    netBuff.resize(netPacket->payloadLength());
-    memcpy(netBuff.data(), netPacket->payload(), netPacket->payloadLength());
-    decoder_->decode(netBuff, decodedPcm);
+void DownstreamProcessor::decodeAndAecBufferFarend(const std::shared_ptr<NetPacket> &netPacket, std::vector<short> &decodedPcm) {
+	if (netPacket->payloadType() == NetPacket::PayloadType::AudioMessage) {
+		std::vector<char> netBuff;
+		netBuff.resize(netPacket->payloadLength());
+		memcpy(netBuff.data(), netPacket->payload(), netPacket->payloadLength());
+
+		decoder_->decode(netBuff, decodedPcm);
+		lastIsCnPacket_ = false;
+	}
+	else if (netPacket->payloadType() == NetPacket::PayloadType::AudioMessage_CN) {
+		std::vector<uint8_t> netBuff;
+		netBuff.resize(netPacket->payloadLength());
+		memcpy(netBuff.data(), netPacket->payload(), netPacket->payloadLength());
+
+		cnDecoder_.UpdateSid(netBuff);
+		cnDecoder_.Generate(decodedPcm, lastIsCnPacket_);
+		lastIsCnPacket_ = true;
+	}
 
     if (needAec_) {
         std::vector<float> floatFarend(decodedPcm.size());
@@ -87,7 +99,7 @@ DownstreamProcessor::~DownstreamProcessor()
 
 void DownstreamProcessor::append(const std::shared_ptr<NetPacket> &netPacket){
     std::vector<short> pcm;
-    decodeOpusAndAecBufferFarend(netPacket, pcm);
+    decodeAndAecBufferFarend(netPacket, pcm);
     auto segment = std::make_shared<PcmSegment>();
     std::memcpy(segment->data(), pcm.data(), blockSize * sizeof(int16_t));
     jitterBuffer_.append(std::make_shared<std::tuple<uint32_t, std::shared_ptr<PcmSegment>>>(std::make_tuple<uint32_t, std::shared_ptr<PcmSegment>>( netPacket->timestamp(), std::move(segment ))));

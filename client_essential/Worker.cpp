@@ -25,6 +25,7 @@ using namespace webrtc;
 Worker::Worker()
     :volumeMeterIn_(AudioInOut::In)
     ,volumeMeterOut_(AudioInOut::Out)
+	, cnEncoder(sampleRate, 100, 8)
 {
 
 }
@@ -192,7 +193,8 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
             case NetPacket::PayloadType::LoginResponse: {
                 isLogin = true;
                 break;
-            }
+			}
+			case NetPacket::PayloadType::AudioMessage_CN:
             case NetPacket::PayloadType::AudioMessage: {
                 if (downStreamProcessor_) {
                     downStreamProcessor_->append(netPacket);
@@ -342,7 +344,7 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
 
     if (haveVoice) {
         vadCounter_++;
-        needSend_ = true;
+        sendOpus_ = true;
     }
 
 
@@ -356,7 +358,7 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
                 /// 100 section per one second
                 /// in last one second, no voice found
                 /// so that we predict there's no voice in future
-                needSend_ = false;
+                sendOpus_ = false;
             }
             lastTimeStamp = std::chrono::system_clock::now();
 
@@ -364,7 +366,7 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
         }
     }
 
-    if (needSend_) {
+    if (sendOpus_) {
         std::vector<char> outData;
         auto retEncode = encoder->encode(needAec_ ? tobeSend : denoisedBuffer, outData);
         if (!retEncode) {
@@ -375,6 +377,14 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
 
         pClient->send(NetPacket(NetPacket::PayloadType::AudioMessage, ++sn_sendingAudio_, outData));
     }
+	else {
+		// CNG
+		std::vector<int8_t> output;
+		auto encoded_bytes_tmp = cnEncoder.Encode(needAec_ ? tobeSend : denoisedBuffer, false, output);
+		assert(output.size() == encoded_bytes_tmp);
+
+		pClient->send(NetPacket(NetPacket::PayloadType::AudioMessage_CN, ++sn_sendingAudio_, output));
+	}
 }
 
 

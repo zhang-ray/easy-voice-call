@@ -23,6 +23,9 @@
 #include "audio_engine/AudioVolumeMeter_Peak.hpp"
 
 
+#include "../audio-processing-module/independent_cng/src/webrtc_cng.hpp"
+
+
 class AudioEncoder;
 
 
@@ -49,7 +52,7 @@ private:
 
     uint8_t vadCounter_ = 0; // nbActivated
     bool mute_ = false;
-    bool needSend_ = true;
+    bool sendOpus_ = true;
     AudioVolumeMeter_Peak volumeMeterIn_;
     AudioVolumeMeter_Peak volumeMeterOut_;
     std::shared_ptr<std::thread> durationTimer_ = nullptr;
@@ -60,6 +63,8 @@ private:
 
     uint32_t sn_sendingAudio_ = 0;
     uint32_t sn_sendingHeartBeat_ = 0;
+private:
+	webrtc::ComfortNoiseEncoder cnEncoder;
 private:
     bool initCodec();
     void nsAecVolumeVadSend(const short *buffer);

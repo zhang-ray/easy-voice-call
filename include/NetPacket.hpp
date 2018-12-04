@@ -36,8 +36,9 @@ public:
         LoginRequest,
         LoginResponse,
         UserInfo,
-        TextMessage,
-        AudioMessage,
+		TextMessage,
+		AudioMessage,
+		AudioMessage_CN,
         LogoutRequest,
         LogoutResponse,
     };
@@ -51,6 +52,7 @@ public:
             case NetPacket::PayloadType::UserInfo           : return "UserInfo";
             case NetPacket::PayloadType::TextMessage        : return "TextMessage";
             case NetPacket::PayloadType::AudioMessage       : return "AudioMessage";
+            case NetPacket::PayloadType::AudioMessage_CN    : return "AudioMessage_Comfortable_Noise";
             case NetPacket::PayloadType::LogoutRequest      : return "LogoutRequest";
             case NetPacket::PayloadType::LogoutResponse     : return "LogoutResponse";
             
@@ -60,7 +62,12 @@ public:
         }
     };
 
-    bool isMediaType() {return (payloadType() == NetPacket::PayloadType::AudioMessage) || (payloadType() == NetPacket::PayloadType::TextMessage);}
+    bool isMediaType() {
+		return
+			(payloadType() == NetPacket::PayloadType::AudioMessage_CN) ||
+			(payloadType() == NetPacket::PayloadType::AudioMessage) ||
+			(payloadType() == NetPacket::PayloadType::TextMessage);
+	}
 
 private:
     const std::string headMarker_ = "evc ";
@@ -88,6 +95,17 @@ public:
     NetPacket(const PayloadType payloadType= PayloadType::Undefined, const uint32_t serialNumber=0){
         init(payloadType, 0, ProcessTime::get().getProcessUptime(), serialNumber);
     }
+
+	NetPacket(const PayloadType payloadType, const uint32_t serialNumber, const std::vector<int8_t> payload) {
+		auto payloadSize = payload.size();
+		if (payloadSize > (uint16_t)(-1)) {
+			throw "payloadSize larger than max of uint16_t";
+		}
+		init(payloadType, (uint16_t)payloadSize, ProcessTime::get().getProcessUptime(), serialNumber);
+
+		memcpy(wholePacket_.data() + FixHeaderLength, payload.data(), (uint16_t)payloadSize);
+	}
+
 
     NetPacket(const PayloadType payloadType, const uint32_t serialNumber, const std::vector<char> payload){
         auto payloadSize = payload.size();

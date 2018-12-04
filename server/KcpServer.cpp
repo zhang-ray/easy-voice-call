@@ -117,8 +117,9 @@ void KcpPriv::processClientMessagePayload(const NetPacket& msg, std::shared_ptr<
         sender->send(NetPacket(NetPacket::PayloadType::HeartBeatResponse));
         break;
     }
-    case NetPacket::PayloadType::TextMessage:
-    case NetPacket::PayloadType::AudioMessage:
+	case NetPacket::PayloadType::TextMessage:
+	case NetPacket::PayloadType::AudioMessage:
+	case NetPacket::PayloadType::AudioMessage_CN:
     {
         counterUserMessage_++;
 

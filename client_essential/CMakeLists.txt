@@ -19,7 +19,7 @@ add_library(${PROJECT_NAME} SHARED ${FILES_INCLUDE} ${FILES_SOURCES} )
 
 if(WIN32)
     target_link_libraries(${PROJECT_NAME}
-		vad aec ns
+		vad aec ns indie_cng
 		opus celt silk_common silk_fixed silk_float 
 		portaudio_static_x86
 	)
@@ -27,7 +27,7 @@ else(WIN32)
 	if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
 		# macOS
 	    target_link_libraries(${PROJECT_NAME} 
-			vad aec ns
+			vad aec ns indie_cng
 			boost_system boost_system-mt 
 			boost_log_setup boost_log_setup-mt 
 			boost_log boost_log-mt 

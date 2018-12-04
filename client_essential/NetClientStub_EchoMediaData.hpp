@@ -27,7 +27,8 @@ public:
             onDataReceived_(*this, NetPacket(NetPacket::PayloadType::HeartBeatResponse));
             break;
         }
-        case NetPacket::PayloadType::TextMessage:
+		case NetPacket::PayloadType::TextMessage:
+		case NetPacket::PayloadType::AudioMessage_CN:
         case NetPacket::PayloadType::AudioMessage:
         {
             onDataReceived_(*this, netPacket);
