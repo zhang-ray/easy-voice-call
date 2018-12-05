@@ -117,6 +117,14 @@ void DownstreamProcessor::fetch(PcmSegment &outData){
             theList.push_back(std::get<1>(*(m1_.get())));
             theList.push_back(std::get<1>(*(m2_.get())));
             plc.predict(theList, predicted);
+
+			// patch for CN
+			{
+				std::vector<int16_t> tmpCN(blockSize, 0);;
+				cnDecoder_.Generate(tmpCN, lastIsCnPacket_);
+				memcpy(predicted->data(), tmpCN.data(), blockSize * sizeof(int16_t));
+				lastIsCnPacket_ = true;
+			}
         }
 
         data = std::make_shared<std::tuple<uint32_t, std::shared_ptr<PcmSegment>>>(
