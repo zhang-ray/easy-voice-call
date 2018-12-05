@@ -23,6 +23,7 @@ void DownstreamProcessor::decodeAndAecBufferFarend(const std::shared_ptr<NetPack
 		memcpy(netBuff.data(), netPacket->payload(), netPacket->payloadLength());
 
 		cnDecoder_.UpdateSid(netBuff);
+		assert(decodedPcm.size() == blockSize);
 		cnDecoder_.Generate(decodedPcm, lastIsCnPacket_);
 		lastIsCnPacket_ = true;
 	}
@@ -98,7 +99,7 @@ DownstreamProcessor::~DownstreamProcessor()
 }
 
 void DownstreamProcessor::append(const std::shared_ptr<NetPacket> &netPacket){
-    std::vector<short> pcm;
+    std::vector<short> pcm(blockSize,0);
     decodeAndAecBufferFarend(netPacket, pcm);
     auto segment = std::make_shared<PcmSegment>();
     std::memcpy(segment->data(), pcm.data(), blockSize * sizeof(int16_t));

@@ -382,8 +382,9 @@ void Worker::nsAecVolumeVadSend(const short *buffer){
 		std::vector<int8_t> output;
 		auto encoded_bytes_tmp = cnEncoder.Encode(needAec_ ? tobeSend : denoisedBuffer, false, output);
 		assert(output.size() == encoded_bytes_tmp);
-
-		pClient->send(NetPacket(NetPacket::PayloadType::AudioMessage_CN, ++sn_sendingAudio_, output));
+		if (encoded_bytes_tmp > 0) {
+			pClient->send(NetPacket(NetPacket::PayloadType::AudioMessage_CN, ++sn_sendingAudio_, output));
+		}
 	}
 }
 
