@@ -15,9 +15,9 @@
 
 **Highlights:**
 - [x] private and secure - the server is self-hosting;
-- [x] cross platform (Windows, macOS and GNU/Linux) and easy-to-use GUI client;
+- [x] cross platform (Windows and macOS) and easy-to-use GUI client;
 - [x] Voice Activity Detection; 
 - [x] Acoustic Echo Cancellation; 
 - [x] Noise Suppression;
 - [ ] Voice Changing Capability;
-- [x] concise source code - less than 5k lines (including clients, server, unit_tests and smoke_tests / sanity_check code);
+- [x] concise source code - less than 10k lines (including clients, server, unit_tests and smoke_tests / sanity_check code);
