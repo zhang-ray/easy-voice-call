@@ -13,11 +13,26 @@
 </h1>
 
 
-**Highlights:**
+### User Guide
+**Easy to use**
+- Deploy the server
+  - Download latest *EasyVoiceCall.Server.Linux-x86_64.AppImage* from https://github.com/zhang-ray/easy-voice-call/releases
+  - `chmod +x EasyVoiceCall.Server.Linux-x86_64.AppImage && ./EasyVoiceCall.Server.Linux-x86_64.AppImage 1222`
+- Use the client
+  - Download latest *EasyVoiceCall.Client.macOS.dmg* or *EasyVoiceCall.Client.Windows.Installer* from https://github.com/zhang-ray/easy-voice-call/releases
+  - Make sure your recording/playback device are ready, and then open the client!
+  - Just connect to the coresponding server!
+  - If you're the fisrt one online, just waiting for the other; vice versa.
+
+
+
+### Technical details
+**Technical features**
 - [x] private and secure - the server is self-hosting;
 - [x] cross platform (Windows and macOS) and easy-to-use GUI client;
 - [x] Voice Activity Detection; 
 - [x] Acoustic Echo Cancellation; 
 - [x] Noise Suppression;
-- [ ] Voice Changing Capability;
+- [x] Comfort Noise Generator;
+- [ ] ~~Voice Changing Capability;~~
 - [x] concise source code - less than 10k lines (including clients, server, unit_tests and smoke_tests / sanity_check code);
