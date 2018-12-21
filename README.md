@@ -14,7 +14,7 @@
 
 
 ## User Guide
-EVC is very **Easy to use**
+EVC is very **easy to use**
 - Deploy the server
   - Download latest *EasyVoiceCall.Server.Linux-x86_64.AppImage* from https://github.com/zhang-ray/easy-voice-call/releases
   - `chmod +x EasyVoiceCall.Server.Linux-x86_64.AppImage && ./EasyVoiceCall.Server.Linux-x86_64.AppImage 1222 # 1222 is the UDP port`
