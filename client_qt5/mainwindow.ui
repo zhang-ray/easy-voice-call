@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>460</height>
+    <height>339</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -359,7 +359,7 @@
       <x>20</x>
       <y>150</y>
       <width>250</width>
-      <height>171</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="title">
@@ -388,64 +388,12 @@
       <string>80</string>
      </property>
     </widget>
-    <widget class="QGroupBox" name="groupBox_protocol">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>54</y>
-       <width>231</width>
-       <height>111</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>protocol</string>
-     </property>
-     <widget class="QRadioButton" name="radioButton_tcp">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>50</y>
-        <width>111</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Raw TCP</string>
-      </property>
-     </widget>
-     <widget class="QRadioButton" name="radioButton_kcp_udp">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>80</y>
-        <width>111</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>KCP/UDP</string>
-      </property>
-     </widget>
-     <widget class="QRadioButton" name="radioButton_udp">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>20</y>
-        <width>111</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Raw UDP</string>
-      </property>
-     </widget>
-    </widget>
    </widget>
    <widget class="QPushButton" name="pushButton_connecting">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>340</y>
+      <y>250</y>
       <width>250</width>
       <height>61</height>
      </rect>
@@ -471,7 +419,7 @@
       <x>289</x>
       <y>10</y>
       <width>300</width>
-      <height>421</height>
+      <height>301</height>
      </rect>
     </property>
     <property name="title">
@@ -541,7 +489,7 @@
        <x>10</x>
        <y>160</y>
        <width>270</width>
-       <height>251</height>
+       <height>131</height>
       </rect>
      </property>
     </widget>

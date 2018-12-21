@@ -139,8 +139,6 @@ MainWindow::MainWindow(QWidget *parent)
             onNetworkChanged(NetworkState::Disconnected);
             toggleAdvancedMode(false);
             showMessage("F1: help    F2: toggle mode (advanced/easy mode)");
-            ui->radioButton_udp->toggle();
-            ui->radioButton_kcp_udp->setEnabled(false);
         }
 
 
@@ -217,7 +215,6 @@ void MainWindow::onNetworkChanged(const NetworkState networkState){
     if(mainThreadId_ == std::this_thread::get_id()){
         switch(networkState){
         case NetworkState::Disconnected: {
-            ui->groupBox_protocol->setEnabled(true);
             ui->lineEdit_serverHost->setEnabled(true);
             ui->lineEdit_serverPort->setEnabled(true);
             ui->checkBox_needAec->setEnabled(true);
@@ -228,7 +225,6 @@ void MainWindow::onNetworkChanged(const NetworkState networkState){
             break;
         }
         case NetworkState::Connecting: {
-            ui->groupBox_protocol->setEnabled(false);
             ui->lineEdit_serverHost->setEnabled(false);
             ui->lineEdit_serverPort->setEnabled(false);
             ui->checkBox_needAec->setEnabled(false);
@@ -237,7 +233,6 @@ void MainWindow::onNetworkChanged(const NetworkState networkState){
             break;
         }
         case NetworkState::Connected: {
-            ui->groupBox_protocol->setEnabled(false);
             ui->lineEdit_serverHost->setEnabled(false);
             ui->lineEdit_serverPort->setEnabled(false);
             ui->checkBox_needAec->setEnabled(false);
@@ -305,15 +300,7 @@ void MainWindow::gotoWork(){
         root_.put("server.host", ui->lineEdit_serverHost->text().toStdString().c_str());
         root_.put("server.port", ui->lineEdit_serverPort->text().toStdString().c_str());
 
-        if (ui->radioButton_tcp->isChecked()) {
-            root_.put("protocol", "raw_tcp");
-        }
-        else if (ui->radioButton_udp->isChecked()) {
             root_.put("protocol", "raw_udp");
-        }
-        else if (ui->radioButton_kcp_udp->isChecked()) {
-            root_.put("protocol", "kcp_udp");
-        }
 
 
         worker_ = IWorker::create();
