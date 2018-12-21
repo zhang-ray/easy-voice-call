@@ -13,20 +13,20 @@
 </h1>
 
 
-### User Guide
-**Easy to use**
+## User Guide
+EVC is very **Easy to use**
 - Deploy the server
   - Download latest *EasyVoiceCall.Server.Linux-x86_64.AppImage* from https://github.com/zhang-ray/easy-voice-call/releases
-  - `chmod +x EasyVoiceCall.Server.Linux-x86_64.AppImage && ./EasyVoiceCall.Server.Linux-x86_64.AppImage 1222`
+  - `chmod +x EasyVoiceCall.Server.Linux-x86_64.AppImage && ./EasyVoiceCall.Server.Linux-x86_64.AppImage 1222 # 1222 is the UDP port`
 - Use the client
   - Download latest *EasyVoiceCall.Client.macOS.dmg* or *EasyVoiceCall.Client.Windows.Installer* from https://github.com/zhang-ray/easy-voice-call/releases
   - Make sure your recording/playback device are ready, and then open the client!
   - Just connect to the coresponding server!
-  - If you're the fisrt one online, just waiting for the other; vice versa.
+  - Waiting for the other if you're the fisrt one online and vice versa.
 
 
 
-### Technical details
+## Technical details
 **Technical features**
 - [x] private and secure - the server is self-hosting;
 - [x] cross platform (Windows and macOS) and easy-to-use GUI client;
@@ -36,3 +36,4 @@
 - [x] Comfort Noise Generator;
 - [ ] ~~Voice Changing Capability;~~
 - [x] concise source code - less than 10k lines (including clients, server, unit_tests and smoke_tests / sanity_check code);
+
