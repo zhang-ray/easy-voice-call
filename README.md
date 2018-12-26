@@ -26,6 +26,11 @@ EVC is very **easy to use**
 
 
 
+## License
+[LICENSE](./LICENSE). By the way, [IANAL](https://en.wikipedia.org/wiki/IANAL).
+
+
+
 ## Technical details
 **Technical features**
 - [x] private and secure - the server is self-hosting;
