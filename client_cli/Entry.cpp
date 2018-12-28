@@ -6,6 +6,15 @@
 
 #include "IWorker.hpp"
 #include "Logger.hpp"
+#include "git_info.hpp"
+
+
+void printVersion() {
+#ifdef GIT_TAG
+	LOGI << GIT_TAG;
+#endif // GIT_TAG
+}
+
 
 
 
@@ -45,6 +54,8 @@ int main(int argc, char* argv[]) {
 #ifndef _DEBUG
     TrickyBoostLog trickyBoostLog(boost::log::trivial::severity_level::debug);
 #endif // _DEBUG
+
+	printVersion();
 
     try {
         auto file = argv[1];
