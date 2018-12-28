@@ -31,8 +31,10 @@ EVC is very **easy to use**
 
 
 
+
 ## Technical details
 Written in modern C++ (C++14)
+
 **Technical features**
 - [x] private and secure - the server is self-hosting;
 - [x] cross platform (Windows and macOS) and easy-to-use GUI client;

@@ -1,11 +1,18 @@
 #include "TcpServer.hpp"
 #include "RawUdpServer.hpp"
-
+#include "git_info.hpp"
 
 
 /// I don't like this kind of global variable
 bool isEchoMode = false;
 
+
+void printVersion() {
+#ifdef GIT_TAG
+	LOGI << GIT_TAG;
+#endif // GIT_TAG
+
+}
 
 
 void printUsage() {
@@ -78,6 +85,8 @@ int main____(int argc, char* argv[]) {
 
 
 int main(int argc, char* argv[]) {
+	printVersion();
+
 	std::shared_ptr<Server> server_ = nullptr;
 	try {
 		int port = 80;

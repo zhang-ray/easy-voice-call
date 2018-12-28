@@ -31,12 +31,6 @@ class AudioEncoder;
 
 
 
-/// TODO:
-///    - make timestamp
-///    - use reliable UDP in weak network
-///    - check version (server & client)
-///    - display build date and git commit version in GUI and server side
-
 class Worker : public IWorker {
 private:
     CallbackStyleAudioEndpoint *endpoint_ = nullptr;
