@@ -32,6 +32,7 @@ EVC is very **easy to use**
 
 
 ## Technical details
+Written in modern C++ (C++14)
 **Technical features**
 - [x] private and secure - the server is self-hosting;
 - [x] cross platform (Windows and macOS) and easy-to-use GUI client;
@@ -39,5 +40,5 @@ EVC is very **easy to use**
 - [x] Acoustic Echo Cancellation; 
 - [x] Noise Suppression;
 - [x] Comfort Noise Generator;
-- [x] concise source code - less than 10k lines (including clients, server, unit_tests and smoke_tests / sanity_check code);
+- [x] concise source code - less than 4k lines (including clients, server, unit_tests and sanity_check code);
 
