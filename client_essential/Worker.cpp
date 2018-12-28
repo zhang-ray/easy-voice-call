@@ -5,7 +5,6 @@
 
 #include "TcpClient.hpp"
 #include "Logger.hpp"
-#include "net_engine/KcpClient.hpp"
 
 //// TODO
 //// don't include WEBRTC directly...
@@ -127,9 +126,6 @@ ReturnType Worker::init(
         }
         else if (protocol == "raw_tcp"){
             pClient = std::make_shared<TcpClient>();
-        }
-        else if (protocol == "kcp_udp") {
-            pClient = std::make_shared<KcpClient>();
         }
         else {
             throw protocol + " :unknown protocol" ;

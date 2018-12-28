@@ -39,6 +39,5 @@ EVC is very **easy to use**
 - [x] Acoustic Echo Cancellation; 
 - [x] Noise Suppression;
 - [x] Comfort Noise Generator;
-- [ ] ~~Voice Changing Capability;~~
 - [x] concise source code - less than 10k lines (including clients, server, unit_tests and smoke_tests / sanity_check code);
 

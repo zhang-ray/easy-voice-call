@@ -1,5 +1,4 @@
 #include "TcpServer.hpp"
-#include "KcpServer.hpp"
 #include "RawUdpServer.hpp"
 
 
@@ -59,9 +58,11 @@ int main____(int argc, char* argv[]) {
         else if (!strcmp("raw_tcp", argv[1])) {
             server_ = std::make_shared<TcpServer>(io_service, port);
         }
+		/*
         else if (!strcmp("kcp_udp", argv[1])) {
             server_ = std::make_shared<KcpServer>(io_service, port);
         }
+		*/
         else {
             LOGE << "unknown protocol : " << argv[1];
         }

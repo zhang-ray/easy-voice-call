@@ -1,10 +1,9 @@
 project(server)
 
 
-file(GLOB_RECURSE FILES_SOURCES *.cpp *.c ../3rd/kcp/*.c)
-file(GLOB_RECURSE FILES_INCLUDE *.hpp *.h ../3rd/kcp/*.h)
+file(GLOB_RECURSE FILES_SOURCES *.cpp *.c)
+file(GLOB_RECURSE FILES_INCLUDE *.hpp *.h)
 
-include_directories(../3rd/kcp/)
 
 add_executable(${PROJECT_NAME} ${FILES_INCLUDE} ${FILES_SOURCES})
 
