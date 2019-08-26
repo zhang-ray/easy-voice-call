@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">EasyVoiceCall</string>
+    <string name="string_server">Server</string>
+    <string name="string_your_server">your.server.com</string>
+    <string name="string_your_port">like: 1222</string>
+    <string name="string_host">host:</string>
+    <string name="string_port">UDP port:</string>
+    <string name="string_kcp_udp">KCP/UDP</string>
+    <string name="string_tcp">TCP</string>
+    <string name="string_connect">  Connect!</string>
+</resources>
