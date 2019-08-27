@@ -5,7 +5,7 @@
 #include <cstring>
 #include <set>
 
-#ifdef WIN32
+#if defined(WIN32) || defined(ANDROID)
 #include <opus.h>
 #else
 #include <opus/opus.h>

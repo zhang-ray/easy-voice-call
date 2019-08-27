@@ -7,7 +7,7 @@
 #include "Logger.hpp"
 #include "Lib.hpp"
 
-#include "CallbackStylePortaudioEndpoint.hpp"
+#include "CallbackStyleAudioEndpoint.hpp"
 #include "Profiler.hpp"
 #include "ReturnType.hpp"
 #include "NetClient.hpp"

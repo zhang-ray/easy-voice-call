@@ -51,14 +51,19 @@ if (RESULT_VAR STREQUAL 0)
 endif()
 
 
+if (ANDROID_NDK)
+    include_directories(./opus_android/opuslib/src/main/jni/include)
+    include_directories(./Boost-for-Android/boost_1_70_0)
+    link_directories(./Boost-for-Android/build/out/arm64-v8a/lib/)
+endif()
 
 
-
-
-# Ubuntu 14.04 is to old...
 add_subdirectory(audio-processing-module)
 add_subdirectory(client_essential)
 add_subdirectory(client_cli)
-add_subdirectory(client_qt5)
+if (ANDROID_NDK)
+else(ANDROID_NDK)
+    add_subdirectory(client_qt5)
+endif(ANDROID_NDK)
 add_subdirectory(tests)
 add_subdirectory(server)
