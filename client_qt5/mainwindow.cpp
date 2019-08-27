@@ -7,15 +7,30 @@
 #include <thread>
 #include <fstream>
 #include <functional>
-#include <QDesktopWidget>
-#include <QStyle>
-#include <QDir>
 #include <memory>
-#include <QKeyEvent>
-#include <QDesktopServices>
 #include <fstream>
 #include "git_info.hpp"
 #include "Logger.hpp"
+
+
+
+#ifdef LINUX_CLIENT
+#include <QtWidgets/QStyle>
+#include <QtWidgets/QDesktopWidget>
+#include <QtWidgets/QLabel>
+#include <QtCore/QDir>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QDesktopServices>
+#include <QtCore/QFile>
+#else
+#include <QDesktopWidget>
+#include <QStyle>
+#include <QDir>
+#include <QKeyEvent>
+#include <QDesktopServices>
+#endif //LINUX_CLIENT
+
+
 
 QEvent::Type AudioVolumeEvent::sType = (QEvent::Type)QEvent::registerEventType();
 QEvent::Type VadEvent::sType = (QEvent::Type)QEvent::registerEventType();
