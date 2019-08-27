@@ -29,7 +29,12 @@ if(WIN32)
         "C:/Libraries/boost_1_67_0/lib32-msvc-14.0/"
         )
 else(WIN32)
-	link_directories(/usr/local/lib/)
+    if (ANDROID_NDK)
+        include_directories("./opus_android/opuslib/src/main/jni/include" "./Boost-for-Android/boost_1_67_0")
+        link_directories("./Boost-for-Android/build/out/arm64-v8a/lib/" "./opus_android/opuslib/src/main/libs/arm64-v8a/")
+    else() # Linux
+        link_directories(/usr/local/lib/)
+    endif()
 endif(WIN32)
 
 
@@ -51,19 +56,13 @@ if (RESULT_VAR STREQUAL 0)
 endif()
 
 
-if (ANDROID_NDK)
-    include_directories(./opus_android/opuslib/src/main/jni/include)
-    include_directories(./Boost-for-Android/boost_1_70_0)
-    link_directories(./Boost-for-Android/build/out/arm64-v8a/lib/)
-endif()
-
-
 add_subdirectory(audio-processing-module)
-add_subdirectory(client_essential)
-add_subdirectory(client_cli)
 if (ANDROID_NDK)
+    add_subdirectory(client_essential_android)
 else(ANDROID_NDK)
+    add_subdirectory(client_essential)
+    add_subdirectory(client_cli)
     add_subdirectory(client_qt5)
+    add_subdirectory(tests)
+    add_subdirectory(server)
 endif(ANDROID_NDK)
-add_subdirectory(tests)
-add_subdirectory(server)
