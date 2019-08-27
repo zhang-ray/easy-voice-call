@@ -37,7 +37,7 @@ else(WIN32)
     else()
 		# Linux
         target_link_libraries(${PROJECT_NAME}
-			vad aec ns
+                        vad aec ns indie_cng
 			portaudio opus
 			opus pthread
             boost_system

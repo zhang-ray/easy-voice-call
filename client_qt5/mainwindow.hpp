@@ -1,15 +1,24 @@
 #pragma once
 
-
-#include <QMainWindow>
 #include <memory>
+#include <thread>
 #include "IWorker.hpp"
+
+#ifdef LINUX_CLIENT
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QLabel>
+#include <QtCore/QEvent>
+#include <QtCore/QTemporaryDir>
+#include <QtCore/QFile>
+#include <QtCore/QTimeLine>
+#else
+#include <QMainWindow>
 #include <QLabel>
 #include <QEvent>
 #include <QTemporaryDir>
 #include <QFile>
 #include <QTimeLine>
-#include <thread>
+#endif //LINUX_CLIENT
 
 
 namespace Ui {

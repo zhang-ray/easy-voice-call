@@ -56,12 +56,9 @@ endif()
 
 
 # Ubuntu 14.04 is to old...
-if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    add_subdirectory(audio-processing-module)
-    add_subdirectory(client_essential)
-    add_subdirectory(client_cli)
-    add_subdirectory(client_qt5)
-    add_subdirectory(tests)
-endif()
-
+add_subdirectory(audio-processing-module)
+add_subdirectory(client_essential)
+add_subdirectory(client_cli)
+add_subdirectory(client_qt5)
+add_subdirectory(tests)
 add_subdirectory(server)

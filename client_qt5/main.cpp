@@ -1,8 +1,15 @@
 #include "mainwindow.hpp"
+#include "Logger.hpp"
+
+#ifdef LINUX_CLIENT
+#include <QtWidgets/QApplication>
+#include <QtCore/QtGlobal>
+#include <QtCore/QStandardPaths>
+#else
 #include <QApplication>
 #include <QtGlobal>
 #include <QStandardPaths>
-#include "Logger.hpp"
+#endif
 
 #ifdef _WIN32
 #include "resources/resource.h"
