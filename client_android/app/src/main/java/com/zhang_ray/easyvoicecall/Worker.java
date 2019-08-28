@@ -15,7 +15,10 @@ import java.io.IOException;
 public class Worker implements Runnable {
     static {
         System.loadLibrary("evc-android-opus");
+        System.loadLibrary("client_essential");
     }
+
+    public native static String getVersion();
 
     private native void reInitEncoder(int sampleRate);
     private native void reInitDecoder(int sampleRate);

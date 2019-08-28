@@ -40,14 +40,15 @@ Worker::~Worker(){
 }
 
 ReturnType Worker::init(
-    const boost::property_tree::ptree &configRoot,
+    const std::string host,
+    const std::string port,
     std::function<void(const std::string &, const std::string &)> reportInfo,
     std::function<void(const AudioIoVolume)> reportVolume,
     std::function<void(const bool)> vadReporter
 ) {
-    configRoot_ = configRoot;
-
-    needAec_ = configRoot.get<bool>("needAec", needAec_);
+    needAec_ = true;
+    host_ = host;
+    port_ = port;
     
     if (needAec_) {
         aec = WebRtcAec_Create();
@@ -57,7 +58,7 @@ ReturnType Worker::init(
     }
 
 
-    downStreamProcessor_ = std::make_shared<DownstreamProcessor>(needAec_, aec, configRoot.get("audioOutDumpPath", ""));
+    downStreamProcessor_ = std::make_shared<DownstreamProcessor>(needAec_, aec, "");
 
     try {
         {
@@ -88,12 +89,10 @@ ReturnType Worker::init(
         }
 
         audioInStub_ = AudioInStub::create(
-            configRoot.get<std::string>("audioInStub", "")
+            ""
         );
 
-        endpoint_ = &CallbackStyleAudioEndpoint::create(
-            configRoot.get<bool>("needRealAudioEndpoint", true)
-        );
+        endpoint_ = &CallbackStyleAudioEndpoint::create(true);
 
 
         auto ret = endpoint_->init([this](const int16_t *inputBuffer, int16_t *outputBuffer, const uint32_t framesPerBuffer) {
@@ -119,19 +118,7 @@ ReturnType Worker::init(
 
 
 
-        auto protocol = configRoot_.get<std::string>("protocol", "");
-
-        if (protocol == "raw_udp") {
-            pClient = std::make_shared<RawUdpClient>();
-        }
-        else if (protocol == "raw_tcp"){
-            pClient = std::make_shared<TcpClient>();
-        }
-        else {
-            throw protocol + " :unknown protocol" ;
-        }
-
-
+        pClient = std::make_shared<RawUdpClient>();
 
 
         volumeReporter_ = reportVolume;
@@ -173,12 +160,9 @@ ReturnType Worker::syncStart(std::function<void(const NetworkState &newState, co
         gotoStop_ = false;
         bool isLogin = false;
                 
-        std::string host = configRoot_.get<std::string>("server.host", "127.0.0.1");
-        std::string port = configRoot_.get<std::string>("server.port", "80");
-
         pClient->init(
-                    host.c_str(),
-                    port.c_str(),
+                    host_.c_str(),
+                    port_.c_str(),
             [&](const NetClient & myClient, const std::shared_ptr<NetPacket> netPacket) {
             // on Received Data
             switch (netPacket->payloadType()){

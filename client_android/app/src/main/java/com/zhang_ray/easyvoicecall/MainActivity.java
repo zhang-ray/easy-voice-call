@@ -24,5 +24,7 @@ public class MainActivity extends AppCompatActivity {
                 (new Thread(worker)).start();
             }
         });
+
+        ((android.widget.TextView)findViewById(R.id.tv_so_version)).setText(Worker.getVersion());
     }
 }

@@ -41,7 +41,8 @@ private:
     std::function<void(const AudioIoVolume)>  volumeReporter_ = nullptr;
     std::function<void(const bool)>  vadReporter_ = nullptr;
     std::function<void(const uint32_t)> durationReporter_ = nullptr;
-    boost::property_tree::ptree configRoot_;
+    std::string host_;
+    std::string port_;
     bool needAec_ = false;
 
     uint8_t vadCounter_ = 0; // nbActivated
@@ -67,7 +68,8 @@ public:
     EVC_API Worker();
     EVC_API ~Worker();
     EVC_API virtual ReturnType init(
-        const boost::property_tree::ptree &configRoot,
+        const std::string host,
+        const std::string port,
         std::function<void(const std::string &, const std::string &)> reportInfo,
         std::function<void(const AudioIoVolume)> reportVolume,
         std::function<void(const bool)> vadReporter
