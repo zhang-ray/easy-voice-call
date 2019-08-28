@@ -92,6 +92,11 @@
                     android:src="@drawable/vertical_bar_empty"
                     android:layout_marginRight="1dp"
                     tools:ignore="RtlHardcoded" />
+                <TextView
+                    android:id="@+id/tv_mic_volume"
+                    android:layout_width="60dp"
+                    android:layout_height="34dp"
+                    android:text="mic volume"/>
             </LinearLayout>
 
         </LinearLayout>
@@ -175,6 +180,11 @@
                     android:src="@drawable/vertical_bar_empty"
                     android:layout_marginRight="1dp"
                     tools:ignore="RtlHardcoded" />
+                <TextView
+                    android:id="@+id/tv_spk_volume"
+                    android:layout_width="60dp"
+                    android:layout_height="34dp"
+                    android:text="spk volume"/>
             </LinearLayout>
         </LinearLayout>
 
