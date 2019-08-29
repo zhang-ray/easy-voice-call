@@ -18,7 +18,7 @@ if (RESULT_VAR STREQUAL 0)
 endif()
 ############   fetch git tag   ############
 
-
+include_directories(.)
 
 add_library( client_essential SHARED Entry.cpp )
 find_library( log-lib log )

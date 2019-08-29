@@ -23,82 +23,16 @@
             >
             <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="50dp"
+                android:layout_height="30dp"
                 android:src="@drawable/audioin"
                 />
-            <LinearLayout
+            <ProgressBar
+                android:id="@+id/pb_volume_mic"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <TextView
-                    android:id="@+id/tv_mic_volume"
-                    android:layout_width="60dp"
-                    android:layout_height="34dp"
-                    android:text="mic volume"/>
-            </LinearLayout>
-
+                android:max="10"
+                />
         </LinearLayout>
 
         <LinearLayout
@@ -110,82 +44,18 @@
             >
             <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="50dp"
+                android:layout_height="30dp"
                 android:src="@drawable/audioout"
                 android:maxHeight="6dp"
                 />
-            <LinearLayout
+
+            <ProgressBar
+                android:id="@+id/pb_volume_spk"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:src="@drawable/vertical_bar_empty"
-                    android:layout_marginRight="1dp"
-                    tools:ignore="RtlHardcoded" />
-                <TextView
-                    android:id="@+id/tv_spk_volume"
-                    android:layout_width="60dp"
-                    android:layout_height="34dp"
-                    android:text="spk volume"/>
-            </LinearLayout>
+                android:max="10"
+                />
         </LinearLayout>
 
         <LinearLayout
@@ -213,6 +83,7 @@
                     android:textSize="18sp"
                     />
                 <EditText
+                    android:id="@+id/et_host"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:hint="@string/string_your_server"
@@ -225,6 +96,7 @@
                     android:textSize="18sp"
                     />
                 <EditText
+                    android:id="@+id/et_port"
                     android:inputType="number"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -260,15 +132,15 @@
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
-                    <Button
+                    <ToggleButton
+                        android:id="@+id/button_connect"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/button_connect"
-                        android:text="@string/string_connect"
+                        android:textOff="@string/string_connect"
+                        android:textOn="Disconnect!"
                         android:textSize="40sp"
                         tools:ignore="RtlHardcoded"
                         />
-
                 </RelativeLayout>
 
 
@@ -281,20 +153,28 @@
                     >
 
                     <ImageView
+                        android:id="@+id/iv_callUp"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:src="@drawable/call_up"
+                        />
+                    <ImageView
+                        android:id="@+id/iv_hangUp"
+                        android:visibility="invisible"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/hang_up"
                         />
                 </RelativeLayout>
             </FrameLayout>
 
             <TextView
-                android:text="so version:"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-            <TextView
-                android:id="@+id/tv_so_version"
+                android:id="@+id/tv_place_phone_to_your_ear"
+                android:visibility="invisible"
+                android:text="Place phone to your ear"
+                android:textSize="25sp"
+                android:textAlignment="textEnd"
+                android:textStyle="italic"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </LinearLayout>

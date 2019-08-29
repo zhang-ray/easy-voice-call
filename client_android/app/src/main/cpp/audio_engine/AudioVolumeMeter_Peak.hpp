@@ -1,5 +1,7 @@
 #pragma once
 
+#include "AudioVolumeMeter.hpp"
+
 
 class AudioVolumeMeter_Peak : public AudioVolumeMeter{
     AudioInOut inOut_;

@@ -2,27 +2,26 @@ package com.zhang_ray.easyvoicecall;
 
 
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
-import android.os.Build;
-import android.os.PowerManager;
+import android.os.Message;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+
+import android.os.Handler;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class Worker implements Runnable {
@@ -33,24 +32,27 @@ public class Worker implements Runnable {
 
 
     /// from NetPacket.hpp
-    static int Undefined = 0;
-    static int HeartBeatRequest = 1;
-    static int HeartBeatResponse = 2;
-    static int LoginRequest = 3;
-    static int LoginResponse = 4;
-    static int UserInfo = 5;
-    static int TextMessage = 6;
-    static int AudioMessage = 7;
-    static int AudioMessage_CN = 8;
-    static int LogoutRequest = 9;
-    static int LogoutResponse = 10;
+    private static int Undefined = 0;
+    private static int HeartBeatRequest = 1;
+    private static int HeartBeatResponse = 2;
+    private static int LoginRequest = 3;
+    private static int LoginResponse = 4;
+    private static int UserInfo = 5;
+    private static int TextMessage = 6;
+    private static int AudioMessage = 7;
+    private static int AudioMessage_CN = 8;
+    private static int LogoutRequest = 9;
+    private static int LogoutResponse = 10;
     /// from NetPacket.hpp
 
 
-    static int audioSN = 0;
+    private static int audioSN = 0;
+    private static int counterVolumeMeter_mic = 0;
+    private static int counterVolumeMeter_spk = 0;
+    private static final int counterCycle = 2;
 
 
-    public static String TAG = "EVC";
+    static String TAG = "EVC";
 
     public native static String getVersion();
 
@@ -64,30 +66,48 @@ public class Worker implements Runnable {
     private native int getNetPacketType(byte[] raw);
     private native byte[] getNetPacketPayload(byte[] raw);
 
-    private AudioRecord audioRecord;
+    // return recently max volume level , 0 to 9
+    private native short calcVolume(byte[]pcm, int inOut);
+
     private int sampleRate = 16000;
-    private int channelInConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-    private int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-    private byte[] buffer = null;
     private byte[] pcmBuffer_mic = new byte[0];
-    private byte[] encodedOpusBuffer = new byte[0];
     private byte[] receivedBuffer = new byte[100000];
 
-    int _10msBufferLength = sampleRate / 100 *2 ;
+    private int _10msBufferLength = sampleRate / 100 *2 ;
     private AudioTrack audioTrack = null;
+
+
+    private boolean keepWorking = true;
+    int channelInConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
+    int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
+    int audioRecordLength = AudioRecord.getMinBufferSize(sampleRate,2, audioEncoding);
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         DatagramSocket datagramSocket = null;
 
-    DatagramSocket udpSocket;
+    private DatagramSocket udpSocket;
 
-    String finalIP ="172.20.122.93";
-    int finalPort = 1222;
+    private String finalIP;
+    private int finalPort;
 
-    AudioManager audioManager;
-    Context context;
+    private AudioManager audioManager;
+    private Context context;
+    private Handler handler;
 
-    public Worker(@NonNull Context context){
+    Worker(@NonNull Context context, @NonNull Handler handler){
         this.context = context;
+        this.handler = handler;
     }
+
+    private static boolean isIpv4(String ipAddress) {
+        String ip = "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\."
+                + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+                + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."
+                + "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
+        Pattern pattern = Pattern.compile(ip);
+        Matcher matcher = pattern.matcher(ipAddress);
+        return matcher.matches();
+    }
+
+
 
     private void initAudioManager() {
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -102,7 +122,10 @@ public class Worker implements Runnable {
         @Override
         public void run(){
             try {
-                for (;;) {
+                audioTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, sampleRate, channelInConfig, audioEncoding, audioRecordLength, AudioTrack.MODE_STREAM);
+                audioTrack.play();
+
+                for (;keepWorking;) {
                     DatagramPacket datagramPacket = new DatagramPacket(receivedBuffer, receivedBuffer.length, InetAddress.getByName(finalIP), finalPort);
                     udpSocket.receive(datagramPacket);
 
@@ -113,7 +136,14 @@ public class Worker implements Runnable {
                         byte[] payload = getNetPacketPayload(realData);
                         byte[] decodedPcm = decode(payload);
                         audioTrack.write(decodedPcm, 0, decodedPcm.length);
+
+                        if (counterVolumeMeter_spk++ % counterCycle==0) {
+                            handler.sendEmptyMessage(calcVolume(decodedPcm, 1) + 10);
+                        }
                     }
+                }
+                if (audioTrack != null){
+                    audioTrack.stop();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -153,18 +183,15 @@ public class Worker implements Runnable {
         }
 
 
-        int audioRecordLength = AudioRecord.getMinBufferSize(sampleRate,2, audioEncoding);
-        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelInConfig, audioEncoding, audioRecordLength);
-        buffer = new byte[audioRecordLength];
+        AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelInConfig, audioEncoding, audioRecordLength);
+        byte[] buffer = new byte[audioRecordLength];
 
         audioRecord.startRecording();
-        boolean isRecording = true;
 
         audioRecordLength = AudioTrack.getMinBufferSize(sampleRate, channelInConfig, audioEncoding);
-        audioTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, sampleRate, channelInConfig, audioEncoding, audioRecordLength, AudioTrack.MODE_STREAM);
-        audioTrack.play();
 
-        while (isRecording) {
+
+        while (keepWorking) {
             int pcmLengthInByte_mic = audioRecord.read(buffer, 0, buffer.length);
             if (pcmLengthInByte_mic <= 0){
                 Log.e("EVC", "pcmLengthInByte_mic " + pcmLengthInByte_mic);
@@ -184,8 +211,13 @@ public class Worker implements Runnable {
                 byte[] _10msBuffer = new byte[_10msBufferLength];
                 System.arraycopy(pcmBuffer_mic, 0, _10msBuffer, 0, _10msBuffer.length);
 
+
+                if (counterVolumeMeter_mic++ % counterCycle==0) {
+                    handler.sendEmptyMessage(calcVolume(_10msBuffer, 0) + 0);
+                }
+
                 {
-                    encodedOpusBuffer = encode(_10msBuffer);
+                    byte[] encodedOpusBuffer = encode(_10msBuffer);
                     try {
                         byte[] dataToSend = createNetPacketWithPayload(AudioMessage,audioSN++, encodedOpusBuffer);
                         udpSocket.send(new DatagramPacket(dataToSend, dataToSend.length, InetAddress.getByName(finalIP), finalPort));
@@ -203,12 +235,30 @@ public class Worker implements Runnable {
             }
         }
 
-        if (audioRecord != null) {
-            audioRecord.stop();
+        audioRecord.stop();
+
+    }
+
+
+
+    boolean tryCheckServer(String ip, int port){
+        if (!isIpv4(ip)) {
+            return false;
         }
 
-        if (audioTrack != null){
-            audioTrack.stop();
-        }
+        this.finalIP = ip;
+        this.finalPort = port;
+
+        return true;
     }
+
+    void asyncStart() {
+        keepWorking = true;
+        (new Thread(this)).start();
+    }
+
+    void asyncStop(){
+        keepWorking=false;
+    }
+
 }

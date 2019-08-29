@@ -5,7 +5,7 @@ extern "C" {
 #include <string>
 #include "NetPacket.hpp"
 
-
+#include "audio_engine/AudioVolumeMeter_Peak.hpp"
 
 namespace {
 
@@ -34,8 +34,7 @@ namespace {
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_zhang_1ray_easyvoicecall_Worker_getVersion(JNIEnv* env, jobject) {
-    std::string version = "v0.0.1";
-    return env->NewStringUTF(version.c_str());
+    return env->NewStringUTF(GIT_TAG);
 }
 
 
@@ -106,3 +105,22 @@ Java_com_zhang_1ray_easyvoicecall_Worker_getNetPacketPayload(JNIEnv* env, jobjec
 
     return jarrRV;
 }
+
+
+extern "C" JNIEXPORT jshort JNICALL
+Java_com_zhang_1ray_easyvoicecall_Worker_calcVolume(JNIEnv* env, jobject, jbyteArray pcm, jint inOut) {
+
+    jbyte* bytedata = (env)->GetByteArrayElements(pcm, 0);
+    jsize nbInputByte = (env)->GetArrayLength(pcm);
+
+    AudioVolumeMeter_Peak ap((AudioInOut )inOut);
+
+    PcmSegment segment = {0};
+    auto theSize = nbInputByte < segment.size()? nbInputByte:segment.size();
+    memcpy(segment.data(), bytedata, theSize*sizeof(int16_t));
+
+    auto result = ap.calculate(segment);
+
+    return (jshort)(result.level_);
+}
+

@@ -1,6 +1,5 @@
 package com.zhang_ray.easyvoicecall;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -9,17 +8,52 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.PowerManager;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-    Worker worker = new Worker(this);
+    Worker worker;
+
+
+    static int MSG_CONNECT = 0;
+
+    private static boolean mBackKeyPressed = false;
 
     Sensor mSensor;
     SensorManager sensorManager;
     PowerManager.WakeLock mWakeLock;
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            updateVolumeMeter((msg.what)/10, (msg.what)%10);
+        }
+    };
 
+
+
+    private void updateVolumeMeter(int inOut, int level){
+        if (inOut==0){
+//            for (int i = 0; i < level; i++){
+//                findViewById(R.id.)
+//            }
+            ((ProgressBar)findViewById(R.id.pb_volume_mic)).setProgress(level);
+        }
+        else if (inOut==1){
+            ((ProgressBar)findViewById(R.id.pb_volume_spk)).setProgress(level);
+        }
+    }
     @Override
     protected void onResume() {
         super.onResume();
@@ -39,14 +73,55 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     void initView(){
-        ((android.widget.Button)findViewById(R.id.button_connect)).setOnClickListener(new View.OnClickListener() {
+
+        ((EditText)findViewById(R.id.et_host)).setText("172.20.122.93");
+        ((EditText)findViewById(R.id.et_port)).setText(""+1222);
+
+        ((ToggleButton)(findViewById(R.id.button_connect))).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                (new Thread(worker)).start();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    if (worker.tryCheckServer(((EditText)findViewById(R.id.et_host)).getText().toString(), Integer.valueOf(((EditText)findViewById(R.id.et_port)).getText().toString()))){
+                        {
+                            findViewById(R.id.tv_place_phone_to_your_ear).setVisibility(View.VISIBLE);
+                            findViewById(R.id.iv_callUp).setVisibility(View.INVISIBLE);
+                            findViewById(R.id.iv_hangUp).setVisibility(View.VISIBLE);
+                            findViewById(R.id.et_host).setEnabled(false);
+                            findViewById(R.id.et_port).setEnabled(false);
+                        }
+
+                        worker.asyncStart();
+                    }
+                    else{
+                        // failed
+                        ((ToggleButton) (findViewById(R.id.button_connect))).setChecked(false);
+                        Toast.makeText(getApplicationContext(),"Invalid server!",Toast.LENGTH_LONG).show();
+                    }
+                }
+                else {
+                    if (worker != null) {
+                        worker.asyncStop();
+                    }
+                    {
+                        findViewById(R.id.tv_place_phone_to_your_ear).setVisibility(View.INVISIBLE);
+                        findViewById(R.id.iv_callUp).setVisibility(View.VISIBLE);
+                        findViewById(R.id.iv_hangUp).setVisibility(View.INVISIBLE);
+                        findViewById(R.id.et_host).setEnabled(true);
+                        findViewById(R.id.et_port).setEnabled(true);
+                    }
+                }
             }
         });
+        ((ToggleButton)(findViewById(R.id.button_connect))).setChecked(false);
 
-        ((android.widget.TextView)findViewById(R.id.tv_so_version)).setText(Worker.getVersion());
+
+        setTitle(getTitle()+" ("+Worker.getVersion() +")");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        worker = new Worker(this, mHandler);
     }
 
     @Override
@@ -77,5 +152,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(!mBackKeyPressed){
+            Toast.makeText(this, "Press again to exit the program.", Toast.LENGTH_SHORT).show();
+            mBackKeyPressed = true;
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    mBackKeyPressed = false;
+                }
+            }, 2000);
+        }
+        else {//退出程序
+            this.finish();
+            System.exit(0);
+        }
     }
 }
