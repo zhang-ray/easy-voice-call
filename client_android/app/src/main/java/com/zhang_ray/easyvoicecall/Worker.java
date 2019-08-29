@@ -1,12 +1,16 @@
 package com.zhang_ray.easyvoicecall;
 
 
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -76,8 +80,25 @@ public class Worker implements Runnable {
     String finalIP ="172.20.122.93";
     int finalPort = 1222;
 
+    AudioManager audioManager;
+    Context context;
+
+    public Worker(@NonNull Context context){
+        this.context = context;
+    }
+
+    private void initAudioManager() {
+        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setSpeakerphoneOn(false);
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+    }
+
+
+
     @Override
     public void run() {
+
+        initAudioManager();
 
         {
             reInitEncoder(sampleRate);
@@ -120,7 +141,7 @@ public class Worker implements Runnable {
         boolean isRecording = true;
 
         audioRecordLength = AudioTrack.getMinBufferSize(sampleRate, channelInConfig, audioEncoding);
-        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelInConfig, audioEncoding, audioRecordLength, AudioTrack.MODE_STREAM);
+        audioTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, sampleRate, channelInConfig, audioEncoding, audioRecordLength, AudioTrack.MODE_STREAM);
 
         audioTrack.play();
         while (isRecording) {

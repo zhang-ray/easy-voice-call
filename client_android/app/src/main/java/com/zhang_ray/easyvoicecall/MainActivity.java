@@ -9,7 +9,7 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
-    Worker worker = new Worker();
+    Worker worker = new Worker(this);
 
 
 
