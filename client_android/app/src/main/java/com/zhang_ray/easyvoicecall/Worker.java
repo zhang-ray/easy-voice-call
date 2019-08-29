@@ -73,8 +73,6 @@ public class Worker implements Runnable {
     private byte[] encodedOpusBuffer = new byte[0];
     private byte[] receivedBuffer = new byte[100000];
 
-    FileOutputStream opusDumpFile;
-
     int _10msBufferLength = sampleRate / 100 *2 ;
     private AudioTrack audioTrack = null;
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         DatagramSocket datagramSocket = null;
@@ -99,6 +97,32 @@ public class Worker implements Runnable {
 
 
 
+    private class DownStreamThread implements Runnable {
+
+        @Override
+        public void run(){
+            try {
+                for (;;) {
+                    DatagramPacket datagramPacket = new DatagramPacket(receivedBuffer, receivedBuffer.length, InetAddress.getByName(finalIP), finalPort);
+                    udpSocket.receive(datagramPacket);
+
+                    byte[] realData = new byte[datagramPacket.getLength()];
+                    System.arraycopy(receivedBuffer, 0, realData, 0, datagramPacket.getLength());
+
+                    if (getNetPacketType(realData) == AudioMessage) {
+                        byte[] payload = getNetPacketPayload(realData);
+                        byte[] decodedPcm = decode(payload);
+                        audioTrack.write(decodedPcm, 0, decodedPcm.length);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
     @Override
     public void run() {
 
@@ -110,17 +134,14 @@ public class Worker implements Runnable {
         }
 
         {
-
             try {
                 udpSocket = new DatagramSocket();
 
                 byte[] dataToSend = createNetPacket(LoginRequest);
                 udpSocket.send(new DatagramPacket(dataToSend, dataToSend.length, InetAddress.getByName(finalIP), finalPort));
 
-                DatagramPacket datagramPacket = new DatagramPacket(receivedBuffer, receivedBuffer.length, InetAddress.getByName(finalIP), finalPort);
-                udpSocket.receive(datagramPacket);
-                int theLength = datagramPacket.getLength();
-                Log.d("EVC", "received(byte) " + theLength);
+                (new Thread(new DownStreamThread())).start();
+
             } catch (SocketException e) {
                 e.printStackTrace();
             } catch (UnknownHostException e) {
@@ -131,11 +152,6 @@ public class Worker implements Runnable {
 
         }
 
-        try {
-            opusDumpFile=new FileOutputStream("/sdcard/dump.opus");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
 
         int audioRecordLength = AudioRecord.getMinBufferSize(sampleRate,2, audioEncoding);
         audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelInConfig, audioEncoding, audioRecordLength);
@@ -171,30 +187,13 @@ public class Worker implements Runnable {
                 {
                     encodedOpusBuffer = encode(_10msBuffer);
                     try {
-                        byte[] dataToSend = createNetPacketWithPayload(AudioMessage,audioSN, encodedOpusBuffer);
+                        byte[] dataToSend = createNetPacketWithPayload(AudioMessage,audioSN++, encodedOpusBuffer);
                         udpSocket.send(new DatagramPacket(dataToSend, dataToSend.length, InetAddress.getByName(finalIP), finalPort));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
 
-                {
-                    try {
-                        DatagramPacket datagramPacket = new DatagramPacket(receivedBuffer, receivedBuffer.length, InetAddress.getByName(finalIP), finalPort);
-                        udpSocket.receive(datagramPacket);
-
-                        byte[] realData = new byte[datagramPacket.getLength()];
-                        System.arraycopy(receivedBuffer, 0 , realData, 0, datagramPacket.getLength());
-
-                        if (getNetPacketType(realData)==AudioMessage){
-                            byte[] payload = getNetPacketPayload(realData);
-                            byte[] decodedPcm = decode(payload);
-                            audioTrack.write(decodedPcm, 0, decodedPcm.length);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
 
                 {
                     byte[] tempArray = new byte[pcmBuffer_mic.length - _10msBuffer.length];
@@ -210,12 +209,6 @@ public class Worker implements Runnable {
 
         if (audioTrack != null){
             audioTrack.stop();
-        }
-
-        try {
-            opusDumpFile.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
