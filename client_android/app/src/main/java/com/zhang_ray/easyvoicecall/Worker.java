@@ -146,12 +146,14 @@ public class Worker implements Runnable {
 
         audioRecordLength = AudioTrack.getMinBufferSize(sampleRate, channelInConfig, audioEncoding);
         audioTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, sampleRate, channelInConfig, audioEncoding, audioRecordLength, AudioTrack.MODE_STREAM);
-
         audioTrack.play();
+
         while (isRecording) {
-//        for (int i = 0; i < 100; i++){
             int pcmLengthInByte_mic = audioRecord.read(buffer, 0, buffer.length);
-            //audioTrack.write(buffer,0, result);
+            if (pcmLengthInByte_mic <= 0){
+                Log.e("EVC", "pcmLengthInByte_mic " + pcmLengthInByte_mic);
+                continue;
+            }
 
             {
                 byte[] tempArray = new byte[pcmBuffer_mic.length + pcmLengthInByte_mic];
