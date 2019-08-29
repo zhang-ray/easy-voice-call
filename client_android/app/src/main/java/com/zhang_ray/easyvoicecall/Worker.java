@@ -2,12 +2,15 @@ package com.zhang_ray.easyvoicecall;
 
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Build;
+import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -47,6 +50,7 @@ public class Worker implements Runnable {
     static int audioSN = 0;
 
 
+    public static String TAG = "EVC";
 
     public native static String getVersion();
 
