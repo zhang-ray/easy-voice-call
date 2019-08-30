@@ -1,8 +1,12 @@
 package com.zhang_ray.easyvoicecall;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -118,9 +122,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setTitle(getTitle()+" ("+Worker.getVersion() +")");
     }
 
+
+
+    void requestPermission(String permission){
+        for (;ContextCompat.checkSelfPermission(this, permission)
+                != PackageManager.PERMISSION_GRANTED;) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{permission}, 0);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    void requestPermissions(){
+        requestPermission(Manifest.permission.RECORD_AUDIO);
+        requestPermission(Manifest.permission.MODIFY_AUDIO_SETTINGS);
+        requestPermission(Manifest.permission.INTERNET);
+        requestPermission(Manifest.permission.WAKE_LOCK);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
+        requestPermissions();
         worker = new Worker(this, mHandler);
     }
 
